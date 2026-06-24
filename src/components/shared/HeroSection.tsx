@@ -9,7 +9,6 @@ const HERO_POSTER =
   "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww";
 
 export default function HeroSection() {
-  // Fungsi agar tombol 'Gulir' benar-benar menggulirkan layar ke bawah
   const scrollToContent = () => {
     window.scrollTo({
       top: window.innerHeight,
@@ -24,9 +23,11 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        preload="none"
+        controls={false} // 1. Pastikan kontrol bawaan browser mati
+        preload="auto" // 2. Ubah preload agar langsung dimuat untuk autoplay mobile
         poster={HERO_POSTER}
-        className="absolute inset-0 z-0 w-full h-full object-cover brightness-90"
+        // 3. Tambahkan "pointer-events-none" agar video tidak bisa disentuh/diklik yang memicu munculnya UI Play
+        className="absolute inset-0 z-0 w-full h-full object-cover brightness-90 pointer-events-none"
       >
         <source
           src="https://cdn.coverr.co/videos/coverr-a-beautiful-island-in-indonesia-2646/1080p.mp4"
@@ -87,7 +88,6 @@ export default function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-            {/* Tombol yang sudah diperbaiki fungsinya dengan Link */}
             <Button
               asChild
               size="lg"
