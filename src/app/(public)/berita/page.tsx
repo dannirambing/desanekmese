@@ -14,6 +14,11 @@ export const revalidate = 60;
 export default async function BeritaPage() {
   const articles = await getPublishedNewsArticles();
 
+  // Pesan otomatis saat tombol WhatsApp diklik
+  const waMessage = encodeURIComponent(
+    "Halo Admin Desa Nekmese, saya memiliki informasi/cerita menarik seputar desa yang ingin saya bagikan."
+  );
+
   return (
     <>
       <section className="relative w-full pt-32 pb-20 md:pt-44 md:pb-28 flex items-center justify-center bg-blue-950 overflow-hidden">
@@ -94,9 +99,17 @@ export default async function BeritaPage() {
               <p className="mb-8 text-indigo-100 text-sm md:text-base leading-relaxed">
                 Bagikan cerita, kegiatan warga, atau aspirasi Anda untuk memajukan Desa Nekmese bersama-sama.
               </p>
-              <button className="bg-teal-400 text-blue-950 px-8 py-3.5 rounded-full font-black tracking-wide hover:bg-teal-300 hover:shadow-lg hover:shadow-teal-400/20 transition-all duration-300 text-sm md:text-base">
+              
+              {/* Tombol yang sudah diubah menjadi link WhatsApp */}
+              <a 
+                href={`https://wa.me/6282135850132?text=${waMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-teal-400 text-blue-950 px-8 py-3.5 rounded-full font-black tracking-wide hover:bg-teal-300 hover:shadow-lg hover:shadow-teal-400/20 transition-all duration-300 text-sm md:text-base"
+              >
                 Hubungi Admin Desa
-              </button>
+              </a>
+
             </div>
           </div>
         </div>

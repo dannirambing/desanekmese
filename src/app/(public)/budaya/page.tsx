@@ -14,6 +14,11 @@ export const revalidate = 60;
 export default async function BudayaPage() {
   const cultureItems = await getPublishedCultureItems();
 
+ 
+  const waMessage = encodeURIComponent(
+    "Halo Pengelola Desa Nekmese, saya tertarik untuk belajar lebih dalam tentang budaya dan kearifan lokal di desa Anda. Boleh minta informasi lebih lanjut?"
+  );
+
   return (
     <>
       <section className="relative w-full pt-32 pb-20 md:pt-44 md:pb-28 flex items-center justify-center bg-stone-900 overflow-hidden">
@@ -92,9 +97,17 @@ export default async function BudayaPage() {
                 Kunjungi Desa Nekmese dan rasakan langsung proses menenun,
                 upacara adat, serta kehidupan masyarakat Atoni Meto yang autentik.
               </p>
-              <button className="bg-amber-400 text-stone-900 px-8 py-3.5 rounded-full font-bold hover:bg-amber-300 hover:shadow-lg transition-all duration-300 text-sm md:text-base">
+              
+              {/* Tombol yang sudah diubah menjadi link WhatsApp */}
+              <a 
+                href={`https://wa.me/6282135850132?text=${waMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-amber-400 text-stone-900 px-8 py-3.5 rounded-full font-bold hover:bg-amber-300 hover:shadow-lg transition-all duration-300 text-sm md:text-base"
+              >
                 Hubungi Pengelola Desa
-              </button>
+              </a>
+
             </div>
           </div>
         </div>
