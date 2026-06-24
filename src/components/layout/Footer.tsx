@@ -42,6 +42,15 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
+// Menu disinkronkan dengan Navbar
+const menuItems = [
+  { name: "Beranda", href: "/" },
+  { name: "Wisata", href: "/wisata" },
+  { name: "Budaya", href: "/budaya" },
+  { name: "UMKM", href: "/umkm" },
+  { name: "Berita", href: "/berita" },
+];
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -73,33 +82,37 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Kolom 2: Tautan Cepat */}
+          {/* Kolom 2: Tautan Cepat (Diambil dari array menuItems) */}
           <div>
             <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Jelajahi</h4>
             <ul className="space-y-3">
-              {['Beranda', 'Tentang Desa', 'Destinasi Wisata', 'Profil Budaya', 'Katalog UMKM', 'Galeri'].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
+              {menuItems.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
                     <ChevronRightIcon />
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Kolom 3: Informasi Publik */}
+          {/* Kolom 3: Informasi Publik (Disederhanakan) */}
           <div>
             <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Informasi Publik</h4>
             <ul className="space-y-3">
-              {['Berita Terkini', 'Agenda Desa', 'Transparansi Dana', 'Struktur Pemerintahan', 'Peta Desa'].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
-                    <ChevronRightIcon />
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link href="/pemerintahan" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
+                  <ChevronRightIcon />
+                  Struktur Pemerintahan
+                </Link>
+              </li>
+              <li>
+                <Link href="/transparansi" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
+                  <ChevronRightIcon />
+                  Transparansi Dana
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -128,8 +141,8 @@ export default function Footer() {
         <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-stone-500 font-light">
           <p>© {currentYear} Pemerintah Desa Nekmese. Hak Cipta Dilindungi.</p>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
-            <Link href="#" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
           </div>
         </div>
       </div>

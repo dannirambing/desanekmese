@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowDownCircle } from "lucide-react";
 
@@ -8,6 +9,14 @@ const HERO_POSTER =
   "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww";
 
 export default function HeroSection() {
+  // Fungsi agar tombol 'Gulir' benar-benar menggulirkan layar ke bawah
+  const scrollToContent = () => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-stone-900 z-0">
       <video
@@ -78,27 +87,23 @@ export default function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+            {/* Tombol yang sudah diperbaiki fungsinya dengan Link */}
             <Button
+              asChild
               size="lg"
               className="bg-turquoise/90 hover:bg-turquoise text-white rounded-full px-12 py-7 font-bold uppercase text-sm tracking-wider shadow-lg shadow-teal-900/40 transition-all hover:scale-105"
             >
-              Jelajahi Destinasi
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              className="text-white hover:bg-white/10 rounded-full px-10 py-7 font-semibold border border-white/30 backdrop-blur-sm"
-            >
-              ▶ Tonton Video Profil
+              <Link href="/wisata">Jelajahi Destinasi</Link>
             </Button>
           </div>
         </motion.div>
       </div>
 
       <motion.div
+        onClick={scrollToContent}
         animate={{ y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-        className="absolute bottom-8 z-30 left-1/2 -translate-x-1/2 text-white/60 cursor-pointer flex flex-col items-center gap-2"
+        className="absolute bottom-8 z-30 left-1/2 -translate-x-1/2 text-white/60 hover:text-white transition-colors cursor-pointer flex flex-col items-center gap-2"
       >
         <span className="text-xs uppercase tracking-[0.2em]">Gulir</span>
         <ArrowDownCircle size={28} strokeWidth={1} />
