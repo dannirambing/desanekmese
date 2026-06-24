@@ -1,0 +1,187 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+
+const menuItems = [
+  { name: "Beranda", href: "/" },
+  { name: "Wisata", href: "/wisata" },
+  { name: "Budaya", href: "/budaya" },
+  { name: "UMKM", href: "/umkm" },
+  { name: "Berita", href: "/berita" },
+];
+
+/** Halaman dengan hero gelap di atas — navbar transparan aman dipakai */
+const DARK_HERO_ROUTES = ["/", "/wisata", "/budaya", "/umkm", "/berita"];
+
+function isActivePath(pathname: string, href: string) {
+  return pathname === href || (href !== "/" && pathname.startsWith(href));
+}
+
+function hasDarkHeroAtTop(pathname: string) {
+  return DARK_HERO_ROUTES.includes(pathname);
+}
+
+export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  const useSolidStyle = isScrolled || !hasDarkHeroAtTop(pathname);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setIsScrolled(window.scrollY > 50);
+  }, [pathname]);
+
+  const navLinkClass = (href: string) =>
+    cn(
+      "group relative transition hover:text-turquoise",
+      isActivePath(pathname, href) && "text-turquoise",
+      !useSolidStyle && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+    );
+
+  const underlineClass = (href: string) =>
+    cn(
+      "absolute -bottom-1 left-0 h-0.5 bg-turquoise transition-all duration-300",
+      isActivePath(pathname, href) ? "w-full" : "w-0 group-hover:w-full"
+    );
+
+  return (
+    <header
+      className={cn(
+        "fixed top-0 w-full z-50 transition-all duration-300 ease-in-out",
+        useSolidStyle
+          ? "bg-white/95 backdrop-blur-sm shadow-md h-16 md:h-20"
+          : "h-20 md:h-28 bg-gradient-to-b from-black/80 via-black/45 to-transparent"
+      )}
+    >
+      <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <span
+            className={cn(
+              "text-2xl sm:text-3xl font-extrabold tracking-tighter transition-colors duration-300",
+              useSolidStyle ? "text-navy" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
+            )}
+          >
+            Desa
+            <span className={cn(useSolidStyle ? "text-turquoise" : "text-turquoise-light")}>
+              Nekmese
+            </span>
+          </span>
+        </Link>
+
+        <nav
+          className={cn(
+            "hidden lg:flex items-center gap-10 font-medium tracking-wide uppercase text-sm",
+            useSolidStyle ? "text-gray-700" : "text-white/95"
+          )}
+        >
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={navLinkClass(item.href)}
+            >
+              {item.name}
+              <span className={underlineClass(item.href)} />
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Button
+            asChild
+            className={cn(
+              "hidden sm:inline-flex rounded-full px-6 md:px-8 uppercase font-semibold text-xs tracking-widest transition-all duration-300",
+              useSolidStyle
+                ? "bg-turquoise hover:bg-turquoise-light text-white"
+                : "bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-sm drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+            )}
+          >
+            <Link href="/wisata">Mulai Jelajah</Link>
+          </Button>
+
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "lg:hidden size-10",
+                  useSolidStyle
+                    ? "text-navy hover:bg-gray-100"
+                    : "text-white hover:bg-white/15 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
+                )}
+                aria-label="Buka menu navigasi"
+              >
+                <Menu className="size-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="flex h-full w-[min(100vw-2rem,20rem)] flex-col gap-0 p-0"
+            >
+              <SheetHeader className="border-b px-6 py-5 text-left">
+                <SheetTitle className="text-xl font-extrabold tracking-tighter text-navy">
+                  Desa<span className="text-turquoise">Nekmese</span>
+                </SheetTitle>
+              </SheetHeader>
+
+              <nav className="flex flex-col px-4 py-4">
+                {menuItems.map((item) => (
+                  <SheetClose asChild key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "rounded-lg px-4 py-3 text-base font-medium uppercase tracking-wide transition-colors",
+                        isActivePath(pathname, item.href)
+                          ? "bg-turquoise/10 text-turquoise"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-turquoise"
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </nav>
+
+              <div className="mt-auto border-t p-4">
+                <SheetClose asChild>
+                  <Button
+                    asChild
+                    className="w-full rounded-full bg-turquoise hover:bg-turquoise-light text-white uppercase font-semibold text-xs tracking-widest"
+                  >
+                    <Link href="/wisata">Mulai Jelajah</Link>
+                  </Button>
+                </SheetClose>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </header>
+  );
+}

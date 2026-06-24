@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Status Publikasi
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// Tabel Kategori Wisata
+model Category {
+  id        String         @id @default(cuid())
+  name      String
+  places    TourismPlace[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+// Tabel Destinasi Wisata
+model TourismPlace {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String        @db.Text
+  location    String
+  mapUrl      String?
+  openHours   String?
+  facilities  String[]
+  status      PublishStatus @default(DRAFT)
+  
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  
+  media       MediaFile[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Tabel Kategori Budaya
+model CultureCategory {
+  id        String        @id @default(cuid())
+  name      String
+  items     CultureItem[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// Tabel Konten Budaya
+model CultureItem {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  summary     String?
+  description String          @db.Text
+  status      PublishStatus   @default(DRAFT)
+
+  categoryId  String
+  category    CultureCategory @relation(fields: [categoryId], references: [id])
+
+  media       MediaFile[]
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// Tabel File Gambar/Media
+model MediaFile {
+  id             String        @id @default(cuid())
+  url            String
+  publicId       String
+  type           String        @default("IMAGE")
+
+  tourismPlaceId String?
+  tourismPlace   TourismPlace? @relation(fields: [tourismPlaceId], references: [id], onDelete: Cascade)
+
+  cultureItemId  String?
+  cultureItem    CultureItem?  @relation(fields: [cultureItemId], references: [id], onDelete: Cascade)
+
+  newsArticleId  String?
+  newsArticle    NewsArticle?  @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+// Tabel Berita Desa
+model NewsArticle {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  summary     String?
+  content     String        @db.Text
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  media       MediaFile[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Akun Administrator
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum OrderChannel {
+  WHATSAPP
+  SHOPEE
+  TOKOPEDIA
+  CUSTOM
+}
+
+// Tabel Produk UMKM
+model ProductUMKM {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String        @db.Text
+  price       Int
+  ownerName   String
+  imageUrl    String?
+  orderUrl    String        @default("")
+  orderType   OrderChannel  @default(WHATSAPP)
+  status      PublishStatus @default(DRAFT)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
