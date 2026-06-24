@@ -88,7 +88,7 @@ export default function Navbar() {
           >
             Desa
             <span className={cn(useSolidStyle ? "text-turquoise" : "text-turquoise-light")}>
-              Nekmese
+               Nekmese
             </span>
           </span>
         </Link>

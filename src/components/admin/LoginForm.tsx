@@ -60,7 +60,7 @@ export default function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            placeholder="admin@nekmese.desa.id"
+            placeholder="Silahkan isi email"
             className="w-full pl-11 pr-4 py-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
           />
         </div>
