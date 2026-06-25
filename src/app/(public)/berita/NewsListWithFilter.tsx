@@ -29,6 +29,7 @@ export default function NewsListWithFilter({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [isDateFocused, setIsDateFocused] = useState(false);
 
   // Extract unique dates of publication (formatted as YYYY-MM-DD)
   const availableDates = useMemo(() => {
@@ -90,12 +91,25 @@ export default function NewsListWithFilter({
 
           {/* Date Picker Input */}
           <div className="relative">
-            <Calendar className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Calendar className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 pointer-events-none z-10" />
             <input
-              type="date"
+              type={isDateFocused || selectedDate ? "date" : "text"}
+              placeholder="Pilih tanggal..."
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-turquoise focus:bg-white outline-none transition-all text-slate-700 cursor-pointer"
+              onFocus={(e) => {
+                setIsDateFocused(true);
+                try {
+                  e.currentTarget.showPicker();
+                } catch {}
+              }}
+              onBlur={() => setIsDateFocused(false)}
+              onClick={(e) => {
+                try {
+                  e.currentTarget.showPicker();
+                } catch {}
+              }}
+              className="w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-turquoise focus:bg-white outline-none transition-all text-slate-700 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4"
             />
           </div>
         </div>
