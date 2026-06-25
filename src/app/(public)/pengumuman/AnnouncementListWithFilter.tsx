@@ -24,7 +24,6 @@ export default function AnnouncementListWithFilter({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [isDateFocused, setIsDateFocused] = useState(false);
 
   // Extract unique dates that have announcements (local date string YYYY-MM-DD)
   const availableDates = useMemo(() => {
@@ -85,24 +84,23 @@ export default function AnnouncementListWithFilter({
           <div className="relative">
             <Calendar className="absolute left-4 top-3.5 h-5 w-5 text-stone-400 pointer-events-none z-10" />
             <input
-              type={isDateFocused || selectedDate ? "date" : "text"}
-              placeholder="Pilih tanggal..."
+              type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              onFocus={(e) => {
-                setIsDateFocused(true);
-                try {
-                  e.currentTarget.showPicker();
-                } catch {}
-              }}
-              onBlur={() => setIsDateFocused(false)}
               onClick={(e) => {
                 try {
                   e.currentTarget.showPicker();
                 } catch {}
               }}
-              className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all text-stone-700 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4"
+              className={`w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 ${
+                !selectedDate ? "text-transparent" : "text-stone-700"
+              }`}
             />
+            {!selectedDate && (
+              <span className="absolute left-12 top-3.5 text-sm text-stone-400 pointer-events-none">
+                Pilih tanggal...
+              </span>
+            )}
           </div>
         </div>
 
