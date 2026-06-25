@@ -21,7 +21,7 @@ export default async function UmkmPage() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071&auto=format&fit=crop')",
+              "url('https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg')",
           }}
         />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-emerald-950/85 via-stone-900/60 to-emerald-950/70" />

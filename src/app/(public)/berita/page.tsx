@@ -27,10 +27,10 @@ export default async function BeritaPage() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071&auto=format&fit=crop')",
+              "url('https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D')",
           }}
         />
-        
+
         {/* Overlay Biru Malam (Indigo/Navy) yang lebih hangat, bukan abu-abu */}
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-indigo-950/80 via-blue-900/50 to-indigo-950/80" />
 
@@ -99,9 +99,9 @@ export default async function BeritaPage() {
               <p className="mb-8 text-indigo-100 text-sm md:text-base leading-relaxed">
                 Bagikan cerita, kegiatan warga, atau aspirasi Anda untuk memajukan Desa Nekmese bersama-sama.
               </p>
-              
+
               {/* Tombol yang sudah diubah menjadi link WhatsApp */}
-              <a 
+              <a
                 href={`https://wa.me/6282135850132?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"

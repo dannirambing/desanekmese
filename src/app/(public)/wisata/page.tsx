@@ -21,7 +21,7 @@ export default async function WisataPage() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=2000&auto=format&fit=crop')",
+              "url('https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi7GmE9MZXjhb3xwf1TnqDM5tWQ4P7pyCGgoHr')",
           }}
         />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/70 via-black/50 to-gray-900/40" />

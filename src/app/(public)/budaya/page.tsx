@@ -14,7 +14,7 @@ export const revalidate = 60;
 export default async function BudayaPage() {
   const cultureItems = await getPublishedCultureItems();
 
- 
+
   const waMessage = encodeURIComponent(
     "Halo Pengelola Desa Nekmese, saya tertarik untuk belajar lebih dalam tentang budaya dan kearifan lokal di desa Anda. Boleh minta informasi lebih lanjut?"
   );
@@ -26,7 +26,7 @@ export default async function BudayaPage() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071&auto=format&fit=crop')",
+              "url('https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP')",
           }}
         />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-stone-950/80 via-amber-950/50 to-stone-900/60" />
@@ -97,9 +97,9 @@ export default async function BudayaPage() {
                 Kunjungi Desa Nekmese dan rasakan langsung proses menenun,
                 upacara adat, serta kehidupan masyarakat Atoni Meto yang autentik.
               </p>
-              
+
               {/* Tombol yang sudah diubah menjadi link WhatsApp */}
-              <a 
+              <a
                 href={`https://wa.me/6282135850132?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
