@@ -70,19 +70,19 @@ export default function AnnouncementListWithFilter({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search Input */}
           <div className="relative">
-            <Search className="absolute left-4 top-3.5 h-5 w-5 text-stone-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Cari pengumuman..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all"
+              className="w-full h-12 pl-12 pr-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all"
             />
           </div>
 
           {/* Date Picker Input */}
           <div className="relative">
-            <Calendar className="absolute left-4 top-3.5 h-5 w-5 text-stone-400 pointer-events-none z-10" />
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400 pointer-events-none z-10" />
             <input
               type="date"
               value={selectedDate}
@@ -92,12 +92,12 @@ export default function AnnouncementListWithFilter({
                   e.currentTarget.showPicker();
                 } catch {}
               }}
-              className={`w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 ${
+              className={`w-full h-12 pl-12 pr-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 ${
                 !selectedDate ? "text-transparent" : "text-stone-700"
               }`}
             />
             {!selectedDate && (
-              <span className="absolute left-12 top-3.5 text-sm text-stone-400 pointer-events-none">
+              <span className="absolute left-12 top-1/2 -translate-y-1/2 text-sm text-stone-400 pointer-events-none">
                 Pilih tanggal...
               </span>
             )}
