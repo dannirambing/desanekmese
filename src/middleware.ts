@@ -15,7 +15,8 @@ export default withAuth(
     if (
       (path.startsWith("/admin/wisata") || 
        path.startsWith("/admin/budaya") || 
-       path.startsWith("/admin/berita")) && 
+       path.startsWith("/admin/berita") || 
+       path.startsWith("/admin/hero")) && 
       !(role === "SUPER_ADMIN" || role === "ADMIN_KONTEN")
     ) {
       return NextResponse.redirect(new URL("/admin", req.url));

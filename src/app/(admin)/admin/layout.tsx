@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users } from "lucide-react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
@@ -51,10 +51,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           ) : (
             [
               { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
+              { name: "Edit Hero Section", href: "/admin/hero", icon: Sliders, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola Wisata", href: "/admin/wisata", icon: Map, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola Budaya", href: "/admin/budaya", icon: Sparkles, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola UMKM", href: "/admin/umkm", icon: Store, roles: ["SUPER_ADMIN", "ADMIN_UMKM"] },
               { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
+              { name: "Galeri Media", href: "/admin/galeri", icon: Image, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
               { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, roles: ["SUPER_ADMIN"] },
             ]
               .filter((item) => {

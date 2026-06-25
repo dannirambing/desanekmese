@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const PRISMA_SCHEMA_VERSION = "v5-admin-auth";
+const PRISMA_SCHEMA_VERSION = "v7-media-gallery";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

@@ -1,4 +1,4 @@
-import ImageUpload from "@/components/admin/ImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createUMKMProduct } from "@/app/(admin)/admin/umkm/actions";
 import { ORDER_CHANNEL_OPTIONS } from "@/lib/umkm-order";
 import { Save, ArrowLeft } from "lucide-react";
@@ -25,7 +25,7 @@ export default function TambahUmkmPage() {
         </h1>
 
         <form action={createUMKMProduct} className="space-y-6">
-          <ImageUpload label="Foto Produk" />
+          <ImagePickerField label="Foto Produk" title="Pilih Foto Produk" />
 
           <div>
             <label className={labelClass}>Nama Produk</label>

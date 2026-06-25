@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { updateUMKMProduct } from "@/app/(admin)/admin/umkm/actions";
-import ImageUpload from "@/components/admin/ImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 import { ORDER_CHANNEL_OPTIONS } from "@/lib/umkm-order";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -39,17 +38,11 @@ export default async function EditUmkmPage({
         </h1>
 
         <form action={updateWithId} className="space-y-6">
-          {product.imageUrl && (
-            <div className="relative h-40 w-40 rounded-xl overflow-hidden border">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          <ImageUpload label="Ganti Foto Produk (opsional)" />
+          <ImagePickerField
+            currentImage={product.imageUrl}
+            label="Foto Produk"
+            title="Pilih Foto Produk"
+          />
 
           <div>
             <label className={labelClass}>Nama Produk</label>

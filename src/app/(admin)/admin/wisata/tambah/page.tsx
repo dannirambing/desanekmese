@@ -1,4 +1,4 @@
-import ImageUpload from "@/components/admin/ImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createTourismPlace } from "@/app/(admin)/admin/wisata/actions";
 import { prisma } from "@/lib/prisma";
 import { Save, ArrowLeft } from "lucide-react";
@@ -22,7 +22,7 @@ export default async function TambahWisataPage() {
         </h1>
 
         <form action={createTourismPlace} className="space-y-6">
-          <ImageUpload />
+          <ImagePickerField label="Foto Destinasi" title="Pilih Foto Wisata" />
 
           <div>
             <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">

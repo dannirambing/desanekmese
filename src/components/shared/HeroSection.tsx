@@ -5,10 +5,25 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowDownCircle } from "lucide-react";
 
-const HERO_POSTER =
-  "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww";
+interface HeroSettings {
+  imageUrl: string;
+  tagline: string;
+  titleLine1: string;
+  titleLine2: string;
+  subTagline: string;
+  description: string;
+}
 
-export default function HeroSection() {
+export default function HeroSection({ settings }: { settings?: HeroSettings }) {
+  const {
+    imageUrl = "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww",
+    tagline = "Desa Nekmese, Timor · NTT",
+    titleLine1 = "Nekaf Mese,",
+    titleLine2 = "Atoni Meto Nao Fatu Nao Oe.",
+    subTagline = "Satu Hati · Berjalan di Atas Batu dan Air",
+    description = "Dari tanah Timor yang kuat bagai batu, dan jiwa yang mengalir bagai air, Desa Nekmese menyambut Anda dengan ketulusan budaya leluhur.",
+  } = settings || {};
+
   const scrollToContent = () => {
     window.scrollTo({
       top: window.innerHeight,
@@ -21,7 +36,7 @@ export default function HeroSection() {
 
       {/* Background Image menggantikan Video */}
       <img
-        src={HERO_POSTER}
+        src={imageUrl}
         alt="Pemandangan Desa Nekmese"
         className="absolute inset-0 z-0 w-full h-full object-cover brightness-90 pointer-events-none"
       />
@@ -42,7 +57,7 @@ export default function HeroSection() {
             className="text-amber-300 font-bold tracking-[0.3em] uppercase mb-6 text-xs md:text-sm border border-amber-300/40 px-6 py-2 rounded-full backdrop-blur-sm bg-black/20 inline-block"
             style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
           >
-            Desa Nekmese, Timor · NTT
+            {tagline}
           </span>
 
           <div>
@@ -53,22 +68,21 @@ export default function HeroSection() {
                   "0 2px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.7)",
               }}
             >
-              Nekaf{" "}
-              <span className="text-stone-200">Mese,</span>
+              {titleLine1}
             </h1>
 
             <h2
               className="text-2xl md:text-4xl lg:text-5xl font-light italic text-white/90 mb-3 tracking-wide"
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}
             >
-              Atoni Meto Nao Fatu Nao Oe.
+              {titleLine2}
             </h2>
 
             <p
               className="text-amber-200/80 text-sm md:text-base font-light tracking-widest uppercase mb-10"
               style={{ textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}
             >
-              &quot;Satu Hati · Berjalan di Atas Batu dan Air&quot;
+              {subTagline}
             </p>
           </div>
 
@@ -76,8 +90,7 @@ export default function HeroSection() {
             className="max-w-xl mx-auto text-white/85 mb-12 text-base md:text-lg font-light leading-relaxed"
             style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}
           >
-            Dari tanah Timor yang kuat bagai batu, dan jiwa yang mengalir bagai
-            air, Desa Nekmese menyambut Anda dengan ketulusan budaya leluhur.
+            {description}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">

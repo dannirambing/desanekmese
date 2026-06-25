@@ -1,4 +1,4 @@
-import ImageUpload from "@/components/admin/ImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createCultureItem } from "@/app/(admin)/admin/budaya/actions";
 import { prisma } from "@/lib/prisma";
 import { Save, ArrowLeft } from "lucide-react";
@@ -24,7 +24,7 @@ export default async function TambahBudayaPage() {
         </h1>
 
         <form action={createCultureItem} className="space-y-6">
-          <ImageUpload label="Foto Budaya" />
+          <ImagePickerField label="Foto Budaya" title="Pilih Foto Budaya" />
 
           <div>
             <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">

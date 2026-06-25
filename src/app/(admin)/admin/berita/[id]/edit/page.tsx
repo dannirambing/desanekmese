@@ -3,7 +3,7 @@ import { updateNewsArticle } from "@/app/(admin)/admin/berita/actions";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
-import EditImageUpload from "@/components/admin/EditImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 
 export default async function EditBeritaPage({
   params,
@@ -36,9 +36,10 @@ export default async function EditBeritaPage({
         </h1>
 
         <form action={updateArticleWithId} className="space-y-6">
-          <EditImageUpload
+          <ImagePickerField
             currentImage={currentMedia?.url ?? null}
-            currentMediaId={currentMedia?.id ?? null}
+            label="Foto Berita"
+            title="Pilih Foto Berita"
           />
 
           <div>

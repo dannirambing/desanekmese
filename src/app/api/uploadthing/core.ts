@@ -2,6 +2,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const f = createUploadthing();
 
@@ -22,6 +23,17 @@ export const ourFileRouter = {
       return { adminId: session.user.id };
     })
     .onUploadComplete(async ({ file }) => {
+      try {
+        await prisma.mediaAsset.create({
+          data: {
+            url: file.ufsUrl,
+            publicId: file.key,
+            name: file.name,
+          },
+        });
+      } catch (err) {
+        console.error("Gagal menyimpan MediaAsset:", err);
+      }
       return { url: file.ufsUrl, key: file.key };
     }),
 } satisfies FileRouter;

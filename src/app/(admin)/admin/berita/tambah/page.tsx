@@ -1,4 +1,4 @@
-import ImageUpload from "@/components/admin/ImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createNewsArticle } from "@/app/(admin)/admin/berita/actions";
 import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,7 @@ export default function TambahBeritaPage() {
         </h1>
 
         <form action={createNewsArticle} className="space-y-6">
-          <ImageUpload label="Foto Berita" />
+          <ImagePickerField label="Foto Berita" title="Pilih Foto Berita" />
 
           <div>
             <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">

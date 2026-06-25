@@ -3,7 +3,7 @@ import { updateCultureItem } from "@/app/(admin)/admin/budaya/actions";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
-import EditImageUpload from "@/components/admin/EditImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 
 export default async function EditBudayaPage({
   params,
@@ -39,9 +39,10 @@ export default async function EditBudayaPage({
         </h1>
 
         <form action={updateItemWithId} className="space-y-6">
-          <EditImageUpload
+          <ImagePickerField
             currentImage={currentMedia?.url ?? null}
-            currentMediaId={currentMedia?.id ?? null}
+            label="Foto Budaya"
+            title="Pilih Foto Budaya"
           />
 
           <div>

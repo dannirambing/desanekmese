@@ -122,3 +122,29 @@ export function getNewsArticleBySlug(slug: string) {
     { revalidate: 60, tags: ["news", `news-${slug}`] }
   )();
 }
+
+export const getHeroSettings = unstable_cache(
+  async () => {
+    let settings = await prisma.heroSettings.findUnique({
+      where: { id: "main" },
+    });
+    
+    if (!settings) {
+      settings = await prisma.heroSettings.create({
+        data: {
+          id: "main",
+          imageUrl: "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww",
+          tagline: "Desa Nekmese, Timor · NTT",
+          titleLine1: "Nekaf Mese,",
+          titleLine2: "Atoni Meto Nao Fatu Nao Oe.",
+          subTagline: "Satu Hati · Berjalan di Atas Batu dan Air",
+          description: "Dari tanah Timor yang kuat bagai batu, dan jiwa yang mengalir bagai air, Desa Nekmese menyambut Anda dengan ketulusan budaya leluhur.",
+        },
+      });
+    }
+    
+    return settings;
+  },
+  ["hero-settings"],
+  { revalidate: 60, tags: ["hero"] }
+);

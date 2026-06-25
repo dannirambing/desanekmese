@@ -9,11 +9,13 @@ import { useUploadThing } from "@/lib/uploadthing";
 type EditImageUploadProps = {
   currentImage: string | null;
   currentMediaId?: string | null;
+  label?: string;
 };
 
 export default function EditImageUpload({
   currentImage,
   currentMediaId,
+  label = "Foto Destinasi",
 }: EditImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(currentImage);
@@ -76,7 +78,7 @@ export default function EditImageUpload({
   return (
     <div className="space-y-2">
       <label className="block text-xs font-black uppercase tracking-widest text-[#0f172a]/70">
-        Foto Destinasi
+        {label}
       </label>
 
       <div className="relative border-2 border-dashed border-slate-200 rounded-2xl h-48 flex items-center justify-center bg-slate-50 overflow-hidden">

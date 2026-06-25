@@ -7,21 +7,23 @@ import {
   getFeaturedDestinations,
   getPublishedUMKMProducts,
   getPublishedCultureItems,
+  getHeroSettings,
 } from "@/lib/queries";
 
 export const revalidate = 60;
 
 export default async function Home() {
   // PERBAIKAN: Ubah localProducts menjadi publishedUMKMProducts
-  const [publishedUMKMProducts, featuredDestinations, publishedCultureItems] = await Promise.all([
+  const [publishedUMKMProducts, featuredDestinations, publishedCultureItems, heroSettings] = await Promise.all([
     getPublishedUMKMProducts(),
     getFeaturedDestinations(),
     getPublishedCultureItems(),
+    getHeroSettings(),
   ]);
 
   return (
     <>
-      <HeroSection />
+      <HeroSection settings={heroSettings} />
 
       <section className="py-12 lg:py-16 bg-white">
         <div className="container mx-auto px-6">

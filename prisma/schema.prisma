@@ -147,3 +147,25 @@ model ProductUMKM {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
+
+// Tabel Pengaturan Hero Section
+model HeroSettings {
+  id          String   @id @default("main")
+  imageUrl    String   @db.Text
+  tagline     String
+  titleLine1  String
+  titleLine2  String
+  subTagline  String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Tabel Central Media Asset (Galeri Media)
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String   @unique
+  publicId  String   // uploadthing key atau "external"
+  name      String?
+  createdAt DateTime @default(now())
+}

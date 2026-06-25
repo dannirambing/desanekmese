@@ -23,8 +23,9 @@ function parseProductForm(formData: FormData) {
   const status =
     (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
   const newImageUrl = formData.get("imageUrl") as string | null;
+  const removeImage = formData.get("removeImage") === "true";
 
-  return { name, description, price, ownerName, orderUrl, orderType, status, newImageUrl };
+  return { name, description, price, ownerName, orderUrl, orderType, status, newImageUrl, removeImage };
 }
 
 export async function deleteUMKMProduct(formData: FormData) {
@@ -50,7 +51,7 @@ export async function createUMKMProduct(formData: FormData) {
       orderUrl: data.orderUrl,
       orderType: data.orderType,
       status: data.status,
-      imageUrl: data.newImageUrl,
+      imageUrl: data.removeImage ? null : data.newImageUrl,
     },
   });
 
@@ -68,6 +69,8 @@ export async function updateUMKMProduct(id: string, formData: FormData) {
   const existing = await prisma.productUMKM.findUnique({ where: { id } });
   if (!existing) throw new Error("Produk tidak ditemukan");
 
+  const imageUrl = data.removeImage ? null : (data.newImageUrl || existing.imageUrl);
+
   await prisma.productUMKM.update({
     where: { id },
     data: {
@@ -79,7 +82,7 @@ export async function updateUMKMProduct(id: string, formData: FormData) {
       orderUrl: data.orderUrl,
       orderType: data.orderType,
       status: data.status,
-      imageUrl: data.newImageUrl || existing.imageUrl,
+      imageUrl,
     },
   });
 

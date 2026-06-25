@@ -3,7 +3,7 @@ import { updateTourismPlace } from "@/app/(admin)/admin/wisata/actions";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
-import EditImageUpload from "@/components/admin/EditImageUpload";
+import ImagePickerField from "@/components/admin/ImagePickerField";
 
 export default async function EditWisataPage({
   params,
@@ -39,9 +39,10 @@ export default async function EditWisataPage({
         </h1>
 
         <form action={updatePlaceWithId} className="space-y-6">
-          <EditImageUpload
+          <ImagePickerField
             currentImage={currentMedia?.url ?? null}
-            currentMediaId={currentMedia?.id ?? null}
+            label="Foto Destinasi"
+            title="Pilih Foto Wisata"
           />
 
           <div>
