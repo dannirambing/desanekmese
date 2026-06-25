@@ -62,6 +62,10 @@ export async function createTourismPlace(formData: FormData) {
   const categoryId = formData.get("categoryId") as string;
   const status =
     (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
+  const facilitiesInput = formData.get("facilities") as string;
+  const facilities = facilitiesInput
+    ? facilitiesInput.split(",").map((f) => f.trim()).filter(Boolean)
+    : [];
 
   const place = await prisma.tourismPlace.create({
     data: {
@@ -71,6 +75,7 @@ export async function createTourismPlace(formData: FormData) {
       description,
       status,
       categoryId,
+      facilities,
     },
   });
 
@@ -89,6 +94,10 @@ export async function updateTourismPlace(id: string, formData: FormData) {
   const description = formData.get("description") as string;
   const categoryId = formData.get("categoryId") as string;
   const statusInput = formData.get("status") as "PUBLISHED" | "DRAFT" | null;
+  const facilitiesInput = formData.get("facilities") as string;
+  const facilities = facilitiesInput
+    ? facilitiesInput.split(",").map((f) => f.trim()).filter(Boolean)
+    : [];
 
   const existing = await prisma.tourismPlace.findUnique({
     where: { id },
@@ -108,6 +117,7 @@ export async function updateTourismPlace(id: string, formData: FormData) {
       description,
       categoryId,
       status: statusInput || existing.status,
+      facilities,
     },
   });
 

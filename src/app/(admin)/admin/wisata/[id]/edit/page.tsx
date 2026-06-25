@@ -103,6 +103,18 @@ export default async function EditWisataPage({
 
           <div>
             <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
+              Fasilitas (pisahkan dengan koma)
+            </label>
+            <input
+              name="facilities"
+              defaultValue={place.facilities.join(", ")}
+              placeholder="Contoh: Gazebo, Toilet, Spot Foto, Area Parkir"
+              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
               Status
             </label>
             <select
