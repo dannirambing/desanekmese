@@ -148,3 +148,36 @@ export const getHeroSettings = unstable_cache(
   ["hero-settings"],
   { revalidate: 60, tags: ["hero"] }
 );
+
+export const getPublishedAnnouncements = unstable_cache(
+  async () =>
+    prisma.announcement.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { createdAt: "desc" },
+    }),
+  ["published-announcements"],
+  { revalidate: 60, tags: ["announcement"] }
+);
+
+export const getRecentAnnouncements = unstable_cache(
+  async () =>
+    prisma.announcement.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+  ["recent-announcements-footer"],
+  { revalidate: 60, tags: ["announcement"] }
+);
+
+export function getAnnouncementBySlug(slug: string) {
+  return unstable_cache(
+    async () =>
+      prisma.announcement.findUnique({
+        where: { slug },
+      }),
+    ["announcement", slug],
+    { revalidate: 60, tags: ["announcement", `announcement-${slug}`] }
+  )();
+}
+

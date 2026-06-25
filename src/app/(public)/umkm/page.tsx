@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import SectionTitle from "@/components/shared/SectionTitle";
-import ProductCard from "@/components/shared/ProductCard";
 import { getAllPublishedUMKMProducts } from "@/lib/queries";
+import ProductListWithFilter from "./ProductListWithFilter";
 
 export const metadata: Metadata = {
   title: "UMKM Lokal | Desa Nekmese",
@@ -13,6 +13,13 @@ export const revalidate = 60;
 
 export default async function UmkmPage() {
   const products = await getAllPublishedUMKMProducts();
+
+  // Serialisasi objek Date agar aman dilewatkan ke Client Component
+  const serializedProducts = products.map((product) => ({
+    ...product,
+    createdAt: new Date(product.createdAt).toISOString(),
+    updatedAt: new Date(product.updatedAt).toISOString(),
+  }));
 
   return (
     <>
@@ -49,19 +56,7 @@ export default async function UmkmPage() {
             />
           </div>
 
-          {products.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-stone-100 shadow-sm">
-              <p className="text-stone-400 text-lg">
-                Belum ada produk UMKM yang dipublikasikan saat ini.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
-            </div>
-          )}
+          <ProductListWithFilter products={serializedProducts} />
         </div>
       </section>
     </>

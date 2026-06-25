@@ -22,10 +22,11 @@ const menuItems = [
   { name: "Budaya", href: "/budaya" },
   { name: "UMKM", href: "/umkm" },
   { name: "Berita", href: "/berita" },
+  { name: "Pengumuman", href: "/pengumuman" },
 ];
 
 /** Halaman dengan hero gelap di atas — navbar transparan aman dipakai */
-const DARK_HERO_ROUTES = ["/", "/wisata", "/budaya", "/umkm", "/berita"];
+const DARK_HERO_ROUTES = ["/", "/wisata", "/budaya", "/umkm", "/berita", "/pengumuman"];
 
 function isActivePath(pathname: string, href: string) {
   return pathname === href || (href !== "/" && pathname.startsWith(href));

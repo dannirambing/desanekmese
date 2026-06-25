@@ -42,6 +42,9 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
+import { getRecentAnnouncements } from "@/lib/queries";
+import { formatIndonesianDate } from "@/lib/format-date";
+
 // Menu disinkronkan dengan Navbar
 const menuItems = [
   { name: "Beranda", href: "/" },
@@ -49,10 +52,12 @@ const menuItems = [
   { name: "Budaya", href: "/budaya" },
   { name: "UMKM", href: "/umkm" },
   { name: "Berita", href: "/berita" },
+  { name: "Pengumuman", href: "/pengumuman" },
 ];
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+  const recentAnnouncements = await getRecentAnnouncements();
 
   return (
     <footer className="bg-stone-950 text-white pt-20 pb-10 border-t-4 border-turquoise">
@@ -63,7 +68,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <span className="text-3xl font-extrabold tracking-tighter text-white">
-                Desa<span className="text-turquoise">Nekmese</span>
+                Desa <span className="text-turquoise">Nekmese</span>
               </span>
             </Link>
             <p className="text-stone-400 font-light leading-relaxed mb-6">
@@ -97,23 +102,41 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Kolom 3: Informasi Publik (Disederhanakan) */}
+          {/* Kolom 3: Pengumuman Terbaru */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Informasi Publik</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/pemerintahan" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
-                  <ChevronRightIcon />
-                  Struktur Pemerintahan
-                </Link>
-              </li>
-              <li>
-                <Link href="/transparansi" className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
-                  <ChevronRightIcon />
-                  Transparansi Dana
-                </Link>
-              </li>
-            </ul>
+            <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Pengumuman</h4>
+            <div className="space-y-4">
+              {recentAnnouncements.length === 0 ? (
+                <p className="text-stone-500 text-sm italic">Belum ada pengumuman.</p>
+              ) : (
+                <div className="space-y-3.5">
+                  {recentAnnouncements.map((ann) => (
+                    <Link
+                      key={ann.id}
+                      href={`/pengumuman/${ann.slug}`}
+                      className="group block text-sm leading-normal transition-all"
+                    >
+                      <span className="block text-[11px] text-stone-500 font-semibold tracking-wider uppercase mb-0.5 group-hover:text-turquoise/80 transition-colors">
+                        {formatIndonesianDate(ann.createdAt)}
+                      </span>
+                      <span className="text-stone-300 group-hover:text-white group-hover:underline line-clamp-2 leading-relaxed transition-colors font-medium">
+                        {ann.title}
+                      </span>
+                    </Link>
+                  ))}
+                  
+                  <div className="pt-2 border-t border-stone-900">
+                    <Link
+                      href="/pengumuman"
+                      className="text-turquoise hover:text-white transition-colors text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 group/btn"
+                    >
+                      Semua Pengumuman
+                      <span className="inline-block transform transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Kolom 4: Kontak */}

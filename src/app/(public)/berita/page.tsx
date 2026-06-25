@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import SectionTitle from "@/components/shared/SectionTitle";
-import NewsCard from "@/components/shared/NewsCard";
 import { getPublishedNewsArticles } from "@/lib/queries";
+import NewsListWithFilter from "./NewsListWithFilter";
 
 export const metadata: Metadata = {
   title: "Berita Desa | Desa Nekmese",
@@ -13,6 +13,14 @@ export const revalidate = 60;
 
 export default async function BeritaPage() {
   const articles = await getPublishedNewsArticles();
+
+  // Serialisasi objek Date agar aman dilewatkan ke Client Component
+  const serializedArticles = articles.map((article) => ({
+    ...article,
+    createdAt: new Date(article.createdAt).toISOString(),
+    updatedAt: new Date(article.updatedAt).toISOString(),
+    publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString() : null,
+  }));
 
   // Pesan otomatis saat tombol WhatsApp diklik
   const waMessage = encodeURIComponent(
@@ -54,38 +62,7 @@ export default async function BeritaPage() {
             <SectionTitle subtitle="Update Terbaru" title="Berita & Kegiatan" />
           </div>
 
-          {articles.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-blue-100 shadow-sm">
-              <p className="text-indigo-900/40 font-medium text-lg">
-                Belum ada berita yang dipublikasikan saat ini.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-              {articles.map((article) => {
-                const imageUrl =
-                  article.media.length > 0
-                    ? article.media[0].url
-                    : "/placeholder-image.jpg";
-                const displayDate = article.publishedAt ?? article.createdAt;
-
-                return (
-                  <div
-                    key={article.id}
-                    className="transition-transform duration-300 hover:-translate-y-2"
-                  >
-                    <NewsCard
-                      title={article.title}
-                      summary={article.summary}
-                      image={imageUrl}
-                      slug={article.slug}
-                      date={displayDate}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <NewsListWithFilter articles={serializedArticles} />
 
           {/* CTA Box dengan gradien warm navy & indigo */}
           <div className="mt-20 bg-gradient-to-br from-blue-900 to-indigo-950 rounded-3xl p-8 md:p-16 text-center text-white shadow-xl relative overflow-hidden border border-indigo-800">
