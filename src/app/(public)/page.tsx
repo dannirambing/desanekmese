@@ -25,6 +25,10 @@ export default async function Home() {
     <>
       <HeroSection settings={heroSettings} />
 
+      {/* Bagian Kultur dipindah ke sini, tepat setelah Hero Section */}
+      <CultureSection cultureItems={publishedCultureItems} />
+
+      {/* Bagian Destinasi sekarang berada setelah Kultur */}
       <section className="py-12 lg:py-16 bg-white">
         <div className="container mx-auto px-6">
           <SectionTitle
@@ -61,7 +65,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <CultureSection cultureItems={publishedCultureItems}/>
       {/* Sekarang variabel ini sudah terdefinisi dengan benar */}
       <UMKMSection products={publishedUMKMProducts} />
     </>
