@@ -10,7 +10,7 @@ export default function AdminLogoutButton() {
   if (!session?.user) return null;
 
   return (
-    <div className="p-4 border-t border-white/10 space-y-3">
+    <div className="p-4 mb-14 md:mb-4 border-t border-white/10 space-y-2">
       <p className="text-xs text-white/40 font-semibold truncate px-2">
         {session.user.email}
       </p>
