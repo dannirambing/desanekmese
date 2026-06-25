@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -80,16 +81,22 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Image
+            src="/favicon.ico"
+            alt="Logo Desa Nekmese"
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain"
+            priority
+          />
           <span
             className={cn(
               "text-2xl sm:text-3xl font-extrabold tracking-tighter transition-colors duration-300",
               useSolidStyle ? "text-navy" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
             )}
           >
-            Desa
-            <span className={cn(useSolidStyle ? "text-turquoise" : "text-turquoise-light")}>
-               Nekmese
-            </span>
+            Desa Nekmese
+
           </span>
         </Link>
 
@@ -145,8 +152,17 @@ export default function Navbar() {
               className="flex h-full w-[min(100vw-2rem,20rem)] flex-col gap-0 p-0"
             >
               <SheetHeader className="border-b px-6 py-5 text-left">
-                <SheetTitle className="text-xl font-extrabold tracking-tighter text-navy">
-                  Desa<span className="text-turquoise">Nekmese</span>
+                <SheetTitle className="text-xl font-extrabold tracking-tighter text-navy flex items-center gap-2">
+                  <Image
+                    src="/favicon.ico"
+                    alt="Logo Desa Nekmese"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 object-contain"
+                  />
+                  <span>
+                    Desa <span className="text-turquoise">Nekmese</span>
+                  </span>
                 </SheetTitle>
               </SheetHeader>
 

@@ -37,7 +37,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       >
         <div className="p-8 border-b border-white/10">
           <h2 className="text-white font-black text-xl tracking-tighter">
-            Desa<span className="text-[#14b8a6]">Nekmese</span>
+            Desa <span className="text-[#14b8a6]">Nekmese</span>
           </h2>
         </div>
 
