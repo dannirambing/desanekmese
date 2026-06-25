@@ -47,7 +47,7 @@ async function syncTourismMedia(
 }
 
 export async function deleteTourismPlace(formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const id = formData.get("id") as string;
   await prisma.tourismPlace.delete({ where: { id } });
   revalidatePath("/admin/wisata");
@@ -55,7 +55,7 @@ export async function deleteTourismPlace(formData: FormData) {
 }
 
 export async function createTourismPlace(formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
@@ -83,7 +83,7 @@ export async function createTourismPlace(formData: FormData) {
 }
 
 export async function updateTourismPlace(id: string, formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;

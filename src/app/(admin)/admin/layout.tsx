@@ -3,13 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const isLoginPage = pathname === "/admin/login";
 
@@ -40,33 +42,47 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          {[
-            { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-            { name: "Kelola Wisata", href: "/admin/wisata", icon: Map },
-            { name: "Kelola Budaya", href: "/admin/budaya", icon: Sparkles },
-            { name: "Kelola UMKM", href: "/admin/umkm", icon: Store },
-            { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/admin" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all",
-                  isActive
-                    ? "bg-[#14b8a6] text-white shadow-lg shadow-[#14b8a6]/20"
-                    : "text-white/50 hover:text-white hover:bg-white/5"
-                )}
-              >
-                <Icon className="w-5 h-5" /> {item.name}
-              </Link>
-            );
-          })}
+          {status === "loading" ? (
+            <div className="space-y-3 px-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            [
+              { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
+              { name: "Kelola Wisata", href: "/admin/wisata", icon: Map, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
+              { name: "Kelola Budaya", href: "/admin/budaya", icon: Sparkles, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
+              { name: "Kelola UMKM", href: "/admin/umkm", icon: Store, roles: ["SUPER_ADMIN", "ADMIN_UMKM"] },
+              { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
+              { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, roles: ["SUPER_ADMIN"] },
+            ]
+              .filter((item) => {
+                if (!session?.user?.role) return false;
+                return item.roles.includes(session.user.role);
+              })
+              .map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/admin" && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                      isActive
+                        ? "bg-[#14b8a6] text-white shadow-lg shadow-[#14b8a6]/20"
+                        : "text-white/50 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <Icon className="w-5 h-5" /> {item.name}
+                  </Link>
+                );
+              })
+          )}
         </nav>
 
         <AdminLogoutButton />

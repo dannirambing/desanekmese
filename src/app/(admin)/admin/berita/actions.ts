@@ -47,7 +47,7 @@ async function syncNewsMedia(
 }
 
 export async function deleteNewsArticle(formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const id = formData.get("id") as string;
   await prisma.newsArticle.delete({ where: { id } });
   revalidatePath("/admin/berita");
@@ -55,7 +55,7 @@ export async function deleteNewsArticle(formData: FormData) {
 }
 
 export async function createNewsArticle(formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const summary = (formData.get("summary") as string) || null;
   const content = formData.get("content") as string;
@@ -82,7 +82,7 @@ export async function createNewsArticle(formData: FormData) {
 }
 
 export async function updateNewsArticle(id: string, formData: FormData) {
-  await requireAdminSession();
+  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const summary = (formData.get("summary") as string) || null;
   const content = formData.get("content") as string;

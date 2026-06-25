@@ -18,27 +18,20 @@ export default function HeroSection() {
 
   return (
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-stone-900 z-0">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        controls={false} // 1. Pastikan kontrol bawaan browser mati
-        preload="auto" // 2. Ubah preload agar langsung dimuat untuk autoplay mobile
-        poster={HERO_POSTER}
-        // 3. Tambahkan "pointer-events-none" agar video tidak bisa disentuh/diklik yang memicu munculnya UI Play
-        className="absolute inset-0 z-0 w-full h-full object-cover brightness-90 pointer-events-none"
-      >
-        <source
-          src="https://cdn.coverr.co/videos/coverr-a-beautiful-island-in-indonesia-2646/1080p.mp4"
-          type="video/mp4"
-        />
-      </video>
 
+      {/* Background Image menggantikan Video */}
+      <img
+        src={HERO_POSTER}
+        alt="Pemandangan Desa Nekmese"
+        className="absolute inset-0 z-0 w-full h-full object-cover brightness-90 pointer-events-none"
+      />
+
+      {/* Overlay Gradients */}
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-amber-950/70 via-stone-900/20 to-transparent" />
       <div className="absolute inset-0 z-10 bg-gradient-to-b from-teal-900/40 via-transparent to-transparent" />
       <div className="absolute inset-0 z-10 bg-gradient-to-r from-stone-900/30 via-transparent to-stone-900/30" />
 
+      {/* Konten Utama */}
       <div className="container relative z-30 mx-auto px-6 text-center text-white mt-16">
         <motion.div
           initial={false}
@@ -99,6 +92,7 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
+      {/* Tombol Gulir */}
       <motion.div
         onClick={scrollToContent}
         animate={{ y: [0, 10, 0] }}

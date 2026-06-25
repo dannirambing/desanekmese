@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
           id: admin.id,
           email: admin.email,
           name: admin.name ?? "Administrator",
+          role: admin.role,
         };
       },
     }),
@@ -42,12 +43,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
+      }
+      // Backward compatibility for old sessions without role
+      if (!token.role) {
+        token.role = "SUPER_ADMIN";
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role;
       }
       return session;
     },
