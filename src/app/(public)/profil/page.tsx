@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { getVillageProfile } from "@/lib/queries";
 import ProfileSidebar from "./ProfileSidebar";
+import ExpandableText from "./ExpandableText";
 import {
   Calendar,
   Building2,
@@ -99,7 +100,7 @@ export default async function ProfilPage() {
                   <div className="flex-1 space-y-4 relative">
                     <Quote className="absolute -top-4 -left-2 w-10 h-10 text-turquoise/10 rotate-180 pointer-events-none" />
                     <div className="border-l-4 border-turquoise pl-5 italic text-slate-600 font-medium text-base md:text-lg leading-relaxed relative z-10">
-                      &ldquo;{profile.welcomeText}&rdquo;
+                      <ExpandableText text={profile.welcomeText} maxCollapsedHeight="max-h-24" />
                     </div>
                     <div className="pt-2">
                       <h4 className="font-extrabold text-navy text-lg">{profile.welcomeName}</h4>
@@ -158,9 +159,11 @@ export default async function ProfilPage() {
                   Sejarah Desa Nekmese
                 </h2>
                 <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                  <div className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line first-letter:text-5xl first-letter:font-black first-letter:text-turquoise first-letter:float-left first-letter:mr-2.5 first-letter:leading-none">
-                    {profile.history}
-                  </div>
+                  <ExpandableText 
+                    text={profile.history} 
+                    maxCollapsedHeight="max-h-36"
+                    className="text-slate-600 font-medium leading-relaxed text-base first-letter:text-5xl first-letter:font-black first-letter:text-turquoise first-letter:float-left first-letter:mr-2.5 first-letter:leading-none"
+                  />
                 </div>
               </section>
 
