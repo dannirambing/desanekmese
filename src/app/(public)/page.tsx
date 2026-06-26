@@ -3,22 +3,34 @@ import SectionTitle from "@/components/shared/SectionTitle";
 import DestinationCard from "@/components/shared/DestinationCard";
 import CultureSection from "@/components/shared/CultureSection";
 import UMKMSection from "@/components/shared/UMKMSection";
+import NewsAndAnnouncementSection from "@/components/shared/NewsAndAnnouncementSection";
 import {
   getFeaturedDestinations,
   getPublishedUMKMProducts,
   getPublishedCultureItems,
   getHeroSettings,
+  getPublishedNewsArticles,
+  getRecentAnnouncements,
 } from "@/lib/queries";
 
 export const revalidate = 60;
 
 export default async function Home() {
   // PERBAIKAN: Ubah localProducts menjadi publishedUMKMProducts
-  const [publishedUMKMProducts, featuredDestinations, publishedCultureItems, heroSettings] = await Promise.all([
+  const [
+    publishedUMKMProducts,
+    featuredDestinations,
+    publishedCultureItems,
+    heroSettings,
+    newsArticles,
+    announcements,
+  ] = await Promise.all([
     getPublishedUMKMProducts(),
     getFeaturedDestinations(),
     getPublishedCultureItems(),
     getHeroSettings(),
+    getPublishedNewsArticles(),
+    getRecentAnnouncements(),
   ]);
 
   return (
@@ -67,6 +79,12 @@ export default async function Home() {
 
       {/* Sekarang variabel ini sudah terdefinisi dengan benar */}
       <UMKMSection products={publishedUMKMProducts} />
+
+      {/* Seksi Berita & Pengumuman Desa */}
+      <NewsAndAnnouncementSection
+        newsArticles={newsArticles}
+        announcements={announcements}
+      />
     </>
   );
 }
