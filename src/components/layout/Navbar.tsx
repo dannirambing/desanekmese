@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   { name: "Beranda", href: "/" },
+  { name: "Profil", href: "/profil" },
   { name: "Wisata", href: "/wisata" },
   { name: "Budaya", href: "/budaya" },
   { name: "UMKM", href: "/umkm" },
@@ -26,7 +27,7 @@ const menuItems = [
 ];
 
 /** Halaman dengan hero gelap di atas — navbar transparan aman dipakai */
-const DARK_HERO_ROUTES = ["/", "/wisata", "/budaya", "/umkm", "/berita", "/pengumuman"];
+const DARK_HERO_ROUTES = ["/", "/profil", "/wisata", "/budaya", "/umkm", "/berita", "/pengumuman"];
 
 function isActivePath(pathname: string, href: string) {
   return pathname === href || (href !== "/" && pathname.startsWith(href));

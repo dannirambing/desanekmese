@@ -1,0 +1,461 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import { getVillageProfile } from "@/lib/queries";
+import ProfileSidebar from "./ProfileSidebar";
+import {
+  Calendar,
+  Building2,
+  MapPin,
+  Users,
+  Award,
+  BookOpen,
+  Info,
+  Compass,
+  Map,
+  Quote,
+  Trophy,
+} from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Profil Desa | Desa Nekmese",
+  description: "Profil lengkap Desa Nekmese, Amarasi Selatan, Kabupaten Kupang. Sejarah, visi misi, demografi, potensi, dan sarana prasarana desa.",
+};
+
+export const revalidate = 60;
+
+export default async function ProfilPage() {
+  const profile = await getVillageProfile();
+
+  // Memisahkan butir-butir misi yang dipisahkan oleh baris baru
+  const missionItems = profile.mission
+    ? profile.mission.split("\n").filter((item) => item.trim() !== "")
+    : [];
+
+  return (
+    <>
+      {/* Hero Section */}
+      <section className="relative w-full pt-32 pb-20 md:pt-44 md:pb-28 flex items-center justify-center bg-blue-950 overflow-hidden">
+        {/* Gambar Background */}
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 scale-102 transition-transform duration-[10s]"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=1600&auto=format&fit=crop&q=80')",
+          }}
+        />
+
+        {/* Overlay Biru Malam */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-indigo-950/85 via-blue-900/55 to-indigo-950/90" />
+
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <span className="inline-block font-semibold tracking-widest text-xs md:text-sm uppercase mb-3 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-teal-300 border border-teal-300/30 shadow-sm">
+            Tentang Kami
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-md mb-4">
+            Profil Desa
+          </h1>
+          <p className="text-base md:text-xl text-indigo-100 font-light leading-relaxed max-w-2xl mx-auto drop-shadow-sm">
+            Kenali lebih dekat sejarah, visi & misi, struktur organisasi, tata kelola, demografi, dan potensi pembangunan Desa Nekmese.
+          </p>
+        </div>
+      </section>
+
+      {/* Konten Halaman */}
+      <section className="bg-slate-50/50 min-h-screen py-12 md:py-16">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row gap-12 items-start">
+            
+            {/* Navigasi Client-side Sidebar */}
+            <ProfileSidebar />
+
+            {/* Konten Server-side Utama (Sangat bagus untuk SEO & Performant) */}
+            <div className="flex-1 space-y-20 lg:space-y-28 max-w-3xl">
+              
+              {/* SEKSI 1: SAMBUTAN KEPALA DESA */}
+              <section id="sambutan" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Sambutan Resmi
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Sambutan Kepala Desa Nekmese
+                </h2>
+
+                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
+                  {profile.welcomeImageUrl ? (
+                    <div className="relative w-44 h-56 rounded-2xl overflow-hidden shrink-0 shadow-md bg-slate-100 border border-slate-200/50 hover:scale-[1.02] transition-transform duration-300">
+                      <Image
+                        src={profile.welcomeImageUrl}
+                        alt={profile.welcomeName}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 176px, 176px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-44 h-56 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 shrink-0 text-slate-400">
+                      <Users size={32} />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-4 relative">
+                    <Quote className="absolute -top-4 -left-2 w-10 h-10 text-turquoise/10 rotate-180 pointer-events-none" />
+                    <div className="border-l-4 border-turquoise pl-5 italic text-slate-600 font-medium text-base md:text-lg leading-relaxed relative z-10">
+                      &ldquo;{profile.welcomeText}&rdquo;
+                    </div>
+                    <div className="pt-2">
+                      <h4 className="font-extrabold text-navy text-lg">{profile.welcomeName}</h4>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-0.5">
+                        {profile.welcomeRole}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEKSI 2: IDENTITAS DESA */}
+              <section id="identitas" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Informasi Umum
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Identitas Desa
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: "Nama Desa", value: "Nekmese", icon: Building2 },
+                    { label: "Kode Wilayah Desa", value: profile.villageCode, icon: Info },
+                    { label: "Tahun Berdiri", value: profile.establishedYear, icon: Calendar },
+                    { label: "Kecamatan", value: profile.district, icon: MapPin },
+                    { label: "Kabupaten / Kota", value: profile.regency, icon: MapPin },
+                    { label: "Provinsi", value: profile.province, icon: MapPin },
+                  ].map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-4">
+                        <div className="p-3 bg-slate-50 text-turquoise rounded-xl">
+                          <Icon size={20} />
+                        </div>
+                        <div>
+                          <span className="block text-[10px] text-slate-450 font-bold uppercase tracking-wider">
+                            {item.label}
+                          </span>
+                          <span className="font-extrabold text-[#0f172a] text-sm md:text-base mt-0.5 block">
+                            {item.value}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* SEKSI 3: SEJARAH DESA */}
+              <section id="sejarah" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Asal-Usul & Kronologi
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Sejarah Desa Nekmese
+                </h2>
+                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                  <div className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line first-letter:text-5xl first-letter:font-black first-letter:text-turquoise first-letter:float-left first-letter:mr-2.5 first-letter:leading-none">
+                    {profile.history}
+                  </div>
+                </div>
+              </section>
+
+              {/* SEKSI 4: VISI & MISI */}
+              <section id="visi-misi" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Arah Pembangunan
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Visi & Misi Desa
+                </h2>
+
+                <div className="space-y-6">
+                  {/* Visi */}
+                  <div className="bg-gradient-to-br from-navy to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
+                    <div className="absolute right-0 bottom-0 w-32 h-32 bg-turquoise/10 rounded-full blur-2xl pointer-events-none" />
+                    <span className="block text-[10px] text-turquoise font-black uppercase tracking-widest mb-3">
+                      Visi Desa
+                    </span>
+                    <p className="text-xl md:text-2xl font-bold leading-relaxed italic pr-4">
+                      &ldquo;{profile.vision}&rdquo;
+                    </p>
+                  </div>
+
+                  {/* Misi */}
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6">
+                      Misi Desa
+                    </span>
+                    <div className="space-y-4">
+                      {missionItems.map((item, idx) => (
+                        <div key={idx} className="flex gap-4 items-start hover:-translate-x-0.5 transition-transform duration-300">
+                          <span className="w-8 h-8 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center font-extrabold text-sm shrink-0 mt-0.5">
+                            {idx + 1}
+                          </span>
+                          <p className="text-slate-600 font-medium text-base leading-relaxed pt-1">
+                            {item.startsWith(String(idx + 1) + ".") ? item.replace(String(idx + 1) + ".", "").trim() : item}
+                          </p>
+                        </div>
+                      ))}
+                      {missionItems.length === 0 && (
+                        <p className="text-slate-400 italic">Misi desa belum dikonfigurasi.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEKSI 5: WILAYAH & GEOGRAFIS */}
+              <section id="geografis" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Kondisi Wilayah
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Batas & Geografis Wilayah
+                </h2>
+
+                <div className="space-y-8">
+                  {/* Compass boundaries */}
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6 text-center">
+                      Batas-Batas Wilayah
+                    </span>
+                    
+                    <div className="relative max-w-md mx-auto aspect-square md:aspect-[1.5/1] flex items-center justify-center my-4">
+                      <div className="absolute w-20 h-20 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-400 shadow-inner">
+                        <Compass size={32} className="animate-[spin_40s_linear_infinite] text-turquoise" />
+                      </div>
+                      
+                      {/* Utara */}
+                      <div className="absolute top-0 text-center w-40 hover:scale-102 transition-transform duration-300">
+                        <span className="block text-[9px] font-black uppercase text-turquoise tracking-widest mb-0.5">Utara</span>
+                        <span className="font-extrabold text-navy text-sm leading-tight block">{profile.boundariesNorth || "—"}</span>
+                      </div>
+                      
+                      {/* Selatan */}
+                      <div className="absolute bottom-0 text-center w-40 hover:scale-102 transition-transform duration-300">
+                        <span className="block text-[9px] font-black uppercase text-turquoise tracking-widest mb-0.5">Selatan</span>
+                        <span className="font-extrabold text-navy text-sm leading-tight block">{profile.boundariesSouth || "—"}</span>
+                      </div>
+                      
+                      {/* Barat */}
+                      <div className="absolute left-0 text-right pr-6 w-36 md:w-44 hover:scale-102 transition-transform duration-300">
+                        <span className="block text-[9px] font-black uppercase text-turquoise tracking-widest mb-0.5">Barat</span>
+                        <span className="font-extrabold text-navy text-sm leading-tight block">{profile.boundariesWest || "—"}</span>
+                      </div>
+                      
+                      {/* Timur */}
+                      <div className="absolute right-0 text-left pl-6 w-36 md:w-44 hover:scale-102 transition-transform duration-300">
+                        <span className="block text-[9px] font-black uppercase text-turquoise tracking-widest mb-0.5">Timur</span>
+                        <span className="font-extrabold text-navy text-sm leading-tight block">{profile.boundariesEast || "—"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deskripsi Geografis */}
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                      Kondisi Geografis
+                    </span>
+                    <p className="text-slate-600 font-medium leading-relaxed text-base">
+                      {profile.geography}
+                    </p>
+                  </div>
+
+                  {/* Peta Wilayah */}
+                  {profile.mapUrl && (
+                    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                        Peta Lokasi Desa
+                      </span>
+                      <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                        <iframe
+                          src={profile.mapUrl}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen={true}
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          title="Peta Desa Nekmese"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* SEKSI 6: DATA KEPENDUDUKAN */}
+              <section id="kependudukan" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Demografi Warga
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Kependudukan & Statistik Desa
+                </h2>
+
+                <div className="space-y-6">
+                  {/* Stat Cards */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: "Total Penduduk", value: profile.populationTotal, unit: "Jiwa", color: "text-[#14b8a6]" },
+                      { label: "Kepala Keluarga (KK)", value: profile.populationFamilies, unit: "KK", color: "text-amber-500" },
+                      { label: "Penduduk Laki-Laki", value: profile.populationMale, unit: "Jiwa", color: "text-blue-500" },
+                      { label: "Penduduk Perempuan", value: profile.populationFemale, unit: "Jiwa", color: "text-pink-500" },
+                    ].map((stat, idx) => (
+                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                        <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                          {stat.label}
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-2">
+                          <span className={`text-2xl md:text-3xl font-black ${stat.color}`}>
+                            {stat.value.toLocaleString("id-ID")}
+                          </span>
+                          <span className="text-xs text-slate-400 font-semibold">{stat.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Gender ratio bar chart */}
+                  {profile.populationTotal > 0 && (
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                        Rasio Jenis Kelamin
+                      </span>
+                      
+                      {(() => {
+                        const malePct = Math.round((profile.populationMale / profile.populationTotal) * 100) || 50;
+                        const femalePct = 100 - malePct;
+
+                        return (
+                          <div className="space-y-4">
+                            <div className="h-6 w-full rounded-full overflow-hidden flex bg-slate-50 border border-slate-100/50 p-0.5">
+                              <div
+                                className="bg-gradient-to-r from-blue-500 to-blue-600 h-full flex items-center justify-center text-[10px] font-black text-white rounded-full transition-all duration-550"
+                                style={{ width: `${malePct}%` }}
+                              >
+                                {malePct}%
+                              </div>
+                              <div
+                                className="bg-gradient-to-r from-pink-500 to-pink-600 h-full flex items-center justify-center text-[10px] font-black text-white rounded-full transition-all duration-550 -ml-1"
+                                style={{ width: `${femalePct}%` }}
+                              >
+                                {femalePct}%
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-500 px-1">
+                              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-blue-500 rounded-full" /> Laki-Laki ({profile.populationMale.toLocaleString("id-ID")} Jiwa)</span>
+                              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-pink-500 rounded-full" /> Perempuan ({profile.populationFemale.toLocaleString("id-ID")} Jiwa)</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* SEKSI 7: STRUKTUR ORGANISASI */}
+              <section id="struktur" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Tata Pemerintahan
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Struktur Organisasi Pemerintahan Desa
+                </h2>
+
+                <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                  {profile.structureImageUrl ? (
+                    <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                      <Image
+                        src={profile.structureImageUrl}
+                        alt="Struktur Organisasi Desa Nekmese"
+                        fill
+                        className="object-contain bg-white"
+                        sizes="(max-width: 768px) 100vw, 768px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[16/9] rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-400 italic">
+                      Bagan struktur organisasi belum diunggah.
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* SEKSI 8: POTENSI DESA */}
+              <section id="potensi" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Sumber Daya & Ekonomi
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Potensi & Komoditas Unggulan
+                </h2>
+
+                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                  <div className="text-slate-600 font-medium leading-relaxed text-base space-y-6">
+                    <p className="whitespace-pre-line">{profile.potential}</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEKSI 9: LEMBAGA & SARANA */}
+              <section id="lembaga" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Sosial & Fasilitas
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Lembaga Kemasyarakatan & Sarana
+                </h2>
+
+                <div className="space-y-8">
+                  {/* Lembaga */}
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                      Lembaga Kemasyarakatan Desa
+                    </span>
+                    <p className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line">
+                      {profile.organizations}
+                    </p>
+                  </div>
+
+                  {/* Sarpras */}
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                      Sarana & Prasarana Desa
+                    </span>
+                    <p className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line">
+                      {profile.facilities}
+                    </p>
+                  </div>
+
+                  {/* Prestasi */}
+                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 text-stone-955 shadow-md flex items-start gap-4 hover:shadow-lg transition-all duration-300">
+                    <div className="p-3 bg-white/20 text-stone-955 rounded-xl mt-1">
+                      <Trophy size={24} className="stroke-2 text-stone-950" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="block text-[10px] text-stone-900/60 font-black uppercase tracking-widest mb-3">
+                        Prestasi & Program Unggulan
+                      </span>
+                      <div className="text-stone-950 font-bold leading-relaxed text-base whitespace-pre-line">
+                        {profile.achievements}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

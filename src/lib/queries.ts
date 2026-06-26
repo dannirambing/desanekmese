@@ -181,3 +181,51 @@ export function getAnnouncementBySlug(slug: string) {
   )();
 }
 
+export const getVillageProfile = unstable_cache(
+  async () => {
+    let profile = await prisma.villageProfile.findUnique({
+      where: { id: "main" },
+    });
+    
+    if (!profile) {
+      profile = await prisma.villageProfile.create({
+        data: {
+          id: "main",
+          welcomeName: "Bapak Kepala Desa",
+          welcomeRole: "Kepala Desa Nekmese",
+          welcomeText: "Selamat datang di portal resmi Desa Nekmese. Kami berkomitmen untuk memberikan transparansi dan kemudahan akses informasi bagi seluruh warga dan pengunjung.",
+          welcomeImageUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=60",
+          history: "Desa Nekmese memiliki sejarah panjang yang berakar pada kearifan lokal suku Atoni Meto. Berdiri sejak tahun...",
+          vision: "Mewujudkan Desa Nekmese yang mandiri, sejahtera, dan berbudaya berlandaskan gotong royong.",
+          mission: "1. Meningkatkan kualitas pelayanan publik berbasis teknologi.\n2. Mengembangkan sektor wisata budaya dan ekonomi kreatif.\n3. Melestarikan warisan budaya Atoni Meto.",
+          villageCode: "53.01.05.2001",
+          district: "Amarasi Selatan",
+          regency: "Kupang",
+          province: "Nusa Tenggara Timur",
+          establishedYear: "1968",
+          boundariesNorth: "Desa Sahraen",
+          boundariesEast: "Desa Apren",
+          boundariesSouth: "Laut Timor",
+          boundariesWest: "Desa Retraen",
+          mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15764.088320448107!2d123.77494555!3d-10.29828345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2c569b9f9393e11f%3A0xe5c35e381014a52d!2sNekmese%2C%20Amarasi%20Sel.%2C%20Kabupaten%20Kupang%2C%20Nusa%20Tenggara%20Tim.!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid",
+          geography: "Desa Nekmese terletak di wilayah perbukitan berkapur dengan ketinggian rata-rata 300 meter di atas permukaan laut. Suhu rata-rata harian berkisar antara 24-32°C. Bentang alam didominasi oleh perbukitan batu karang khas Timor dan lahan pertanian kering.",
+          populationTotal: 1250,
+          populationMale: 610,
+          populationFemale: 640,
+          populationFamilies: 350,
+          structureImageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&auto=format&fit=crop&q=60",
+          potential: "Potensi utama Desa Nekmese meliputi tenun ikat motif Buna bernilai seni tinggi, pertanian hortikultura (jagung, ubi-ubian), peternakan sapi timor, dan objek wisata alam air terjun dan perbukitan indah.",
+          organizations: "Lembaga kemasyarakatan yang aktif di desa ini antara lain Pemberdayaan Kesejahteraan Keluarga (PKK), Karang Taruna 'Tunas Mekar', Lembaga Pemberdayaan Masyarakat Desa (LPMD), dan kelompok tani lokal.",
+          facilities: "Sarana publik pendukung di Desa Nekmese meliputi 1 unit Kantor Desa, 1 unit Puskesmas Pembantu (Pustu), 1 buah sekolah PAUD/TK, 1 buah SD Negeri, dan beberapa tempat ibadah.",
+          achievements: "1. Meraih penghargaan Desa Wisata Berkembang tingkat Provinsi NTT.\n2. Pelopor pelestarian pewarnaan tenun alami secara tradisional.",
+        },
+      });
+    }
+    
+    return profile;
+  },
+  ["village-profile"],
+  { revalidate: 60, tags: ["profile"] }
+);
+
+

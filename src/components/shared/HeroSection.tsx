@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowDownCircle } from "lucide-react";
 
@@ -35,9 +36,12 @@ export default function HeroSection({ settings }: { settings?: HeroSettings }) {
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-stone-900 z-0">
 
       {/* Background Image menggantikan Video */}
-      <img
+      <Image
         src={imageUrl}
         alt="Pemandangan Desa Nekmese"
+        fill
+        priority
+        sizes="100vw"
         className="absolute inset-0 z-0 w-full h-full object-cover brightness-90 pointer-events-none"
       />
 

@@ -10,7 +10,7 @@ import {
   getPublishedCultureItems,
   getHeroSettings,
   getPublishedNewsArticles,
-  getRecentAnnouncements,
+  getPublishedAnnouncements,
 } from "@/lib/queries";
 
 export const revalidate = 60;
@@ -30,7 +30,7 @@ export default async function Home() {
     getPublishedCultureItems(),
     getHeroSettings(),
     getPublishedNewsArticles(),
-    getRecentAnnouncements(),
+    getPublishedAnnouncements(),
   ]);
 
   return (

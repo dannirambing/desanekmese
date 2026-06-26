@@ -181,3 +181,53 @@ model Announcement {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
+
+// Tabel Profil Desa
+model VillageProfile {
+  id                  String   @id @default("main")
+  // Sambutan Kepala Desa
+  welcomeName         String   @default("Kepala Desa Nekmese")
+  welcomeRole         String   @default("Kepala Desa")
+  welcomeText         String   @db.Text
+  welcomeImageUrl     String?
+  
+  // Sejarah Desa
+  history             String   @db.Text
+  
+  // Visi & Misi
+  vision              String   @db.Text
+  mission             String   @db.Text
+  
+  // Identitas Desa
+  villageCode         String   @default("53.01.xx.xxxx")
+  district            String   @default("Kupang Barat")
+  regency             String   @default("Kupang")
+  province            String   @default("Nusa Tenggara Timur")
+  establishedYear     String   @default("xxxx")
+  
+  // Peta dan Batas Wilayah
+  boundariesNorth     String   @default("")
+  boundariesEast      String   @default("")
+  boundariesSouth     String   @default("")
+  boundariesWest      String   @default("")
+  mapUrl              String?  @db.Text
+  geography           String   @db.Text
+  
+  // Data Kependudukan
+  populationTotal     Int      @default(0)
+  populationMale      Int      @default(0)
+  populationFemale    Int      @default(0)
+  populationFamilies  Int      @default(0)
+  
+  // Struktur Organisasi
+  structureImageUrl   String?
+  
+  // Konten Lainnya
+  potential           String   @db.Text
+  organizations       String   @db.Text
+  facilities          String   @db.Text
+  achievements        String   @db.Text
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}

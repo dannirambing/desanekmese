@@ -48,6 +48,7 @@ import { formatIndonesianDate } from "@/lib/format-date";
 // Menu disinkronkan dengan Navbar
 const menuItems = [
   { name: "Beranda", href: "/" },
+  { name: "Profil Desa", href: "/profil" },
   { name: "Wisata", href: "/wisata" },
   { name: "Budaya", href: "/budaya" },
   { name: "UMKM", href: "/umkm" },
