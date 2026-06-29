@@ -73,8 +73,8 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Villag
           setIncompleteFields(result.incompleteFields);
         }
         window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (err: any) {
-        setError(err.message || "Gagal menyimpan profil desa");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Gagal menyimpan profil desa");
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });

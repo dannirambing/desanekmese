@@ -19,12 +19,12 @@ export default function EditForm({ admin }: { admin: AdminData }) {
   const updateAdminWithId = updateAdmin.bind(null, admin.id);
 
   const [error, submitAction, isPending] = useActionState(
-    async (prevState: any, formData: FormData) => {
+    async (prevState: string | null, formData: FormData) => {
       try {
         await updateAdminWithId(formData);
         return null; // Will redirect on success
-      } catch (err: any) {
-        return err.message;
+      } catch (err) {
+        return err instanceof Error ? err.message : "Gagal menyimpan perubahan";
       }
     },
     null

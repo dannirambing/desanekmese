@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { getMediaAssets } from "@/app/(admin)/admin/galeri/actions";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { Search, Loader2, Image as ImageIcon, Check } from "lucide-react";
@@ -33,21 +32,17 @@ export default function ImagePickerModal({
   const [activeTab, setActiveTab] = useState<"gallery" | "upload">("gallery");
   const [assets, setAssets] = useState<MediaAsset[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // Load assets when modal is opened or when activeTab is switched to gallery
   useEffect(() => {
     if (open && activeTab === "gallery") {
-      setIsLoading(true);
       startTransition(async () => {
         try {
           const fetchedAssets = await getMediaAssets();
           setAssets(fetchedAssets);
         } catch (error) {
           console.error("Gagal memuat galeri:", error);
-        } finally {
-          setIsLoading(false);
         }
       });
     }
@@ -117,7 +112,7 @@ export default function ImagePickerModal({
                 />
               </div>
 
-              {isLoading ? (
+              {isPending ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-turquoise" />
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">

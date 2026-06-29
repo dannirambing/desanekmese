@@ -11,12 +11,12 @@ export default function TambahPenggunaPage() {
 
   // Use React 19's useActionState for form handling
   const [error, submitAction, isPending] = useActionState(
-    async (prevState: any, formData: FormData) => {
+    async (prevState: string | null, formData: FormData) => {
       try {
         await createAdmin(formData);
         return null; // Will redirect on success
-      } catch (err: any) {
-        return err.message;
+      } catch (err) {
+        return err instanceof Error ? err.message : "Gagal menyimpan perubahan";
       }
     },
     null

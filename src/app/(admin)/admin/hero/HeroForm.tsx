@@ -29,8 +29,8 @@ export default function HeroForm({ initialSettings }: { initialSettings: HeroSet
     startTransition(async () => {
       try {
         await updateHeroSettings(formData);
-      } catch (err: any) {
-        setError(err.message || "Gagal menyimpan perubahan");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Gagal menyimpan perubahan");
       }
     });
   };

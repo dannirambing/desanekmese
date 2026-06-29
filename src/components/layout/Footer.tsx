@@ -73,7 +73,7 @@ export default async function Footer() {
               </span>
             </Link>
             <p className="text-stone-400 font-light leading-relaxed mb-6">
-              "Nekaf Mese, Atoni Meto Nao Fatu Nao Oe". Harmoni alam dan budaya di jantung Timor. Temukan kedamaian dan keindahan yang tak terlupakan bersama kami.
+              &quot;Nekaf Mese, Atoni Meto Nao Fatu Nao Oe&quot;. Harmoni alam dan budaya di jantung Timor. Temukan kedamaian dan keindahan yang tak terlupakan bersama kami.
             </p>
             <div className="flex gap-4">
               <a href="#" className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-stone-400 hover:bg-turquoise hover:text-white transition-all">
