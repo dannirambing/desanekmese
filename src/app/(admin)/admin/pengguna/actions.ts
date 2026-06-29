@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { Role } from "@prisma/client";
+import { AdminRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -18,7 +18,7 @@ export async function createAdmin(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const role = formData.get("role") as Role | null;
+  const role = formData.get("role") as AdminRole | null;
 
   if (!email || !password || !name) {
     throw new Error("Harap isi semua field yang wajib.");
@@ -61,7 +61,7 @@ export async function updateAdmin(id: string, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const role = formData.get("role") as Role | null;
+  const role = formData.get("role") as AdminRole | null;
 
   if (!email || !name) {
     throw new Error("Harap isi Nama dan Email.");
@@ -78,7 +78,7 @@ export async function updateAdmin(id: string, formData: FormData) {
   const updateData: {
     name: string;
     email: string;
-    role?: Role;
+    role?: AdminRole;
     passwordHash?: string;
   } = {
     name,
