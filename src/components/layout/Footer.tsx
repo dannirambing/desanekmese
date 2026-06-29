@@ -176,7 +176,15 @@ export default async function Footer() {
               <span className="font-semibold text-stone-300">LPPM Universitas Katolik Widya Mandira</span>
             </div>
             <div className="text-xs text-stone-500 space-y-1 pl-0 md:pl-0">
-              <p>Pengembang Sistem: <span className="font-medium text-stone-400">Danni Rambing</span></p>
+              <p>
+                Pengembang Sistem:{" "}
+                <a
+                  href="mailto:dannirambing@gmail.com?subject=Konsultasi%20Pembuatan%20Website&body=Halo%20Danni%2C%20saya%20tertarik%20untuk%20konsultasi%20mengenai%20pembuatan%20website."
+                  className="font-medium text-stone-400 hover:text-turquoise transition-colors underline decoration-stone-500 hover:decoration-turquoise underline-offset-4"
+                >
+                  Danni Rambing
+                </a>
+              </p>
               <p>Mitra Pelaksana: <span className="font-medium text-stone-400">Pemerintah Desa Nekmese</span></p>
             </div>
           </div>
