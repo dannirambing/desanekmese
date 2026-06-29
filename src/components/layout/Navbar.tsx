@@ -56,14 +56,12 @@ export default function Navbar() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (mobileOpen) {
-        setMobileOpen(false);
-      }
+      setMobileOpen(false);
       const scrolled = window.scrollY > 50;
       setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
     }, 0);
     return () => clearTimeout(timer);
-  }, [pathname, mobileOpen]);
+  }, [pathname]);
 
   const navLinkClass = (href: string) =>
     cn(
