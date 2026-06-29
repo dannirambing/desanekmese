@@ -133,7 +133,7 @@ export const getHeroSettings = unstable_cache(
       settings = await prisma.heroSettings.create({
         data: {
           id: "main",
-          imageUrl: "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww",
+          imageUrl: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
           tagline: "Desa Nekmese, Timor · NTT",
           titleLine1: "Nekaf Mese,",
           titleLine2: "Atoni Meto Nao Fatu Nao Oe.",
@@ -194,7 +194,7 @@ export const getVillageProfile = unstable_cache(
           welcomeName: "Bapak Kepala Desa",
           welcomeRole: "Kepala Desa Nekmese",
           welcomeText: "Selamat datang di portal resmi Desa Nekmese. Kami berkomitmen untuk memberikan transparansi dan kemudahan akses informasi bagi seluruh warga dan pengunjung.",
-          welcomeImageUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=60",
+          welcomeImageUrl: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
           history: "Desa Nekmese memiliki sejarah panjang yang berakar pada kearifan lokal suku Atoni Meto. Berdiri sejak tahun...",
           vision: "Mewujudkan Desa Nekmese yang mandiri, sejahtera, dan berbudaya berlandaskan gotong royong.",
           mission: "1. Meningkatkan kualitas pelayanan publik berbasis teknologi.\n2. Mengembangkan sektor wisata budaya dan ekonomi kreatif.\n3. Melestarikan warisan budaya Atoni Meto.",
@@ -213,7 +213,7 @@ export const getVillageProfile = unstable_cache(
           populationMale: 610,
           populationFemale: 640,
           populationFamilies: 350,
-          structureImageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&auto=format&fit=crop&q=60",
+          structureImageUrl: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
           potential: "Potensi utama Desa Nekmese meliputi tenun ikat motif Buna bernilai seni tinggi, pertanian hortikultura (jagung, ubi-ubian), peternakan sapi timor, dan objek wisata alam air terjun dan perbukitan indah.",
           organizations: "Lembaga kemasyarakatan yang aktif di desa ini antara lain Pemberdayaan Kesejahteraan Keluarga (PKK), Karang Taruna 'Tunas Mekar', Lembaga Pemberdayaan Masyarakat Desa (LPMD), dan kelompok tani lokal.",
           facilities: "Sarana publik pendukung di Desa Nekmese meliputi 1 unit Kantor Desa, 1 unit Puskesmas Pembantu (Pustu), 1 buah sekolah PAUD/TK, 1 buah SD Negeri, dan beberapa tempat ibadah.",
@@ -227,5 +227,30 @@ export const getVillageProfile = unstable_cache(
   ["village-profile"],
   { revalidate: 60, tags: ["profile"] }
 );
+
+export const getVillageBudgets = unstable_cache(
+  async () =>
+    prisma.villageBudget.findMany({
+      orderBy: { year: "desc" },
+    }),
+  ["village-budgets-all"],
+  { revalidate: 60, tags: ["budgets"] }
+);
+
+export function getVillageBudgetByYear(year: number) {
+  return unstable_cache(
+    async () =>
+      prisma.villageBudget.findUnique({
+        where: { year },
+        include: {
+          items: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      }),
+    ["village-budget", String(year)],
+    { revalidate: 60, tags: ["budgets", `budget-${year}`] }
+  )();
+}
 
 

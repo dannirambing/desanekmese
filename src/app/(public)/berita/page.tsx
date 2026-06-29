@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import SectionTitle from "@/components/shared/SectionTitle";
 import { getPublishedNewsArticles } from "@/lib/queries";
-import NewsListWithFilter from "./NewsListWithFilter";
+import NewsAndBudgetTabs from "./NewsAndBudgetTabs";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Berita Desa | Desa Nekmese",
@@ -20,6 +21,27 @@ export default async function BeritaPage() {
     createdAt: new Date(article.createdAt).toISOString(),
     updatedAt: new Date(article.updatedAt).toISOString(),
     publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString() : null,
+  }));
+
+  // Ambil data anggaran desa dengan detailnya
+  const budgets = await prisma.villageBudget.findMany({
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+    orderBy: { year: "desc" },
+  });
+
+  const serializedBudgets = budgets.map((b) => ({
+    ...b,
+    createdAt: b.createdAt.toISOString(),
+    updatedAt: b.updatedAt.toISOString(),
+    items: b.items.map((item) => ({
+      ...item,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
+    })),
   }));
 
   // Pesan otomatis saat tombol WhatsApp diklik
@@ -62,7 +84,7 @@ export default async function BeritaPage() {
             <SectionTitle subtitle="Update Terbaru" title="Berita & Kegiatan" />
           </div>
 
-          <NewsListWithFilter articles={serializedArticles} />
+          <NewsAndBudgetTabs articles={serializedArticles} budgets={serializedBudgets} />
 
           {/* CTA Box dengan gradien warm navy & indigo */}
           <div className="mt-20 bg-gradient-to-br from-blue-900 to-indigo-950 rounded-3xl p-8 md:p-16 text-center text-white shadow-xl relative overflow-hidden border border-indigo-800">

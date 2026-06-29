@@ -125,7 +125,7 @@ export default async function Footer() {
                       </span>
                     </Link>
                   ))}
-                  
+
                   <div className="pt-2 border-t border-stone-900">
                     <Link
                       href="/pengumuman"
@@ -162,9 +162,25 @@ export default async function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-stone-500 font-light">
-          <p>© {currentYear} Danni Rambing. Hak Cipta Dilindungi.</p>
-          <div className="flex gap-6">
+        <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-sm text-stone-500 font-light">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <span>© {currentYear}</span>
+              <img
+                src="https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNislAmOuP0Dn3MJXmqKPzTlg6YCWejAh7EfapG"
+                alt="Logo Unwira"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full bg-white object-contain p-0.5 shadow-sm hover:scale-105 transition-all duration-300"
+              />
+              <span className="font-semibold text-stone-300">LPPM Universitas Katolik Widya Mandira</span>
+            </div>
+            <div className="text-xs text-stone-500 space-y-1 pl-0 md:pl-0">
+              <p>Pengembang Sistem: <span className="font-medium text-stone-400">Danni Rambing</span></p>
+              <p>Mitra Pelaksana: <span className="font-medium text-stone-400">Pemerintah Desa Nekmese</span></p>
+            </div>
+          </div>
+          <div className="flex gap-6 text-xs self-start md:self-auto">
             <Link href="/privacy" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
           </div>

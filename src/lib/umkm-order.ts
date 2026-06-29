@@ -21,4 +21,4 @@ export const ORDER_CHANNEL_OPTIONS: { value: OrderChannel; label: string }[] = [
 ];
 
 export const DEFAULT_PRODUCT_IMAGE =
-  "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071";
+  "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg";

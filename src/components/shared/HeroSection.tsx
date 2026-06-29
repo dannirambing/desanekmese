@@ -17,7 +17,7 @@ interface HeroSettings {
 
 export default function HeroSection({ settings }: { settings?: HeroSettings }) {
   const {
-    imageUrl = "https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRpbW9yfGVufDB8fDB8fHww",
+    imageUrl = "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
     tagline = "Desa Nekmese, Timor · NTT",
     titleLine1 = "Nekaf Mese,",
     titleLine2 = "Atoni Meto Nao Fatu Nao Oe.",

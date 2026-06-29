@@ -231,3 +231,36 @@ model VillageProfile {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
+
+enum BudgetType {
+  REVENUE
+  EXPENDITURE
+}
+
+model VillageBudget {
+  id                          String         @id @default(cuid())
+  year                        Int            @unique
+  totalRevenueBudget          Float          @default(0)
+  totalRevenueRealization     Float          @default(0)
+  totalExpenditureBudget      Float          @default(0)
+  totalExpenditureRealization Float          @default(0)
+  
+  items                       BudgetDetail[]
+  
+  createdAt                   DateTime       @default(now())
+  updatedAt                   DateTime       @updatedAt
+}
+
+model BudgetDetail {
+  id                String        @id @default(cuid())
+  budgetId          String
+  budget            VillageBudget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  
+  type              BudgetType
+  category          String
+  amountBudget      Float         @default(0)
+  amountRealization Float         @default(0)
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}

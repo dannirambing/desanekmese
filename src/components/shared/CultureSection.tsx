@@ -23,11 +23,11 @@ export default function CultureSection({ cultureItems = [] }: CultureSectionProp
   const secondaryItem = cultureItems[1];
 
   // Ekstraksi Gambar & Teks (dengan fallback ke placeholder jika data kosong)
-  const mainImage = mainItem?.media?.[0]?.url || "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071";
+  const mainImage = mainItem?.media?.[0]?.url || "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP";
   const mainTitle = mainItem?.name || "Tenun Motif Buna";
   const mainCategory = mainItem?.category?.name || "Mahakarya";
 
-  const secondaryImage = secondaryItem?.media?.[0]?.url || "https://images.unsplash.com/photo-1518002054494-3a6f94352e9d?q=80&w=1974";
+  const secondaryImage = secondaryItem?.media?.[0]?.url || "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP";
   const secondaryTitle = secondaryItem?.name || "Kehidupan Tradisional Nekmese";
 
   return (

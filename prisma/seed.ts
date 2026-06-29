@@ -7,6 +7,8 @@ async function main() {
   console.log('🔄 Memulai proses seeding data Desa Nekmese...');
 
   // 1. Bersihkan data lama (opsional, untuk memastikan tidak duplikat saat testing)
+  await prisma.budgetDetail.deleteMany({});
+  await prisma.villageBudget.deleteMany({});
   await prisma.mediaFile.deleteMany({});
   await prisma.productUMKM.deleteMany({});
   await prisma.tourismPlace.deleteMany({});
@@ -68,13 +70,13 @@ async function main() {
   await prisma.mediaFile.createMany({
     data: [
       {
-        url: 'https://images.unsplash.com/photo-1518182170546-076616fdcbfa?q=80&w=2000', // Foto Air Terjun Pilihan Anda
+        url: 'https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi7GmE9MZXjhb3xwf1TnqDM5tWQ4P7pyCGgoHr', // Foto Air Terjun Pilihan Anda
         publicId: 'oenesu_main_01',
         type: 'IMAGE',
         tourismPlaceId: wisata1.id,
       },
       {
-        url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2000',
+        url: 'https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi7GmE9MZXjhb3xwf1TnqDM5tWQ4P7pyCGgoHr',
         publicId: 'fatubraun_main_01',
         type: 'IMAGE',
         tourismPlaceId: wisata2.id,
@@ -93,7 +95,7 @@ async function main() {
         price: 45000,
         ownerName: "Mama Elisabeth",
         imageUrl:
-          "https://images.unsplash.com/photo-1447933603533-566661898888?q=80&w=2071",
+          "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg",
         orderUrl: "https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20Kopi%20Arabika%20Nekmese",
         orderType: "WHATSAPP",
         status: PublishStatus.PUBLISHED,
@@ -106,7 +108,7 @@ async function main() {
         price: 85000,
         ownerName: "Bapak Yoel",
         imageUrl:
-          "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=2070",
+          "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg",
         orderUrl: "https://shopee.co.id/",
         orderType: "SHOPEE",
         status: PublishStatus.PUBLISHED,
@@ -119,7 +121,7 @@ async function main() {
         price: 350000,
         ownerName: "Ibu Marta",
         imageUrl:
-          "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071",
+          "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg",
         orderUrl: "https://tokopedia.com/",
         orderType: "TOKOPEDIA",
         status: PublishStatus.PUBLISHED,
@@ -132,7 +134,7 @@ async function main() {
         price: 35000,
         ownerName: "Kelompok Wanita Tani",
         imageUrl:
-          "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=2069",
+          "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNi3ndrMxvSoMcmOPwdnAtusaZWEh3SKL1F4rvg",
         orderUrl: "https://wa.me/6281234567892?text=Halo,%20saya%20ingin%20pesan%20Minyak%20Kelapa%20Murni",
         orderType: "WHATSAPP",
         status: PublishStatus.PUBLISHED,
@@ -193,19 +195,19 @@ async function main() {
   await prisma.mediaFile.createMany({
     data: [
       {
-        url: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071",
+        url: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP",
         publicId: "tenun_buna_01",
         type: "IMAGE",
         cultureItemId: budaya1.id,
       },
       {
-        url: "https://images.unsplash.com/photo-1518002054494-3a6f94352e9d?q=80&w=1974",
+        url: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP",
         publicId: "ritual_uma_01",
         type: "IMAGE",
         cultureItemId: budaya2.id,
       },
       {
-        url: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2070",
+        url: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiFiq1eWAfVkoyK8aqUEzhAuwH3QBrdvnObJpP",
         publicId: "ume_kbubu_01",
         type: "IMAGE",
         cultureItemId: budaya3.id,
@@ -243,18 +245,165 @@ async function main() {
   await prisma.mediaFile.createMany({
     data: [
       {
-        url: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070",
+        url: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
         publicId: "berita_penghargaan_01",
         type: "IMAGE",
         newsArticleId: berita1.id,
       },
       {
-        url: "https://images.unsplash.com/photo-1533174072545-7a4b6ecd1928?q=80&w=2070",
+        url: "https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D",
         publicId: "berita_festival_01",
         type: "IMAGE",
         newsArticleId: berita2.id,
       },
     ],
+  });
+
+  // 8. Seeding Anggaran Desa (Transparansi)
+  const budget2025 = await prisma.villageBudget.create({
+    data: {
+      year: 2025,
+      totalRevenueBudget: 1850000000,
+      totalRevenueRealization: 1785000000,
+      totalExpenditureBudget: 1920000000,
+      totalExpenditureRealization: 1810000000,
+    }
+  });
+
+  await prisma.budgetDetail.createMany({
+    data: [
+      // Pendapatan 2025
+      {
+        budgetId: budget2025.id,
+        type: 'REVENUE',
+        category: 'Dana Desa (DD)',
+        amountBudget: 1200000000,
+        amountRealization: 1200000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'REVENUE',
+        category: 'Alokasi Dana Desa (ADD)',
+        amountBudget: 550000000,
+        amountRealization: 520000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'REVENUE',
+        category: 'Pendapatan Asli Desa (PADes)',
+        amountBudget: 100000000,
+        amountRealization: 65000000,
+      },
+      // Belanja 2025
+      {
+        budgetId: budget2025.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Penyelenggaraan Pemerintahan',
+        amountBudget: 620000000,
+        amountRealization: 605000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pelaksanaan Pembangunan',
+        amountBudget: 850000000,
+        amountRealization: 790000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pembinaan Kemasyarakatan',
+        amountBudget: 200000000,
+        amountRealization: 195000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pemberdayaan Masyarakat',
+        amountBudget: 180000000,
+        amountRealization: 170000000,
+      },
+      {
+        budgetId: budget2025.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Penanggulangan Bencana & Darurat',
+        amountBudget: 70000000,
+        amountRealization: 50000000,
+      },
+    ]
+  });
+
+  const budget2024 = await prisma.villageBudget.create({
+    data: {
+      year: 2024,
+      totalRevenueBudget: 1650000000,
+      totalRevenueRealization: 1640000000,
+      totalExpenditureBudget: 1700000000,
+      totalExpenditureRealization: 1680000000,
+    }
+  });
+
+  await prisma.budgetDetail.createMany({
+    data: [
+      // Pendapatan 2024
+      {
+        budgetId: budget2024.id,
+        type: 'REVENUE',
+        category: 'Dana Desa (DD)',
+        amountBudget: 1100000000,
+        amountRealization: 1100000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'REVENUE',
+        category: 'Alokasi Dana Desa (ADD)',
+        amountBudget: 480000000,
+        amountRealization: 480000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'REVENUE',
+        category: 'Pendapatan Asli Desa (PADes)',
+        amountBudget: 70000000,
+        amountRealization: 60000000,
+      },
+      // Belanja 2024
+      {
+        budgetId: budget2024.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Penyelenggaraan Pemerintahan',
+        amountBudget: 580000000,
+        amountRealization: 575000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pelaksanaan Pembangunan',
+        amountBudget: 720000000,
+        amountRealization: 715000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pembinaan Kemasyarakatan',
+        amountBudget: 180000000,
+        amountRealization: 180000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Pemberdayaan Masyarakat',
+        amountBudget: 150000000,
+        amountRealization: 148000000,
+      },
+      {
+        budgetId: budget2024.id,
+        type: 'EXPENDITURE',
+        category: 'Bidang Penanggulangan Bencana & Darurat',
+        amountBudget: 70000000,
+        amountRealization: 62000000,
+      },
+    ]
   });
 
   console.log("✅ Seeding data selesai dengan sukses!");

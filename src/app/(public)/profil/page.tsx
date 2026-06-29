@@ -41,7 +41,7 @@ export default async function ProfilPage() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 scale-102 transition-transform duration-[10s]"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1698737474049-2858da07eaff?w=1600&auto=format&fit=crop&q=80')",
+              "url('https://azhuh458gn.ufs.sh/f/IDwrE8y2GhNiT3jd6hwEJvA74yPimMfuNFo6zp0Ia1S3eH2D')",
           }}
         />
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image, Megaphone, FileText } from "lucide-react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image, Megaphone, FileText, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
@@ -58,6 +58,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               { name: "Kelola UMKM", href: "/admin/umkm", icon: Store, roles: ["SUPER_ADMIN", "ADMIN_UMKM"] },
               { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola Pengumuman", href: "/admin/pengumuman", icon: Megaphone, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
+              { name: "Kelola Anggaran", href: "/admin/anggaran", icon: TrendingUp, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Galeri Media", href: "/admin/galeri", icon: Image, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
               { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, roles: ["SUPER_ADMIN"] },
             ]
