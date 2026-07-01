@@ -105,12 +105,14 @@ export default function Chatbot() {
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
-      // Auto-focus input when chat is opened
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 300);
+      // Auto-focus input when chat is opened (desktop only to prevent mobile keyboard flickering loops)
+      if (windowSize.width >= 768) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 300);
+      }
     }
-  }, [messages, isOpen, isLoading]);
+  }, [messages, isOpen, isLoading, windowSize.width]);
 
   const sendMessage = async (messageText: string) => {
     if (isLoading) return;
@@ -185,39 +187,34 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className={cn(
+      "fixed z-50 font-sans",
+      isOpen
+        ? "inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-auto sm:h-auto"
+        : "bottom-6 right-6"
+    )}>
       {/* Floating Action Button (Glossy Drag-and-Drop Apple Style) */}
       <motion.button
-        drag={!isOpen} // Only allow dragging when closed
-        dragMomentum={false}
-        dragElastic={0.08}
+        drag={!isOpen}
         dragConstraints={{
-          top: -windowSize.height + 100,
-          bottom: 10,
-          left: -windowSize.width + 100,
-          right: 10,
+          left: -windowSize.width + 80,
+          right: 0,
+          top: -windowSize.height + 80,
+          bottom: 0,
         }}
+        dragElastic={0.1}
+        dragMomentum={false}
         animate={{
           x: isOpen ? 0 : undefined,
           y: isOpen ? 0 : undefined,
         }}
-        onDragStart={() => {
-          isDraggingRef.current = true;
-        }}
-        onDragEnd={() => {
-          // Delay resetting isDraggingRef to prevent click triggers
-          setTimeout(() => {
-            isDraggingRef.current = false;
-          }, 100);
-        }}
-        onClick={() => {
-          if (isDraggingRef.current) return;
+        onTap={() => {
           setIsOpen(!isOpen);
         }}
         className={cn(
           "items-center justify-center size-14 rounded-full transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-turquoise/40 backdrop-blur-md",
           isOpen
-            ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-[0_8px_24px_rgba(239,68,68,0.25)] border border-red-600/20 sm:flex hidden"
+            ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-[0_8px_24px_rgba(239,68,68,0.25)] border border-red-600/20 sm:flex hidden absolute bottom-0 right-0"
             : "bg-white/20 text-slate-700/60 hover:bg-white/60 hover:text-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04),inset_0_1px_2px_rgba(255,255,255,0.35)] border border-white/40 cursor-grab active:cursor-grabbing flex"
         )}
         whileHover={{ scale: 1.08 }}
