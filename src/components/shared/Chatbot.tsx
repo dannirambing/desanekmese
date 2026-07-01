@@ -73,7 +73,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Halo Kaka! Beta Asisten AI Desa Nekmese. Ada yang bisa beta bantu hari ini? Kaka bisa bertanya tentang profil desa, destinasi wisata, produk UMKM lokal, kebudayaan, atau transparansi anggaran desa.",
+      content: "Halo Kaka! Beta Nina, Asisten AI Desa Nekmese. Ada yang bisa beta bantu hari ini? Kaka bisa bertanya tentang profil desa, destinasi wisata, produk UMKM lokal, kebudayaan, atau transparansi anggaran desa.",
     },
   ]);
   const [inputValue, setInputValue] = useState("");
@@ -220,7 +220,7 @@ export default function Chatbot() {
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
         layout
-        aria-label="Asisten AI Desa"
+        aria-label="Tanya Nina - Asisten AI Desa"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
@@ -271,7 +271,7 @@ export default function Chatbot() {
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm text-navy tracking-wide leading-tight flex items-center gap-1.5">
-                    Asisten AI Desa Nekmese
+                    Nina - Asisten AI Desa Nekmese
                     <Sparkles className="size-3.5 text-amber-500 animate-pulse" />
                   </h3>
                   <p className="text-[10px] text-slate-500 font-semibold">Aktif untuk info seputar desa</p>
