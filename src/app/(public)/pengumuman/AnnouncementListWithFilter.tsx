@@ -13,9 +13,25 @@ interface Announcement {
   content: string;
   status: string;
   imageUrl: string | null;
+  category: string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
+
+const getCategoryStyle = (category: string) => {
+  switch (category) {
+    case "Layanan Publik":
+      return "bg-teal-50 text-teal-800 border-teal-200/50";
+    case "Kegiatan Desa":
+      return "bg-blue-50 text-blue-800 border-blue-200/50";
+    case "Pembangunan":
+      return "bg-purple-50 text-purple-800 border-purple-200/50";
+    case "Keuangan":
+      return "bg-emerald-50 text-emerald-800 border-emerald-200/50";
+    default:
+      return "bg-stone-50 text-stone-700 border-stone-200/50";
+  }
+};
 
 export default function AnnouncementListWithFilter({
   announcements,
@@ -24,6 +40,9 @@ export default function AnnouncementListWithFilter({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Semua");
+
+  const categories = ["Semua", "Umum", "Layanan Publik", "Kegiatan Desa", "Pembangunan", "Keuangan"];
 
   // Extract unique dates that have announcements (local date string YYYY-MM-DD)
   const availableDates = useMemo(() => {
@@ -54,19 +73,49 @@ export default function AnnouncementListWithFilter({
         matchesDate = annDateString === selectedDate;
       }
 
-      return matchesSearch && matchesDate;
+      const matchesCategory =
+        selectedCategory === "Semua" || ann.category === selectedCategory;
+
+      return matchesSearch && matchesDate && matchesCategory;
     });
-  }, [announcements, searchQuery, selectedDate]);
+  }, [announcements, searchQuery, selectedDate, selectedCategory]);
 
   const handleClearFilters = () => {
     setSearchQuery("");
     setSelectedDate("");
+    setSelectedCategory("Semua");
   };
 
   return (
     <div className="space-y-8">
       {/* Search and Date Filter Bar */}
       <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm max-w-4xl mx-auto space-y-6">
+        {/* Category Filters */}
+        <div>
+          <span className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">
+            Kategori Pengumuman:
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 text-xs font-bold rounded-full border transition-all cursor-pointer uppercase tracking-wider ${
+                    isActive
+                      ? "bg-amber-500 text-stone-950 border-amber-500 shadow-md shadow-amber-500/10"
+                      : "bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search Input */}
           <div className="relative">
@@ -135,7 +184,7 @@ export default function AnnouncementListWithFilter({
         </div>
 
         {/* Active Filters Clear Button */}
-        {(searchQuery || selectedDate) && (
+        {(searchQuery || selectedDate || selectedCategory !== "Semua") && (
           <div className="flex items-center justify-between pt-4 border-t border-stone-100 text-xs text-stone-500">
             <div>
               Menampilkan <span className="font-bold text-stone-800">{filteredAnnouncements.length}</span> dari{" "}
@@ -159,7 +208,7 @@ export default function AnnouncementListWithFilter({
           <p className="text-stone-500 font-medium text-lg">
             Tidak ada pengumuman yang cocok dengan filter pencarian Anda.
           </p>
-          {(searchQuery || selectedDate) && (
+          {(searchQuery || selectedDate || selectedCategory !== "Semua") && (
             <button
               type="button"
               onClick={handleClearFilters}
@@ -199,11 +248,16 @@ export default function AnnouncementListWithFilter({
                   {/* Content */}
                   <div className="flex-1 flex flex-col justify-between h-full space-y-3">
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-stone-500 font-semibold mb-2">
-                        <Calendar size={14} className="text-amber-500" />
-                        <time dateTime={toIsoDateTime(announcement.createdAt)}>
-                          {formatIndonesianDate(announcement.createdAt)}
-                        </time>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-stone-500 font-semibold mb-2">
+                        <span className="flex items-center gap-1 text-stone-500">
+                          <Calendar size={14} className="text-amber-500" />
+                          <time dateTime={toIsoDateTime(announcement.createdAt)}>
+                            {formatIndonesianDate(announcement.createdAt)}
+                          </time>
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${getCategoryStyle(announcement.category || "Umum")}`}>
+                          {announcement.category || "Umum"}
+                        </span>
                       </div>
                       <h3 className="text-xl font-bold text-stone-900 group-hover:text-amber-600 transition-colors mb-2 line-clamp-2 leading-snug">
                         {announcement.title}

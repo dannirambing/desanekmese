@@ -96,8 +96,8 @@ export async function POST(req: Request) {
       pengumumanData = await prisma.announcement.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { createdAt: "desc" },
-        take: 2,
-        select: { title: true, content: true },
+        take: 10,
+        select: { title: true, content: true, category: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data pengumuman:", e);
@@ -171,7 +171,7 @@ ${produkData.map((p, idx) => `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p
 
     if (pengumumanData.length > 0) {
       contextText += `### 5. Pengumuman Terbaru
-${pengumumanData.map((p, idx) => `${idx + 1}. **${p.title}**:\n${limitLength(p.content || "", 1500)}`).join("\n\n")}\n\n`;
+${pengumumanData.map((p, idx) => `${idx + 1}. **[${p.category || "Umum"}] ${p.title}**:\n${limitLength(p.content || "", 1500)}`).join("\n\n")}\n\n`;
     }
 
     if (beritaData.length > 0) {

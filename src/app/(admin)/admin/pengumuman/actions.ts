@@ -27,6 +27,7 @@ export async function createAnnouncement(formData: FormData) {
   const content = formData.get("content") as string;
   const status = (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
   const imageUrl = (formData.get("imageUrl") as string) || null;
+  const category = (formData.get("category") as string) || "Umum";
 
   await prisma.announcement.create({
     data: {
@@ -35,6 +36,7 @@ export async function createAnnouncement(formData: FormData) {
       content,
       status,
       imageUrl,
+      category,
     },
   });
 
@@ -51,6 +53,7 @@ export async function updateAnnouncement(id: string, formData: FormData) {
   const statusInput = formData.get("status") as "PUBLISHED" | "DRAFT" | null;
   const imageUrl = (formData.get("imageUrl") as string) || null;
   const removeImage = formData.get("removeImage") === "true";
+  const category = (formData.get("category") as string) || "Umum";
 
   const existing = await prisma.announcement.findUnique({
     where: { id },
@@ -70,6 +73,7 @@ export async function updateAnnouncement(id: string, formData: FormData) {
       content,
       status: statusInput || existing.status,
       imageUrl: finalImageUrl,
+      category: category || existing.category,
     },
   });
 

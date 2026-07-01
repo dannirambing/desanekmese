@@ -178,6 +178,7 @@ model Announcement {
   content     String        @db.Text
   status      PublishStatus @default(DRAFT)
   imageUrl    String?       // Opsional: foto/cover pengumuman
+  category    String        @default("Umum")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }

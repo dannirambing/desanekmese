@@ -5,6 +5,21 @@ import DeleteForm from "./DeleteForm";
 import { cn } from "@/lib/utils";
 import { formatIndonesianDate } from "@/lib/format-date";
 
+const getCategoryStyle = (category: string) => {
+  switch (category) {
+    case "Layanan Publik":
+      return "bg-teal-50 text-teal-700 border-teal-200";
+    case "Kegiatan Desa":
+      return "bg-blue-50 text-blue-700 border-blue-200";
+    case "Pembangunan":
+      return "bg-purple-50 text-purple-700 border-purple-200";
+    case "Keuangan":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    default:
+      return "bg-slate-50 text-slate-700 border-slate-200";
+  }
+};
+
 export default async function AdminPengumumanPage() {
   const announcements = await prisma.announcement.findMany({
     orderBy: { createdAt: "desc" },
@@ -36,6 +51,7 @@ export default async function AdminPengumumanPage() {
             <thead className="bg-slate-50 border-b border-slate-200 uppercase text-xs font-extrabold text-navy/70 tracking-wider">
               <tr>
                 <th className="px-6 py-4.5">Judul Pengumuman</th>
+                <th className="px-6 py-4.5">Kategori</th>
                 <th className="px-6 py-4.5">Tanggal Dibuat</th>
                 <th className="px-6 py-4.5">Status</th>
                 <th className="px-6 py-4.5 text-right">Aksi</th>
@@ -45,7 +61,7 @@ export default async function AdminPengumumanPage() {
               {announcements.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-16 text-center text-navy/40 font-semibold"
                   >
                     Belum ada pengumuman yang direkam.
@@ -68,6 +84,16 @@ export default async function AdminPengumumanPage() {
                             {announcement.content.slice(0, 100)}...
                           </div>
                         )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={cn(
+                            "px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border",
+                            getCategoryStyle(announcement.category || "Umum")
+                          )}
+                        >
+                          {announcement.category || "Umum"}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-xs font-semibold text-navy/60">
                         {formatIndonesianDate(announcement.createdAt)}

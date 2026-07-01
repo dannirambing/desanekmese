@@ -47,6 +47,23 @@ export default function TambahPengumumanPage() {
 
           <div>
             <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
+              Kategori Pengumuman
+            </label>
+            <select
+              name="category"
+              defaultValue="Umum"
+              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] bg-white focus:ring-2 focus:ring-[#14b8a6] outline-none"
+            >
+              <option value="Umum">Umum (General)</option>
+              <option value="Layanan Publik">Layanan Publik (Administrasi KTP, KK, dll.)</option>
+              <option value="Kegiatan Desa">Kegiatan Desa (Agenda & Program)</option>
+              <option value="Pembangunan">Pembangunan (Infrastruktur)</option>
+              <option value="Keuangan">Keuangan (Transparansi & APBDes)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
               Status
             </label>
             <select
