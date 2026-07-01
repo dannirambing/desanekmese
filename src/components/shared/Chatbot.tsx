@@ -215,10 +215,10 @@ export default function Chatbot() {
           setIsOpen(!isOpen);
         }}
         className={cn(
-          "flex items-center justify-center size-14 rounded-full transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-turquoise/40 backdrop-blur-md",
+          "items-center justify-center size-14 rounded-full transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-turquoise/40 backdrop-blur-md",
           isOpen
-            ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-[0_8px_24px_rgba(239,68,68,0.25)] border border-red-600/20"
-            : "bg-white/20 text-slate-700/60 hover:bg-white/60 hover:text-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04),inset_0_1px_2px_rgba(255,255,255,0.35)] border border-white/40 cursor-grab active:cursor-grabbing"
+            ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-[0_8px_24px_rgba(239,68,68,0.25)] border border-red-600/20 sm:flex hidden"
+            : "bg-white/20 text-slate-700/60 hover:bg-white/60 hover:text-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04),inset_0_1px_2px_rgba(255,255,255,0.35)] border border-white/40 cursor-grab active:cursor-grabbing flex"
         )}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
@@ -263,7 +263,7 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute bottom-20 right-0 w-[400px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-white rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border border-gray-100 z-50 animate-in fade-in duration-200"
+            className="fixed sm:absolute inset-0 sm:inset-auto sm:bottom-20 sm:right-0 w-full sm:w-[400px] h-[100dvh] sm:h-[600px] max-h-screen sm:max-h-[calc(100vh-8rem)] bg-white rounded-none sm:rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border-0 sm:border border-gray-100 z-50 animate-in fade-in duration-200"
           >
             {/* Header (Solid White) */}
             <div className="bg-white border-b border-gray-100 text-navy px-5 py-4 flex items-center justify-between shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
