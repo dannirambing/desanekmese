@@ -1,44 +1,20 @@
 "use client";
 
-import { useTransition } from "react";
-import { Trash2, Loader2 } from "lucide-react";
+import ConfirmDeleteButton from "@/components/admin/ConfirmDeleteButton";
 import { deleteAnnouncement } from "./actions";
 
 export default function DeleteForm({ id }: { id: string }) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleDelete = () => {
-    if (
-      confirm(
-        "Apakah Anda yakin ingin menghapus pengumuman ini secara permanen?"
-      )
-    ) {
-      startTransition(async () => {
-        try {
-          const formData = new FormData();
-          formData.append("id", id);
-          await deleteAnnouncement(formData);
-        } catch (error) {
-          console.error("Gagal menghapus pengumuman:", error);
-          alert("Gagal menghapus pengumuman. Silakan coba lagi.");
-        }
-      });
-    }
+  const handleDelete = async () => {
+    const formData = new FormData();
+    formData.append("id", id);
+    await deleteAnnouncement(formData);
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      disabled={isPending}
-      className="p-2 text-navy/40 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
-      title="Hapus Data Permanen"
-    >
-      {isPending ? (
-        <Loader2 className="w-5 h-5 animate-spin text-red-600" />
-      ) : (
-        <Trash2 className="w-5 h-5" />
-      )}
-    </button>
+    <ConfirmDeleteButton
+      onConfirm={handleDelete}
+      title="Hapus Pengumuman"
+      message="Apakah Anda yakin ingin menghapus pengumuman ini secara permanen? Data yang dihapus tidak dapat dipulihkan."
+    />
   );
 }
