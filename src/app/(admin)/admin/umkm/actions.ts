@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 import type { OrderChannel } from "@prisma/client";
 
 function generateSlug(name: string) {
@@ -35,6 +36,7 @@ export async function deleteUMKMProduct(formData: FormData) {
   revalidatePath("/admin/umkm");
   revalidatePath("/umkm");
   revalidateTag("umkm", "max");
+  await clearChatCacheByCategory("UMKM");
 }
 
 export async function createUMKMProduct(formData: FormData) {
@@ -59,6 +61,7 @@ export async function createUMKMProduct(formData: FormData) {
   revalidatePath("/umkm");
   revalidatePath("/");
   revalidateTag("umkm", "max");
+  await clearChatCacheByCategory("UMKM");
   redirect("/admin/umkm");
 }
 
@@ -90,5 +93,6 @@ export async function updateUMKMProduct(id: string, formData: FormData) {
   revalidatePath("/umkm");
   revalidatePath("/");
   revalidateTag("umkm", "max");
+  await clearChatCacheByCategory("UMKM");
   redirect("/admin/umkm");
 }

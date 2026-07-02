@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 // Helper to recalculate parent budget totals
 async function recalculateBudgetTotals(budgetId: string) {
@@ -68,7 +69,7 @@ export async function createBudget(formData: FormData) {
   revalidatePath("/admin/anggaran");
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
-
+  await clearChatCacheByCategory("ANGGARAN");
   redirect(`/admin/anggaran/${budget.id}`);
 }
 
@@ -99,6 +100,7 @@ export async function updateBudgetYear(id: string, formData: FormData) {
   revalidatePath(`/admin/anggaran/${id}`);
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
+  await clearChatCacheByCategory("ANGGARAN");
 }
 
 export async function deleteBudget(formData: FormData) {
@@ -113,7 +115,7 @@ export async function deleteBudget(formData: FormData) {
   revalidatePath("/admin/anggaran");
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
-  
+  await clearChatCacheByCategory("ANGGARAN");
   redirect("/admin/anggaran");
 }
 
@@ -144,6 +146,7 @@ export async function addBudgetDetail(budgetId: string, formData: FormData) {
   revalidatePath(`/admin/anggaran/${budgetId}`);
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
+  await clearChatCacheByCategory("ANGGARAN");
 }
 
 export async function deleteBudgetDetail(formData: FormData) {
@@ -165,6 +168,7 @@ export async function deleteBudgetDetail(formData: FormData) {
   revalidatePath(`/admin/anggaran/${budgetId}`);
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
+  await clearChatCacheByCategory("ANGGARAN");
 }
 
 export async function updateBudgetDetail(detailId: string, budgetId: string, formData: FormData) {
@@ -192,4 +196,5 @@ export async function updateBudgetDetail(detailId: string, budgetId: string, for
   revalidatePath(`/admin/anggaran/${budgetId}`);
   revalidatePath("/berita");
   revalidateTag("budgets", "max");
+  await clearChatCacheByCategory("ANGGARAN");
 }

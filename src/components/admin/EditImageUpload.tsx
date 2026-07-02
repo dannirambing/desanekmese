@@ -103,9 +103,9 @@ export default function EditImageUpload({
               <button
                 type="button"
                 onClick={handleRemove}
-                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white p-2 rounded-full shadow-lg transition-all cursor-pointer z-10 flex items-center justify-center min-w-[36px] min-h-[36px]"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             )}
           </div>

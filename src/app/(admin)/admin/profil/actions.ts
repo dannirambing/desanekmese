@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 export async function updateVillageProfile(formData: FormData) {
   await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
@@ -125,6 +126,7 @@ export async function updateVillageProfile(formData: FormData) {
 
   revalidatePath("/profil");
   revalidateTag("profile", "max");
+  await clearChatCacheByCategory("PROFIL");
 
   return {
     success: true,

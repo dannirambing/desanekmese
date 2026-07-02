@@ -1,8 +1,8 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
+export const proxy = withAuth(
+  function proxy(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
     const role = token?.role as string | undefined;
@@ -37,6 +37,8 @@ export default withAuth(
     },
   }
 );
+
+export default proxy;
 
 export const config = {
   matcher: ["/admin", "/admin/((?!login).*)"],

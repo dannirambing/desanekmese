@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 function generateSlug(name: string) {
   return name
@@ -52,6 +53,7 @@ export async function deleteCultureItem(formData: FormData) {
   await prisma.cultureItem.delete({ where: { id } });
   revalidatePath("/admin/budaya");
   revalidateTag("culture", "max");
+  await clearChatCacheByCategory("BUDAYA");
 }
 
 export async function createCultureItem(formData: FormData) {
@@ -79,6 +81,7 @@ export async function createCultureItem(formData: FormData) {
   revalidatePath("/admin/budaya");
   revalidatePath("/budaya");
   revalidateTag("culture", "max");
+  await clearChatCacheByCategory("BUDAYA");
   redirect("/admin/budaya");
 }
 
@@ -116,6 +119,7 @@ export async function updateCultureItem(id: string, formData: FormData) {
   revalidatePath("/admin/budaya");
   revalidatePath("/budaya");
   revalidateTag("culture", "max");
+  await clearChatCacheByCategory("BUDAYA");
   redirect("/admin/budaya");
 }
 
@@ -127,4 +131,5 @@ export async function createCultureCategory(formData: FormData) {
   await prisma.cultureCategory.create({ data: { name: name.trim() } });
   revalidatePath("/admin/budaya");
   revalidatePath("/admin/budaya/tambah");
+  await clearChatCacheByCategory("BUDAYA");
 }

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 export async function updateHeroSettings(formData: FormData) {
   await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
@@ -60,5 +61,6 @@ export async function updateHeroSettings(formData: FormData) {
   revalidatePath("/");
   revalidateTag("hero", "max");
   revalidateTag("hero-settings", "max");
+  await clearChatCacheByCategory("PROFIL");
   redirect("/admin");
 }

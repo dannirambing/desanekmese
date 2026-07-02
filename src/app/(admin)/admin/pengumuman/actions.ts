@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 function generateSlug(title: string) {
   return title
@@ -19,6 +20,7 @@ export async function deleteAnnouncement(formData: FormData) {
   revalidatePath("/admin/pengumuman");
   revalidatePath("/pengumuman");
   revalidateTag("announcement", "max");
+  await clearChatCacheByCategory("PENGUMUMAN");
 }
 
 export async function createAnnouncement(formData: FormData) {
@@ -43,6 +45,7 @@ export async function createAnnouncement(formData: FormData) {
   revalidatePath("/admin/pengumuman");
   revalidatePath("/pengumuman");
   revalidateTag("announcement", "max");
+  await clearChatCacheByCategory("PENGUMUMAN");
   redirect("/admin/pengumuman");
 }
 
@@ -80,5 +83,6 @@ export async function updateAnnouncement(id: string, formData: FormData) {
   revalidatePath("/admin/pengumuman");
   revalidatePath("/pengumuman");
   revalidateTag("announcement", "max");
+  await clearChatCacheByCategory("PENGUMUMAN");
   redirect("/admin/pengumuman");
 }

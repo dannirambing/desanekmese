@@ -1,10 +1,74 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getTrigramCosineSimilarity, normalizeText } from "@/lib/similarity";
 
 // Simple in-memory rate limiter to prevent abuse and protect free tier limits
 const ipRequestCounts = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 messages per minute per IP
+
+function detectCategory(
+  question: string,
+  answer: string
+): "WISATA" | "UMKM" | "ANGGARAN" | "PENGUMUMAN" | "BERITA" | "BUDAYA" | "PROFIL" {
+  const q = question.toLowerCase();
+  const a = answer.toLowerCase();
+
+  if (
+    q.includes("wisata") ||
+    a.includes("wisata") ||
+    q.includes("pantai") ||
+    a.includes("pantai") ||
+    (q.includes("fasilitas") && a.includes("wisata"))
+  ) {
+    return "WISATA";
+  }
+  if (
+    q.includes("produk") ||
+    q.includes("umkm") ||
+    q.includes("beli") ||
+    q.includes("pesan") ||
+    q.includes("kopi") ||
+    q.includes("tenun") ||
+    q.includes("harga") ||
+    a.includes("umkm") ||
+    a.includes("produk")
+  ) {
+    return "UMKM";
+  }
+  if (
+    q.includes("anggaran") ||
+    q.includes("apbdes") ||
+    q.includes("dana") ||
+    q.includes("belanja") ||
+    q.includes("pendapatan") ||
+    a.includes("anggaran") ||
+    a.includes("apbdes")
+  ) {
+    return "ANGGARAN";
+  }
+  if (q.includes("pengumuman") || a.includes("pengumuman")) {
+    return "PENGUMUMAN";
+  }
+  if (
+    q.includes("berita") ||
+    a.includes("berita") ||
+    q.includes("artikel") ||
+    a.includes("artikel")
+  ) {
+    return "BERITA";
+  }
+  if (
+    q.includes("budaya") ||
+    q.includes("adat") ||
+    q.includes("tari") ||
+    a.includes("budaya") ||
+    a.includes("adat")
+  ) {
+    return "BUDAYA";
+  }
+  return "PROFIL";
+}
 
 export async function POST(req: Request) {
   try {
@@ -48,6 +112,49 @@ export async function POST(req: Request) {
       );
     }
 
+    // --- LOGIKA SEMANTIC CACHE (START) ---
+    const normalizedQuestion = normalizeText(pesanBaru);
+
+    try {
+      // Cari cache aktif di database
+      const caches = await prisma.chatCache.findMany();
+      const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari
+      let bestMatch: { id: string; answer: string; similarity: number } | null = null;
+
+      for (const cache of caches) {
+        const isExpired = now - new Date(cache.updatedAt).getTime() > CACHE_TTL_MS;
+        if (isExpired) continue;
+
+        const sim = getTrigramCosineSimilarity(normalizedQuestion, cache.question);
+        if (sim > (bestMatch?.similarity || 0)) {
+          bestMatch = { id: cache.id, answer: cache.answer, similarity: sim };
+        }
+      }
+
+      // Gunakan threshold 0.65 untuk semantic cache hit (cukup aman untuk menghindari false positive tetapi fleksibel terhadap susunan kata/typo/sinonim)
+      if (bestMatch && bestMatch.similarity >= 0.65) {
+        console.log(`[Cache Hit] Similarity: ${bestMatch.similarity.toFixed(4)}, Q: "${pesanBaru}" (Matched with "${caches.find(c => c.id === bestMatch!.id)?.question}")`);
+
+        // Update hit count secara asinkron (tidak memblokir response)
+        prisma.chatCache
+          .update({
+            where: { id: bestMatch.id },
+            data: { useCount: { increment: 1 } },
+          })
+          .catch((err) => console.error("Gagal mengupdate useCount:", err));
+
+        return new Response(bestMatch.answer, {
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        });
+      }
+    } catch (cacheErr) {
+      // Jika terjadi error pada cache, log dan biarkan proses berlanjut ke Groq API secara langsung (fail-safe)
+      console.error("Error pada proses semantic cache:", cacheErr);
+    }
+    // --- LOGIKA SEMANTIC CACHE (END) ---
+
     // 1. Ambil data dari database untuk membangun konteks secara paralel/aman
     let profileData: any = null;
     let wisataData: any[] = [];
@@ -68,7 +175,7 @@ export async function POST(req: Request) {
     try {
       wisataData = await prisma.tourismPlace.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, description: true, location: true, openHours: true, facilities: true },
+        select: { name: true, description: true, location: true, openHours: true, facilities: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data wisata:", e);
@@ -77,7 +184,7 @@ export async function POST(req: Request) {
     try {
       budayaData = await prisma.cultureItem.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, summary: true, description: true },
+        select: { name: true, summary: true, description: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data budaya:", e);
@@ -86,7 +193,7 @@ export async function POST(req: Request) {
     try {
       produkData = await prisma.productUMKM.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, description: true, price: true, ownerName: true, orderUrl: true, orderType: true },
+        select: { name: true, description: true, price: true, ownerName: true, orderUrl: true, orderType: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data produk UMKM:", e);
@@ -96,8 +203,8 @@ export async function POST(req: Request) {
       pengumumanData = await prisma.announcement.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { createdAt: "desc" },
-        take: 10,
-        select: { title: true, content: true, category: true },
+        take: 3, // Batasi ke 3 pengumuman terbaru untuk menghemat kuota token
+        select: { title: true, content: true, category: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data pengumuman:", e);
@@ -108,7 +215,7 @@ export async function POST(req: Request) {
         where: { status: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
         take: 2,
-        select: { title: true, summary: true, content: true },
+        select: { title: true, summary: true, content: true, publishedAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data berita:", e);
@@ -136,8 +243,16 @@ export async function POST(req: Request) {
       return text.length > max ? text.substring(0, max) + "..." : text;
     };
 
+    // Dapatkan tanggal hari ini dalam format bahasa Indonesia
+    const todayStr = new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
     // 2. Format konteks ke bentuk teks Markdown yang sangat padat (sangat hemat token)
-    let contextText = `Konteks Informasi Desa Nekmese:\n\n`;
+    let contextText = `Hari Ini: ${todayStr}\n\nKonteks Informasi Desa Nekmese:\n\n`;
 
     if (profileData) {
       contextText += `### 1. Profil Umum Desa
@@ -151,32 +266,48 @@ export async function POST(req: Request) {
 - Potensi & Lembaga: Potensi (${limitLength(profileData.potential, 80)}), Lembaga (${limitLength(profileData.organizations, 80)}), Fasilitas (${limitLength(profileData.facilities, 80)}), Prestasi (${limitLength(profileData.achievements, 80)})\n\n`;
     } else {
       contextText += `### 1. Profil Umum Desa
-- Lokasi: Kecamatan Kupang Barat, Kabupaten Kupang, Nusa Tenggara Timur (NTT). Kades: Krisna Jems Baok.\n\n`;
+- Lokasi: Kec. Amarasi Selatan, Kab. Kupang, Nusa Tenggara Timur (NTT).
+- Kades saat ini: Krisna Jems Baok (Kepala Desa Nekmese).\n\n`;
     }
 
     if (wisataData.length > 0) {
       contextText += `### 2. Destinasi Wisata
-${wisataData.map((w, idx) => `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0,3).join(", ") : "N/A"}). Deskripsi: ${limitLength(w.description, 80)}`).join("\n")}\n\n`;
+${wisataData.map((w, idx) => {
+  const tgl = w.createdAt ? new Date(w.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+  return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0,3).join(", ") : "N/A"}, Ditambahkan: ${tgl}). Deskripsi: ${limitLength(w.description, 80)}`;
+}).join("\n")}\n\n`;
     }
 
     if (budayaData.length > 0) {
       contextText += `### 3. Kebudayaan
-${budayaData.map((b, idx) => `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}). Deskripsi: ${limitLength(b.description, 65)}`).join("\n")}\n\n`;
+${budayaData.map((b, idx) => {
+  const tgl = b.createdAt ? new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+  return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}). Deskripsi: ${limitLength(b.description, 65)}`;
+}).join("\n")}\n\n`;
     }
 
     if (produkData.length > 0) {
       contextText += `### 4. UMKM & Produk Desa
-${produkData.map((p, idx) => `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`).join("\n")}\n\n`;
+${produkData.map((p, idx) => {
+  const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+  return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
+}).join("\n")}\n\n`;
     }
 
     if (pengumumanData.length > 0) {
       contextText += `### 5. Pengumuman Terbaru
-${pengumumanData.map((p, idx) => `${idx + 1}. **[${p.category || "Umum"}] ${p.title}**:\n${limitLength(p.content || "", 1500)}`).join("\n\n")}\n\n`;
+${pengumumanData.map((p, idx) => {
+  const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+  return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}):\n${limitLength(p.content || "", 400)}`;
+}).join("\n\n")}\n\n`;
     }
 
     if (beritaData.length > 0) {
       contextText += `### 6. Berita Terbaru
-${beritaData.map((b, idx) => `${idx + 1}. **${b.title}** (Ringkasan: ${limitLength(b.summary || "", 100)}):\n${limitLength(b.content || "", 600)}`).join("\n\n")}\n\n`;
+${beritaData.map((b, idx) => {
+  const tgl = b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+  return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
+}).join("\n\n")}\n\n`;
     }
 
     if (anggaranData.length > 0) {
@@ -227,7 +358,7 @@ ${contextText}
       { role: "user", content: pesanBaru },
     ];
 
-    // 5. Panggil API Groq
+    // 5. Panggil API Groq dengan mode streaming
     const modelToUse = "llama-3.1-8b-instant";
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -240,6 +371,7 @@ ${contextText}
         messages: mappedMessages,
         temperature: 0.0, // Set to 0.0 to prevent creative hallucinations and guarantee strict factual outputs based only on database context
         max_tokens: 1500,
+        stream: true, // Aktifkan streaming dari Groq
       }),
     });
 
@@ -247,32 +379,106 @@ ${contextText}
       const errorData = await groqResponse.json().catch(() => ({}));
       const status = groqResponse.status;
       
+      // Log detail kesalahan teknis hanya di server untuk keamanan informasi
       console.error(`Groq API Error (Status ${status}):`, errorData);
 
-      // Jika HTTP 429 (Rate Limit), kembalikan status 429
-      if (status === 429) {
-        return NextResponse.json(
-          { error: "Limit token habis atau terlalu banyak permintaan ke Groq API." },
-          { status: 429 }
-        );
-      }
-
+      // Selalu kembalikan pesan ramah pengguna yang bersih tanpa mengekspos detail teknis / kredensial API
       return NextResponse.json(
-        { error: errorData.error?.message || "Terjadi kesalahan pada layanan AI Groq." },
-        { status: status }
+        { error: "Mohon maaf Kaka, layanan asisten AI sedang sibuk atau batas kuota terlampaui saat ini. Silakan coba beberapa saat lagi." },
+        { status: status === 429 ? 429 : 500 }
       );
     }
 
-    const data = await groqResponse.json();
-    const botReply = data.choices?.[0]?.message?.content || "";
+    // 6. Buat readable stream untuk meneruskan potongan jawaban ke klien secara real-time
+    const responseStream = new ReadableStream({
+      async start(controller) {
+        const reader = groqResponse.body?.getReader();
+        if (!reader) {
+          controller.close();
+          return;
+        }
 
-    return NextResponse.json({
-      balasan: botReply,
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let fullAnswer = "";
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || ""; // Simpan potongan baris terakhir yang tidak lengkap di buffer
+
+            for (const line of lines) {
+              const cleaned = line.trim();
+              if (!cleaned) continue;
+
+              if (cleaned.startsWith("data: ")) {
+                const dataStr = cleaned.slice(6);
+                if (dataStr === "[DONE]") {
+                  break;
+                }
+
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  const content = parsed.choices?.[0]?.delta?.content || "";
+                  if (content) {
+                    fullAnswer += content;
+                    controller.enqueue(new TextEncoder().encode(content));
+                  }
+                } catch (jsonErr) {
+                  // Abaikan kesalahan parse JSON pada potongan data yang belum lengkap
+                }
+              }
+            }
+          }
+
+          // Simpan ke cache secara asinkron jika fullAnswer berhasil didapatkan dan bukan merupakan penolakan (refusal)
+          if (fullAnswer) {
+            const isRefusal = 
+              fullAnswer.toLowerCase().includes("mohon maaf") || 
+              fullAnswer.toLowerCase().includes("tidak memiliki data");
+
+            if (!isRefusal) {
+              const detectedCat = detectCategory(normalizedQuestion, fullAnswer);
+              prisma.chatCache
+                .upsert({
+                  where: { question: normalizedQuestion },
+                  create: {
+                    question: normalizedQuestion,
+                    answer: fullAnswer,
+                    category: detectedCat,
+                  },
+                  update: {
+                    answer: fullAnswer,
+                    category: detectedCat,
+                    useCount: { increment: 1 },
+                  },
+                })
+                .catch((err) => console.error("Gagal menyimpan ke cache:", err));
+            }
+          }
+        } catch (streamErr) {
+          console.error("Error saat streaming data dari Groq:", streamErr);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(responseStream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+      },
     });
   } catch (error: any) {
     console.error("Terjadi error di Route Handler API Chat:", error);
     return NextResponse.json(
-      { error: error?.message || "Terjadi kesalahan internal pada server." },
+      { error: "Terjadi kesalahan internal pada server. Silakan coba lagi nanti." },
       { status: 500 }
     );
   }

@@ -141,22 +141,47 @@ export default function Chatbot() {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        // Tangani HTTP 429 atau error lainnya
+        const errorData = await response.json().catch(() => ({}));
         if (response.status === 429) {
           throw new Error("Sistem sedang sibuk karena banyak antrean. Silakan coba 1 menit lagi.");
         } else {
-          throw new Error(data.error || "Terjadi kesalahan saat menghubungi asisten AI.");
+          throw new Error(errorData.error || "Terjadi kesalahan saat menghubungi asisten AI.");
         }
       }
 
-      // Tambahkan balasan bot ke chat
+      // 1. Tambahkan pesan kosong asisten ke state untuk mulai menerima aliran teks
       setMessages((prev) => [
         ...prev,
-        { role: "assistant" as const, content: data.balasan },
+        { role: "assistant" as const, content: "" },
       ]);
+
+      // 2. Baca stream dari response body
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let streamContent = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          streamContent += chunk;
+
+          // 3. Update pesan asisten terakhir secara bertahap
+          setMessages((prev) => {
+            const updated = [...prev];
+            if (updated.length > 0) {
+              updated[updated.length - 1] = {
+                ...updated[updated.length - 1],
+                content: streamContent,
+              };
+            }
+            return updated;
+          });
+        }
+      }
     } catch (error: any) {
       console.error("Error sending message to chatbot:", error);
       const userFriendlyError = error?.message || "Terjadi kesalahan. Silakan coba lagi.";
@@ -319,7 +344,7 @@ export default function Chatbot() {
               })}
 
               {/* Typing Indicator */}
-              {isLoading && (
+              {isLoading && (!messages[messages.length - 1]?.content || messages[messages.length - 1]?.role !== "assistant") && (
                 <div className="flex justify-start animate-in fade-in duration-200">
                   <div className="bg-white text-gray-500 border border-gray-100 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-2">
                     <span className="text-xs font-medium">Asisten sedang mengetik</span>
