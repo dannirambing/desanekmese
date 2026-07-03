@@ -5,7 +5,7 @@ import { getTrigramCosineSimilarity, normalizeText } from "@/lib/similarity";
 // Simple in-memory rate limiter to prevent abuse and protect free tier limits
 const ipRequestCounts = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 messages per minute per IP
+const MAX_REQUESTS_PER_WINDOW = 15; // Max 10 messages per minute per IP
 
 function detectCategory(
   question: string,
@@ -82,14 +82,14 @@ export async function POST(req: Request) {
 
     // Get client IP address to apply rate limit
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown-ip";
-    
+
     // Get dynamic origin to provide absolute URLs for the AI
     const host = req.headers.get("host") || "localhost:3000";
     const protocol = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
     const origin = req.headers.get("origin") || `${protocol}://${host}`;
-    
+
     const now = Date.now();
-    
+
     const ipData = ipRequestCounts.get(ip);
     if (ipData) {
       if (now > ipData.resetTime) {
@@ -279,52 +279,52 @@ export async function POST(req: Request) {
     if (wisataData.length > 0) {
       contextText += `### 2. Destinasi Wisata
 ${wisataData.map((w, idx) => {
-  const tgl = w.createdAt ? new Date(w.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0,3).join(", ") : "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/wisata/${w.slug}). Deskripsi: ${limitLength(w.description, 80)}`;
-}).join("\n")}\n\n`;
+        const tgl = w.createdAt ? new Date(w.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+        return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0, 3).join(", ") : "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/wisata/${w.slug}). Deskripsi: ${limitLength(w.description, 80)}`;
+      }).join("\n")}\n\n`;
     }
 
     if (budayaData.length > 0) {
       contextText += `### 3. Kebudayaan
 ${budayaData.map((b, idx) => {
-  const tgl = b.createdAt ? new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}, URL: ${origin}/budaya/${b.slug}). Deskripsi: ${limitLength(b.description, 65)}`;
-}).join("\n")}\n\n`;
+        const tgl = b.createdAt ? new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+        return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}, URL: ${origin}/budaya/${b.slug}). Deskripsi: ${limitLength(b.description, 65)}`;
+      }).join("\n")}\n\n`;
     }
 
     if (produkData.length > 0) {
       contextText += `### 4. UMKM & Produk Desa
 ${produkData.map((p, idx) => {
-  const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/umkm/${p.slug}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
-}).join("\n")}\n\n`;
+        const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+        return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/umkm/${p.slug}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
+      }).join("\n")}\n\n`;
     }
 
     if (pengumumanData.length > 0) {
       contextText += `### 5. Pengumuman Terbaru
 ${pengumumanData.map((p, idx) => {
-  const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/pengumuman/${p.slug}):\n${limitLength(p.content || "", 400)}`;
-}).join("\n\n")}\n\n`;
+        const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+        return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/pengumuman/${p.slug}):\n${limitLength(p.content || "", 400)}`;
+      }).join("\n\n")}\n\n`;
     }
 
     if (beritaData.length > 0) {
       contextText += `### 6. Berita Terbaru
 ${beritaData.map((b, idx) => {
-  const tgl = b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/berita/${b.slug}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
-}).join("\n\n")}\n\n`;
+        const tgl = b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
+        return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/berita/${b.slug}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
+      }).join("\n\n")}\n\n`;
     }
 
     if (anggaranData.length > 0) {
       contextText += `### 7. Transparansi Anggaran (APBDes)
 ${anggaranData.map((a) => {
-  const totalAnggaran = (a.totalRevenueBudget || 0) + (a.totalExpenditureBudget || 0);
-  return `- **Tahun ${a.year}**: 
+        const totalAnggaran = (a.totalRevenueBudget || 0) + (a.totalExpenditureBudget || 0);
+        return `- **Tahun ${a.year}**: 
   - Total Keseluruhan Anggaran APBDes (Pendapatan + Belanja): Rp ${totalAnggaran.toLocaleString("id-ID")}
   - Rincian Pendapatan: Rp ${a.totalRevenueBudget ? a.totalRevenueBudget.toLocaleString("id-ID") : "0"} (Realisasi: Rp ${a.totalRevenueRealization ? a.totalRevenueRealization.toLocaleString("id-ID") : "0"})
   - Rincian Belanja: Rp ${a.totalExpenditureBudget ? a.totalExpenditureBudget.toLocaleString("id-ID") : "0"} (Realisasi: Rp ${a.totalExpenditureRealization ? a.totalExpenditureRealization.toLocaleString("id-ID") : "0"})`;
-}).join("\n")}\n\n`;
+      }).join("\n")}\n\n`;
     }
 
     // 3. Bangun Sistem Prompt
@@ -367,9 +367,9 @@ ${contextText}
       { role: "system", content: systemPrompt },
       ...(Array.isArray(riwayatPesan)
         ? riwayatPesan.slice(-4).map((m: any) => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.content || "",
-          }))
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.content || "",
+        }))
         : []),
       { role: "user", content: pesanBaru },
     ];
@@ -394,7 +394,7 @@ ${contextText}
     if (!groqResponse.ok) {
       const errorData = await groqResponse.json().catch(() => ({}));
       const status = groqResponse.status;
-      
+
       // Log detail kesalahan teknis hanya di server untuk keamanan informasi
       console.error(`Groq API Error (Status ${status}):`, errorData);
 
@@ -453,8 +453,8 @@ ${contextText}
 
           // Simpan ke cache secara asinkron jika fullAnswer berhasil didapatkan dan bukan merupakan penolakan (refusal)
           if (fullAnswer) {
-            const isRefusal = 
-              fullAnswer.toLowerCase().includes("tidak memiliki data resmi") || 
+            const isRefusal =
+              fullAnswer.toLowerCase().includes("tidak memiliki data resmi") ||
               fullAnswer.toLowerCase().includes("silakan kunjungi kantor desa");
 
             if (!isRefusal) {

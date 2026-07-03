@@ -62,7 +62,7 @@ export default function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            placeholder="admin@desanekmese.id"
+            placeholder="masukan email"
             className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
           />
         </div>
@@ -83,7 +83,7 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder="Masukan Password"
             className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
           />
         </div>
