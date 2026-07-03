@@ -92,7 +92,7 @@ export default function Navbar() {
         "fixed top-0 w-full z-50 transition-all duration-300 ease-in-out",
         useSolidStyle
           ? "bg-white/95 backdrop-blur-sm shadow-md h-16 md:h-20"
-          : "h-20 md:h-28 bg-transparent"
+          : "h-20 md:h-28 bg-gradient-to-b from-black/80 via-black/45 to-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
