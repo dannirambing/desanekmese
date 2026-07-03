@@ -34,7 +34,8 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
 }
 
-function hasDarkHeroAtTop(pathname: string) {
+function hasDarkHeroAtTop(pathname: string | null) {
+  if (!pathname) return true; // Default to true during SSR to prevent flash
   if (DARK_HERO_EXACT.includes(pathname)) return true;
   return DARK_HERO_PREFIX.some(prefix => pathname === prefix || pathname.startsWith(prefix + "/"));
 }
@@ -91,7 +92,7 @@ export default function Navbar() {
         "fixed top-0 w-full z-50 transition-all duration-300 ease-in-out",
         useSolidStyle
           ? "bg-white/95 backdrop-blur-sm shadow-md h-16 md:h-20"
-          : "h-20 md:h-28 bg-gradient-to-b from-black/80 via-black/45 to-transparent"
+          : "h-20 md:h-28 bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
@@ -139,8 +140,8 @@ export default function Navbar() {
             className={cn(
               "hidden sm:inline-flex rounded-full px-6 md:px-8 uppercase font-semibold text-xs tracking-widest transition-all duration-300",
               useSolidStyle
-                ? "bg-turquoise hover:bg-turquoise-light text-white"
-                : "bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-sm drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                ? "bg-teal-600 hover:bg-teal-700 text-white"
+                : "bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:border-white/40"
             )}
           >
             <Link href="/wisata">Mulai Jelajah</Link>
