@@ -82,6 +82,12 @@ export async function POST(req: Request) {
 
     // Get client IP address to apply rate limit
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown-ip";
+    
+    // Get dynamic origin to provide absolute URLs for the AI
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+    const origin = req.headers.get("origin") || `${protocol}://${host}`;
+    
     const now = Date.now();
     
     const ipData = ipRequestCounts.get(ip);
@@ -175,7 +181,7 @@ export async function POST(req: Request) {
     try {
       wisataData = await prisma.tourismPlace.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, description: true, location: true, openHours: true, facilities: true, createdAt: true },
+        select: { name: true, slug: true, description: true, location: true, openHours: true, facilities: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data wisata:", e);
@@ -184,7 +190,7 @@ export async function POST(req: Request) {
     try {
       budayaData = await prisma.cultureItem.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, summary: true, description: true, createdAt: true },
+        select: { name: true, slug: true, summary: true, description: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data budaya:", e);
@@ -193,7 +199,7 @@ export async function POST(req: Request) {
     try {
       produkData = await prisma.productUMKM.findMany({
         where: { status: "PUBLISHED" },
-        select: { name: true, description: true, price: true, ownerName: true, orderUrl: true, orderType: true, createdAt: true },
+        select: { name: true, slug: true, description: true, price: true, ownerName: true, orderUrl: true, orderType: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data produk UMKM:", e);
@@ -204,7 +210,7 @@ export async function POST(req: Request) {
         where: { status: "PUBLISHED" },
         orderBy: { createdAt: "desc" },
         take: 3, // Batasi ke 3 pengumuman terbaru untuk menghemat kuota token
-        select: { title: true, content: true, category: true, createdAt: true },
+        select: { title: true, slug: true, content: true, category: true, createdAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data pengumuman:", e);
@@ -215,7 +221,7 @@ export async function POST(req: Request) {
         where: { status: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
         take: 2,
-        select: { title: true, summary: true, content: true, publishedAt: true },
+        select: { title: true, slug: true, summary: true, content: true, publishedAt: true },
       });
     } catch (e) {
       console.error("Gagal mengambil data berita:", e);
@@ -274,7 +280,7 @@ export async function POST(req: Request) {
       contextText += `### 2. Destinasi Wisata
 ${wisataData.map((w, idx) => {
   const tgl = w.createdAt ? new Date(w.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0,3).join(", ") : "N/A"}, Ditambahkan: ${tgl}). Deskripsi: ${limitLength(w.description, 80)}`;
+  return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0,3).join(", ") : "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/wisata/${w.slug}). Deskripsi: ${limitLength(w.description, 80)}`;
 }).join("\n")}\n\n`;
     }
 
@@ -282,7 +288,7 @@ ${wisataData.map((w, idx) => {
       contextText += `### 3. Kebudayaan
 ${budayaData.map((b, idx) => {
   const tgl = b.createdAt ? new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}). Deskripsi: ${limitLength(b.description, 65)}`;
+  return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}, URL: ${origin}/budaya/${b.slug}). Deskripsi: ${limitLength(b.description, 65)}`;
 }).join("\n")}\n\n`;
     }
 
@@ -290,7 +296,7 @@ ${budayaData.map((b, idx) => {
       contextText += `### 4. UMKM & Produk Desa
 ${produkData.map((p, idx) => {
   const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
+  return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/umkm/${p.slug}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
 }).join("\n")}\n\n`;
     }
 
@@ -298,7 +304,7 @@ ${produkData.map((p, idx) => {
       contextText += `### 5. Pengumuman Terbaru
 ${pengumumanData.map((p, idx) => {
   const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}):\n${limitLength(p.content || "", 400)}`;
+  return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/pengumuman/${p.slug}):\n${limitLength(p.content || "", 400)}`;
 }).join("\n\n")}\n\n`;
     }
 
@@ -306,13 +312,19 @@ ${pengumumanData.map((p, idx) => {
       contextText += `### 6. Berita Terbaru
 ${beritaData.map((b, idx) => {
   const tgl = b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-  return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
+  return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/berita/${b.slug}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
 }).join("\n\n")}\n\n`;
     }
 
     if (anggaranData.length > 0) {
-      contextText += `### 7. Ringkasan Anggaran (APBDes)
-${anggaranData.map((a) => `- **Tahun ${a.year}**: Pendapatan (Anggaran: Rp ${a.totalRevenueBudget ? a.totalRevenueBudget.toLocaleString("id-ID") : "0"}, Realisasi: Rp ${a.totalRevenueRealization ? a.totalRevenueRealization.toLocaleString("id-ID") : "0"}). Belanja (Anggaran: Rp ${a.totalExpenditureBudget ? a.totalExpenditureBudget.toLocaleString("id-ID") : "0"}, Realisasi: Rp ${a.totalExpenditureRealization ? a.totalExpenditureRealization.toLocaleString("id-ID") : "0"}).`).join("\n")}\n\n`;
+      contextText += `### 7. Transparansi Anggaran (APBDes)
+${anggaranData.map((a) => {
+  const totalAnggaran = (a.totalRevenueBudget || 0) + (a.totalExpenditureBudget || 0);
+  return `- **Tahun ${a.year}**: 
+  - Total Keseluruhan Anggaran APBDes (Pendapatan + Belanja): Rp ${totalAnggaran.toLocaleString("id-ID")}
+  - Rincian Pendapatan: Rp ${a.totalRevenueBudget ? a.totalRevenueBudget.toLocaleString("id-ID") : "0"} (Realisasi: Rp ${a.totalRevenueRealization ? a.totalRevenueRealization.toLocaleString("id-ID") : "0"})
+  - Rincian Belanja: Rp ${a.totalExpenditureBudget ? a.totalExpenditureBudget.toLocaleString("id-ID") : "0"} (Realisasi: Rp ${a.totalExpenditureRealization ? a.totalExpenditureRealization.toLocaleString("id-ID") : "0"})`;
+}).join("\n")}\n\n`;
     }
 
     // 3. Bangun Sistem Prompt
@@ -330,16 +342,20 @@ ATURAN BAHASA & LOGAT KUPANG SOPAN (CRITICAL STYLE RULES):
 PANDUAN AKURASI DATA & ANTI-HALUSINASI:
 1. Jawablah pertanyaan hanya berdasarkan fakta yang tertulis secara literal dalam "Konteks Informasi Desa" di bawah.
 2. Dilarang keras mengarang (berhalusinasi) informasi, data, angka, nama orang, nomor telepon, atau prosedur layanan jika tidak ada di dalam teks konteks di bawah.
-3. Jika informasi yang ditanyakan pengguna TIDAK ADA secara tertulis di dalam konteks di bawah, Anda wajib menjawab dengan bahasa Indonesia dan sapaan Kupang yang sopan:
-   "Mohon maaf Kaka/Bapa/Mama, beta tidak memiliki data resmi mengenai hal tersebut di database kami saat ini. Silakan kunjungi Kantor Desa Nekmese secara langsung atau hubungi perangkat desa terkait untuk mendapatkan informasi yang akurat."
+3. Jika informasi yang ditanyakan SAMA SEKALI TIDAK ADA di teks konteks, sampaikan dengan jujur dan sopan bahwa Anda tidak memiliki datanya, lalu arahkan untuk ke kantor desa.
+   PENTING: Jika pengguna menanyakan data "terbaru" (misal: anggaran terbaru/2026) namun Anda hanya memiliki data tahun sebelumnya (misal: 2025), JANGAN gunakan kalimat penolakan atau minta maaf. Langsung saja berikan data tahun terbaru yang Anda miliki dengan percaya diri (contoh: "Total anggaran APBDes terbaru yang kami catat untuk tahun 2025 adalah...").
 
 Tugas utama Anda:
 1. Jawab pertanyaan pengguna mengenai profil desa, sejarah, visi misi, potensi, wisata, kebudayaan, produk UMKM lokal, berita, pengumuman (termasuk prosedur administrasi seperti KTP-el dan KK jika tercantum), dan transparansi anggaran (APBDes) berdasarkan data resmi desa yang diberikan di bawah ini.
 2. Gunakan bahasa Indonesia yang sopan, ramah, dan mudah dipahami dengan sentuhan logat Kupang halus sesuai panduan bahasa di atas.
-3. Jawablah secara akurat sesuai dengan informasi yang ada dalam Konteks Informasi Desa.
+3. Jawablah secara akurat sesuai dengan informasi yang ada dalam Konteks Informasi Desa. Khusus untuk pertanyaan "Total Anggaran" atau "APBDes", sebutkan kedua metrik secara rinci (Total Anggaran Pendapatan dan Total Anggaran Belanja).
 4. Jika ada pertanyaan mengenai informasi yang tidak tercantum dalam Konteks Informasi Desa, berikan penolakan sopan sesuai aturan nomor 3 di atas. Jangan mengarang informasi.
-5. Berikan jawaban terstruktur dengan list atau poin-poin jika penjelasannya panjang agar mudah dibaca oleh warga.
-6. PENTING: Jika pengguna ingin memesan/membeli produk UMKM desa (seperti Kopi Arabika Nekmese, Tenun Ikat, dll.), berikan link pemesanan langsung (orderUrl) produk tersebut secara lengkap seperti yang tertulis pada rincian produk di bawah. Jangan menyuruh mereka pergi ke kantor desa jika link pemesanan produk tersebut sudah tercantum di data produk.
+5. PENTING (KONSISTENSI RIWAYAT): Jika di riwayat percakapan sebelumnya Anda pernah menjawab "tidak memiliki data", namun pada Konteks di bawah ternyata datanya ADA (misal data anggaran tahun lalu), Anda WAJIB mengabaikan jawaban lama Anda dan langsung berikan data yang ada di Konteks tanpa beralasan.
+6. Berikan jawaban terstruktur dengan list atau poin-poin jika penjelasannya panjang agar mudah dibaca oleh warga.
+7. SELALU sertakan tautan/URL menggunakan format Markdown standard \`[Judul Teks](URL-nya)\` di dalam kalimat Anda jika konteks memberikan informasi URL untuk item tersebut (seperti wisata, budaya, produk, berita, atau pengumuman).
+   - PENTING: Gunakan EXACT URL (tautan lengkap) yang tertulis di keterangan "URL:" pada teks konteks.
+   - Jangan memotong atau menyingkat URL tersebut.
+   - Contoh format yang benar: \`Kaka bisa melihat [Tenun Motif Burung](${origin}/umkm/tenun-motif-burung)\`.
 
 Berikut adalah informasi resmi terbaru dari database website Desa Nekmese untuk menjawab pertanyaan:
 ---
@@ -438,8 +454,8 @@ ${contextText}
           // Simpan ke cache secara asinkron jika fullAnswer berhasil didapatkan dan bukan merupakan penolakan (refusal)
           if (fullAnswer) {
             const isRefusal = 
-              fullAnswer.toLowerCase().includes("mohon maaf") || 
-              fullAnswer.toLowerCase().includes("tidak memiliki data");
+              fullAnswer.toLowerCase().includes("tidak memiliki data resmi") || 
+              fullAnswer.toLowerCase().includes("silakan kunjungi kantor desa");
 
             if (!isRefusal) {
               const detectedCat = detectCategory(normalizedQuestion, fullAnswer);

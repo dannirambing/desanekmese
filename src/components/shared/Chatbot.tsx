@@ -15,57 +15,90 @@ interface Message {
 const formatMessage = (text: string) => {
   if (!text) return null;
 
-  // Regex to match URLs: https://... or http://...
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-  // Split text by URLs first
-  const parts = text.split(urlRegex);
-
-  return parts.map((part, i) => {
-    if (part.match(urlRegex)) {
-      // Clean up URL if it has trailing punctuation from the sentence
-      let cleanUrl = part;
-      const trailingPunctuation = /[.,)]+$/;
-      const hasTrailing = cleanUrl.match(trailingPunctuation);
-      let suffix = "";
-      if (hasTrailing) {
-        suffix = hasTrailing[0];
-        cleanUrl = cleanUrl.replace(trailingPunctuation, "");
-      }
-      return (
-        <span key={i}>
-          <a
-            href={cleanUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline text-blue-600 hover:text-blue-800 font-semibold break-all inline"
-          >
-            {cleanUrl}
-          </a>
-          {suffix}
-        </span>
+  // Regex to match markdown links: [text](url) with optional spaces between ] and (
+  const markdownLinkRegex = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g;
+  
+  // First, parse markdown links
+  const parts = text.split(markdownLinkRegex);
+  
+  const formattedElements: React.ReactNode[] = [];
+  
+  for (let i = 0; i < parts.length; i++) {
+    // Every 3rd element starting from 1 is the link text, and the next is the URL
+    if (i % 3 === 1) {
+      const linkText = parts[i];
+      const linkUrl = parts[i + 1];
+      formattedElements.push(
+        <a
+          key={`md-link-${i}`}
+          href={linkUrl}
+          target={linkUrl.startsWith("/") ? "_self" : "_blank"}
+          rel={linkUrl.startsWith("/") ? "" : "noopener noreferrer"}
+          className="underline text-blue-600 hover:text-blue-800 font-semibold inline"
+        >
+          {linkText}
+        </a>
       );
+      i++; // Skip the url part in the loop
+      continue;
     }
 
-    // For non-link parts, parse bold markdown **text**
-    const boldRegex = /(\*\*.*?\*\*)/g;
-    const subParts = part.split(boldRegex);
+    // It's a text node, parse raw URLs and bold text
+    let textNode = parts[i];
+    if (!textNode) continue;
 
-    return (
-      <span key={i}>
-        {subParts.map((subPart, j) => {
-          if (subPart.startsWith("**") && subPart.endsWith("**")) {
-            return (
-              <strong key={j} className="font-extrabold text-gray-900">
-                {subPart.slice(2, -2)}
-              </strong>
-            );
-          }
-          return subPart;
-        })}
-      </span>
-    );
-  });
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const rawUrlParts = textNode.split(urlRegex);
+
+    const subElements = rawUrlParts.map((part, j) => {
+      if (part.match(urlRegex)) {
+        let cleanUrl = part;
+        const trailingPunctuation = /[.,)]+$/;
+        const hasTrailing = cleanUrl.match(trailingPunctuation);
+        let suffix = "";
+        if (hasTrailing) {
+          suffix = hasTrailing[0];
+          cleanUrl = cleanUrl.replace(trailingPunctuation, "");
+        }
+        return (
+          <span key={`raw-url-${i}-${j}`}>
+            <a
+              href={cleanUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-blue-600 hover:text-blue-800 font-semibold break-all inline"
+            >
+              {cleanUrl}
+            </a>
+            {suffix}
+          </span>
+        );
+      }
+
+      // Parse bold markdown **text**
+      const boldRegex = /(\*\*.*?\*\*)/g;
+      const boldParts = part.split(boldRegex);
+
+      return (
+        <span key={`bold-part-${i}-${j}`}>
+          {boldParts.map((subPart, k) => {
+            if (subPart.startsWith("**") && subPart.endsWith("**")) {
+              return (
+                <strong key={`strong-${i}-${j}-${k}`} className="font-extrabold text-gray-900">
+                  {subPart.slice(2, -2)}
+                </strong>
+              );
+            }
+            return subPart;
+          })}
+        </span>
+      );
+    });
+
+    formattedElements.push(<span key={`text-node-${i}`}>{subElements}</span>);
+  }
+
+  return formattedElements;
 };
 
 export default function Chatbot() {

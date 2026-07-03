@@ -26,15 +26,17 @@ const menuItems = [
   { name: "Pengumuman", href: "/pengumuman" },
 ];
 
-/** Halaman dengan hero gelap di atas — navbar transparan aman dipakai */
-const DARK_HERO_ROUTES = ["/", "/profil", "/wisata", "/budaya", "/umkm", "/berita", "/pengumuman"];
+const DARK_HERO_EXACT = ["/", "/profil", "/umkm"];
+const DARK_HERO_PREFIX = ["/wisata", "/budaya", "/berita", "/pengumuman", "/destinasi"];
 
 function isActivePath(pathname: string, href: string) {
-  return pathname === href || (href !== "/" && pathname.startsWith(href));
+  if (href === "/wisata" && pathname.startsWith("/destinasi/")) return true;
+  return pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
 }
 
 function hasDarkHeroAtTop(pathname: string) {
-  return DARK_HERO_ROUTES.includes(pathname);
+  if (DARK_HERO_EXACT.includes(pathname)) return true;
+  return DARK_HERO_PREFIX.some(prefix => pathname === prefix || pathname.startsWith(prefix + "/"));
 }
 
 export default function Navbar() {
