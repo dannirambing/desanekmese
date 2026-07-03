@@ -101,7 +101,7 @@ export default function HeroSection({ settings }: { settings?: HeroSettings }) {
             <Button
               asChild
               size="lg"
-              className="bg-turquoise/90 hover:bg-turquoise text-white rounded-full px-12 py-7 font-bold uppercase text-sm tracking-wider shadow-lg shadow-teal-900/40 transition-all hover:scale-105"
+              className="bg-transparent hover:bg-white/5 backdrop-blur-sm border border-white/15 text-white rounded-full px-12 py-7 font-bold uppercase text-sm tracking-[0.15em] shadow-none transition-all hover:scale-105 hover:border-white/30"
             >
               <Link href="/wisata">Jelajahi Destinasi</Link>
             </Button>

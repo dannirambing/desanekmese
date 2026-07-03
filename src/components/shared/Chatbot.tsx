@@ -141,7 +141,7 @@ export default function Chatbot() {
       // Auto-focus input when chat is opened (desktop only to prevent mobile keyboard flickering loops)
       if (windowSize.width >= 768) {
         setTimeout(() => {
-          inputRef.current?.focus();
+          inputRef.current?.focus({ preventScroll: true });
         }, 300);
       }
     }
@@ -318,7 +318,7 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed sm:absolute inset-0 sm:inset-auto sm:bottom-20 sm:right-0 w-full sm:w-[400px] h-[100dvh] sm:h-[600px] max-h-screen sm:max-h-[calc(100vh-8rem)] bg-white rounded-none sm:rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border-0 sm:border border-gray-100 z-50 animate-in fade-in duration-200"
+            className="fixed sm:absolute inset-0 sm:inset-auto sm:bottom-20 sm:right-0 w-full sm:w-[400px] h-[100dvh] sm:h-[600px] max-h-screen sm:max-h-[calc(100vh-8rem)] bg-white rounded-none sm:rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border-0 sm:border border-gray-100 z-50"
           >
             {/* Header (Solid White) */}
             <div className="bg-white border-b border-gray-100 text-navy px-5 py-4 flex items-center justify-between shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">

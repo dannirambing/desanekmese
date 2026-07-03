@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import {
   Map,
   Sparkles,
@@ -28,6 +30,10 @@ const formatCompactRupiah = (amount: number) => {
 };
 
 export default async function AdminDashboardPage() {
+  const session = await getServerSession(authOptions);
+  const userRole = session?.user?.role;
+  const canManageKonten = userRole === "SUPER_ADMIN" || userRole === "ADMIN_KONTEN";
+
   // Parallel data fetching for extremely fast load times
   const [
     wisata,
@@ -61,7 +67,7 @@ export default async function AdminDashboardPage() {
     prisma.villageBudget.findFirst({ orderBy: { year: "desc" } }),
   ]);
 
-  const metrics = [
+  const metricsData = [
     {
       title: "Destinasi Wisata",
       count: wisata,
@@ -70,6 +76,7 @@ export default async function AdminDashboardPage() {
       color: "from-blue-500 to-blue-400",
       bgLight: "bg-blue-50",
       textLight: "text-blue-600",
+      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
     },
     {
       title: "Konten Budaya",
@@ -79,6 +86,7 @@ export default async function AdminDashboardPage() {
       color: "from-amber-500 to-amber-400",
       bgLight: "bg-amber-50",
       textLight: "text-amber-600",
+      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
     },
     {
       title: "Produk UMKM",
@@ -88,6 +96,7 @@ export default async function AdminDashboardPage() {
       color: "from-emerald-500 to-emerald-400",
       bgLight: "bg-emerald-50",
       textLight: "text-emerald-600",
+      roles: ["SUPER_ADMIN", "ADMIN_UMKM"],
     },
     {
       title: "Berita Desa",
@@ -97,6 +106,7 @@ export default async function AdminDashboardPage() {
       color: "from-indigo-500 to-indigo-400",
       bgLight: "bg-indigo-50",
       textLight: "text-indigo-600",
+      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
     },
     {
       title: "Pengumuman",
@@ -106,6 +116,7 @@ export default async function AdminDashboardPage() {
       color: "from-rose-500 to-rose-400",
       bgLight: "bg-rose-50",
       textLight: "text-rose-600",
+      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
     },
     {
       title: "Admin Aktif",
@@ -115,17 +126,21 @@ export default async function AdminDashboardPage() {
       color: "from-slate-700 to-slate-600",
       bgLight: "bg-slate-100",
       textLight: "text-slate-700",
+      roles: ["SUPER_ADMIN"],
     },
     {
       title: "Log Chatbot AI",
       count: chatbotQueries,
-      href: "/admin",
+      href: "/admin/chatbot-log",
       icon: Bot,
       color: "from-turquoise to-teal-400",
       bgLight: "bg-teal-50",
       textLight: "text-teal-700",
+      roles: ["SUPER_ADMIN"],
     },
   ];
+
+  const metrics = metricsData.filter(m => userRole && m.roles.includes(userRole));
 
   // Combine and sort activities
   const recentActivities = [
@@ -156,31 +171,35 @@ export default async function AdminDashboardPage() {
   return (
     <div className="w-full relative pb-10">
       {/* Header Section */}
-      <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-br from-navy via-navy/90 to-blue-700 tracking-tight mb-2 drop-shadow-sm">
-            Overview Sistem
+          <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight mb-2">
+            Dashboard Utama
           </h1>
-          <p className="text-sm md:text-base text-slate-500 font-medium max-w-xl leading-relaxed">
-            Pusat kendali portal cerdas Desa Nekmese. Pantau metrik data, anggaran, dan aktivitas sistem dalam satu tampilan futuristik.
+          <p className="text-sm md:text-base text-slate-500 max-w-xl">
+            Ringkasan data, metrik, dan aktivitas operasional terbaru dari seluruh layanan portal Desa Nekmese.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Link
-            href="/admin/berita/tambah"
-            className="inline-flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-navy px-5 py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-sm hover:shadow-md"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Berita
-          </Link>
-          <Link
-            href="/admin/pengumuman/tambah"
-            className="inline-flex items-center justify-center bg-gradient-to-r from-turquoise to-teal-400 hover:from-turquoise/90 hover:to-teal-400/90 text-navy px-5 py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-md shadow-turquoise/20 hover:shadow-lg hover:-translate-y-0.5"
-          >
-            <Plus className="w-4 h-4 mr-2 stroke-[3]" />
-            Pengumuman
-          </Link>
+          {canManageKonten && (
+            <>
+              <Link
+                href="/admin/berita/tambah"
+                className="inline-flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-navy px-5 py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-sm hover:shadow-md"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Berita
+              </Link>
+              <Link
+                href="/admin/pengumuman/tambah"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-turquoise to-teal-400 hover:from-turquoise/90 hover:to-teal-400/90 text-navy px-5 py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-md shadow-turquoise/20 hover:shadow-lg hover:-translate-y-0.5"
+              >
+                <Plus className="w-4 h-4 mr-2 stroke-[3]" />
+                Pengumuman
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -221,89 +240,91 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 relative z-10">
         
         {/* Financial Summary Widget */}
-        <div className="xl:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl">
-                <Wallet className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-navy">Transparansi Anggaran</h2>
-                <p className="text-sm text-slate-500 font-medium">Realisasi APBDes Tahun {latestBudget?.year || new Date().getFullYear()}</p>
-              </div>
-            </div>
-            <Link href="/admin/anggaran" className="text-sm font-bold text-turquoise hover:text-teal-600 transition-colors flex items-center gap-1">
-              Kelola <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {latestBudget ? (
-            <div className="flex flex-col gap-6">
-              {/* Top Row: Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Realisasi Pendapatan</p>
-                  </div>
-                  <p className="text-3xl font-black text-navy tracking-tight">{formatCompactRupiah(latestBudget.totalRevenueRealization)}</p>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">
-                    dari target {formatCompactRupiah(latestBudget.totalRevenueBudget)}
-                  </p>
+        {canManageKonten && (
+          <div className="xl:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl">
+                  <Wallet className="w-6 h-6" />
                 </div>
-                
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Realisasi Belanja</p>
-                  </div>
-                  <p className="text-3xl font-black text-navy tracking-tight">{formatCompactRupiah(latestBudget.totalExpenditureRealization)}</p>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">
-                    dari pagu {formatCompactRupiah(latestBudget.totalExpenditureBudget)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Progress Bars with Data */}
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                <div className="mb-6">
-                  <div className="flex justify-between items-end mb-2">
-                    <p className="text-sm font-bold text-navy">Pencapaian Pendapatan</p>
-                    <p className="text-sm font-black text-teal-600">{Math.round((latestBudget.totalRevenueRealization / latestBudget.totalRevenueBudget) * 100)}%</p>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
-                    <div 
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 h-3 rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${Math.round((latestBudget.totalRevenueRealization / latestBudget.totalRevenueBudget) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <p className="text-sm font-bold text-navy">Penyerapan Anggaran (Belanja)</p>
-                    <p className="text-sm font-black text-amber-500">{budgetRealizationPercentage}%</p>
+                  <h2 className="text-xl font-bold text-navy">Transparansi Anggaran</h2>
+                  <p className="text-sm text-slate-500 font-medium">Realisasi APBDes Tahun {latestBudget?.year || new Date().getFullYear()}</p>
+                </div>
+              </div>
+              <Link href="/admin/anggaran" className="text-sm font-bold text-turquoise hover:text-teal-600 transition-colors flex items-center gap-1">
+                Kelola <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {latestBudget ? (
+              <div className="flex flex-col gap-6">
+                {/* Top Row: Quick Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Realisasi Pendapatan</p>
+                    </div>
+                    <p className="text-3xl font-black text-navy tracking-tight">{formatCompactRupiah(latestBudget.totalRevenueRealization)}</p>
+                    <p className="text-xs font-semibold text-slate-400 mt-1">
+                      dari target {formatCompactRupiah(latestBudget.totalRevenueBudget)}
+                    </p>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
-                    <div 
-                      className="bg-gradient-to-r from-amber-400 to-amber-500 h-3 rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${budgetRealizationPercentage}%` }}
-                    />
+                  
+                  <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Realisasi Belanja</p>
+                    </div>
+                    <p className="text-3xl font-black text-navy tracking-tight">{formatCompactRupiah(latestBudget.totalExpenditureRealization)}</p>
+                    <p className="text-xs font-semibold text-slate-400 mt-1">
+                      dari pagu {formatCompactRupiah(latestBudget.totalExpenditureBudget)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Bars with Data */}
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                  <div className="mb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <p className="text-sm font-bold text-navy">Pencapaian Pendapatan</p>
+                      <p className="text-sm font-black text-teal-600">{Math.round((latestBudget.totalRevenueRealization / latestBudget.totalRevenueBudget) * 100)}%</p>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                      <div 
+                        className="bg-gradient-to-r from-teal-400 to-teal-500 h-3 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${Math.round((latestBudget.totalRevenueRealization / latestBudget.totalRevenueBudget) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-end mb-2">
+                      <p className="text-sm font-bold text-navy">Penyerapan Anggaran (Belanja)</p>
+                      <p className="text-sm font-black text-amber-500">{budgetRealizationPercentage}%</p>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                      <div 
+                        className="bg-gradient-to-r from-amber-400 to-amber-500 h-3 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${budgetRealizationPercentage}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-              <Wallet className="w-10 h-10 text-slate-300 mb-3" />
-              <p className="text-sm font-semibold text-slate-500">Belum ada data anggaran yang direkam.</p>
-              <Link href="/admin/anggaran" className="mt-3 text-xs font-bold text-turquoise uppercase tracking-widest">Tambah Data</Link>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                <Wallet className="w-10 h-10 text-slate-300 mb-3" />
+                <p className="text-sm font-semibold text-slate-500">Belum ada data anggaran yang direkam.</p>
+                <Link href="/admin/anggaran" className="mt-3 text-xs font-bold text-turquoise uppercase tracking-widest">Tambah Data</Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Recent Activity Widget */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
+        <div className={`bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm ${!canManageKonten ? 'xl:col-span-3' : ''}`}>
           <div className="flex items-center gap-4 mb-6">
             <div className="p-3 bg-purple-100 text-purple-600 rounded-2xl">
               <Activity className="w-6 h-6" />

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image, Megaphone, FileText, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image as ImageIcon, Megaphone, FileText, TrendingUp, Menu, X, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
@@ -20,28 +21,47 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-[#0f172a]">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-[#0f172a] text-white px-3 py-2 rounded-lg text-xs font-bold uppercase"
-      >
-        Menu
-      </button>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row font-sans text-slate-900">
+      {/* Mobile Navbar */}
+      <div className="md:hidden fixed top-0 w-full h-16 bg-white/95 backdrop-blur-md z-30 flex items-center justify-between px-5 border-b border-slate-200 shadow-sm transition-all">
+        <Link href="/admin" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
+          <Image src="/favicon.ico" alt="Logo Desa Nekmese" width={28} height={28} className="object-contain" style={{ width: "auto", height: "auto" }} priority />
+          <h2 className="text-slate-900 font-black text-xl tracking-tighter">
+            Desa <span className="text-[#14b8a6]">Nekmese</span>
+          </h2>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-slate-500 hover:text-slate-900 focus:outline-none p-2 rounded-md hover:bg-slate-100 transition-colors"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
 
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside
         className={cn(
-          "bg-[#0f172a] w-64 fixed h-screen z-40 transition-transform md:translate-x-0 flex flex-col shadow-2xl",
+          "bg-gradient-to-b from-slate-900 to-slate-950 w-64 fixed h-screen z-40 transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.1)] border-r border-slate-800/40",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-8 border-b border-white/10">
-          <h2 className="text-white font-black text-xl tracking-tighter">
+        <div className="h-16 md:h-24 hidden md:flex items-center px-8 border-b border-slate-800/50 shrink-0 gap-2.5">
+          <Image src="/favicon.ico" alt="Logo Desa Nekmese" width={24} height={24} className="object-contain" style={{ width: "auto", height: "auto" }} priority />
+          <h2 className="text-white font-black text-2xl tracking-tighter">
             Desa <span className="text-[#14b8a6]">Nekmese</span>
           </h2>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
           {status === "loading" ? (
             <div className="space-y-3 px-4">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -59,8 +79,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola Pengumuman", href: "/admin/pengumuman", icon: Megaphone, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
               { name: "Kelola Anggaran", href: "/admin/anggaran", icon: TrendingUp, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Galeri Media", href: "/admin/galeri", icon: Image, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
+              { name: "Galeri Media", href: "/admin/galeri", icon: ImageIcon, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
               { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, roles: ["SUPER_ADMIN"] },
+              { name: "Log Chatbot AI", href: "/admin/chatbot-log", icon: Bot, roles: ["SUPER_ADMIN"] },
             ]
               .filter((item) => {
                 if (!session?.user?.role) return false;
@@ -77,13 +98,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                      "group flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all duration-200",
                       isActive
-                        ? "bg-[#14b8a6] text-white shadow-lg shadow-[#14b8a6]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/5"
+                        ? "bg-gradient-to-r from-[#14b8a6]/15 to-transparent text-[#14b8a6] border-l-4 border-[#14b8a6] rounded-r-xl"
+                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 hover:translate-x-1 rounded-xl border-l-4 border-transparent"
                     )}
                   >
-                    <Icon className="w-5 h-5" /> {item.name}
+                    <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive ? "scale-110" : "group-hover:scale-110")} /> 
+                    {item.name}
                   </Link>
                 );
               })
@@ -93,8 +115,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <AdminLogoutButton />
       </aside>
 
-      <main className="flex-1 md:ml-64 p-6 md:p-10 pt-16 md:pt-10">
-        {children}
+      <main className="flex-1 md:ml-64 p-4 md:p-8 pt-24 md:pt-8 relative max-w-full overflow-x-hidden">
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   );

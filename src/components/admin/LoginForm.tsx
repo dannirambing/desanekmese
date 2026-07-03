@@ -48,11 +48,13 @@ export default function LoginForm() {
       )}
 
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-          Email
+        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2.5 ml-1">
+          Alamat Email
         </label>
-        <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Mail className="w-5 h-5 text-slate-400 group-focus-within:text-[#14b8a6] transition-colors duration-300" />
+          </div>
           <input
             type="email"
             name="email"
@@ -60,18 +62,20 @@ export default function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            placeholder="Silahkan isi email"
-            className="w-full pl-11 pr-4 py-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+            placeholder="admin@desanekmese.id"
+            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-          Password
+        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2.5 ml-1">
+          Kata Sandi
         </label>
-        <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Lock className="w-5 h-5 text-slate-400 group-focus-within:text-[#14b8a6] transition-colors duration-300" />
+          </div>
           <input
             type="password"
             name="password"
@@ -79,8 +83,8 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            placeholder="Masukan Password"
-            className="w-full pl-11 pr-4 py-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+            placeholder="••••••••"
+            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
           />
         </div>
       </div>
@@ -88,9 +92,16 @@ export default function LoginForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#14b8a6] hover:bg-[#0f172a] text-white py-6 rounded-xl font-black uppercase tracking-widest transition-all"
+        className="w-full bg-[#14b8a6] hover:bg-[#0f172a] text-white py-7 rounded-2xl font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-lg hover:shadow-[#14b8a6]/25 mt-2"
       >
-        {loading ? "Memproses..." : "Masuk Admin"}
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            Memproses...
+          </span>
+        ) : (
+          "Masuk Ke Dashboard"
+        )}
       </Button>
     </form>
   );

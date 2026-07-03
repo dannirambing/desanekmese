@@ -65,18 +65,25 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, [pathname]);
 
-  const navLinkClass = (href: string) =>
-    cn(
-      "group relative transition hover:text-turquoise",
-      isActivePath(pathname, href) && "text-turquoise",
+  const navLinkClass = (href: string) => {
+    const isActive = isActivePath(pathname, href);
+    return cn(
+      "group relative transition-colors duration-300 py-1",
+      useSolidStyle
+        ? isActive ? "text-teal-600 font-bold" : "text-slate-600 hover:text-teal-600"
+        : isActive ? "text-white font-bold" : "text-white/80 hover:text-white",
       !useSolidStyle && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
     );
+  };
 
-  const underlineClass = (href: string) =>
-    cn(
-      "absolute -bottom-1 left-0 h-0.5 bg-turquoise transition-all duration-300",
-      isActivePath(pathname, href) ? "w-full" : "w-0 group-hover:w-full"
+  const underlineClass = (href: string) => {
+    const isActive = isActivePath(pathname, href);
+    return cn(
+      "absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300",
+      useSolidStyle ? "bg-teal-600" : "bg-white",
+      isActive ? "w-full" : "w-0 group-hover:w-1/2"
     );
+  };
 
   return (
     <header
@@ -99,7 +106,7 @@ export default function Navbar() {
           />
           <span
             className={cn(
-              "text-2xl sm:text-3xl font-extrabold tracking-tighter transition-colors duration-300",
+              "text-xl sm:text-2xl font-extrabold tracking-tighter transition-colors duration-300",
               useSolidStyle ? "text-navy" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
             )}
           >
@@ -110,7 +117,7 @@ export default function Navbar() {
 
         <nav
           className={cn(
-            "hidden lg:flex items-center gap-10 font-medium tracking-wide uppercase text-sm",
+            "hidden lg:flex items-center gap-5 xl:gap-8 font-medium tracking-wide uppercase text-sm",
             useSolidStyle ? "text-gray-700" : "text-white/95"
           )}
         >
