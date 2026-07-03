@@ -62,7 +62,7 @@ export default async function AdminAnggaranPage() {
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="bg-navy text-black text-xs font-black px-4 py-1.5 rounded-full tracking-widest uppercase shadow-sm">
+                    <span className="bg-navy text-white text-xs font-black px-4 py-1.5 rounded-full tracking-widest uppercase shadow-sm">
                       TAHUN {budget.year}
                     </span>
                     <div className="flex items-center gap-1.5">
