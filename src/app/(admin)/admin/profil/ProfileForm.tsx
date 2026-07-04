@@ -660,7 +660,7 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Villag
                 </span>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" /> <span className="text-black">Simpan Profil Desa</span>
+                  <Save className="w-4 h-4 mr-2" /> <span className="text-white">Simpan Profil Desa</span>
                 </>
               )}
             </button>

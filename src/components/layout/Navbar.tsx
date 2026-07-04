@@ -165,9 +165,9 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="flex h-full w-[min(100vw-2rem,20rem)] flex-col gap-0 p-0"
+              className="flex h-full w-[min(100vw-2rem,20rem)] flex-col gap-0 p-0 bg-white/95 backdrop-blur-xl border-l border-gray-100 shadow-2xl"
             >
-              <SheetHeader className="border-b px-6 py-5 text-left">
+              <SheetHeader className="border-b border-gray-100 px-6 py-5 text-left">
                 <SheetTitle className="text-xl font-extrabold tracking-tighter text-navy flex items-center gap-2">
                   <Image
                     src="/favicon.ico"
@@ -177,7 +177,7 @@ export default function Navbar() {
                     className="w-6 h-6 object-contain"
                   />
                   <span>
-                    Desa <span className="text-turquoise">Nekmese</span>
+                    Desa <span className="text-teal-600">Nekmese</span>
                   </span>
                 </SheetTitle>
               </SheetHeader>
@@ -190,8 +190,8 @@ export default function Navbar() {
                       className={cn(
                         "rounded-lg px-4 py-3 text-base font-medium uppercase tracking-wide transition-colors",
                         isActivePath(pathname, item.href)
-                          ? "bg-turquoise/10 text-turquoise"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-turquoise"
+                          ? "bg-teal-50 text-teal-700 font-bold"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
                       )}
                     >
                       {item.name}
@@ -200,11 +200,11 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              <div className="mt-auto border-t p-4">
+              <div className="mt-auto border-t border-gray-100 p-5">
                 <SheetClose asChild>
                   <Button
                     asChild
-                    className="w-full rounded-full bg-turquoise hover:bg-turquoise-light text-white uppercase font-semibold text-xs tracking-widest"
+                    className="w-full rounded-full bg-teal-600 hover:bg-teal-700 text-white uppercase font-bold text-xs tracking-widest shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
                   >
                     <Link href="/wisata">Mulai Jelajah</Link>
                   </Button>

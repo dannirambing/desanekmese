@@ -270,7 +270,7 @@ export default function Chatbot() {
           setIsOpen(!isOpen);
         }}
         className={cn(
-          "items-center justify-center size-14 rounded-full transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-turquoise/40 backdrop-blur-md",
+          "items-center justify-center size-14 rounded-full transition-all duration-300 relative focus:outline-none focus:ring-2 focus:ring-teal-500/40 backdrop-blur-md",
           isOpen
             ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-[0_8px_24px_rgba(239,68,68,0.25)] border border-red-600/20 sm:flex hidden absolute bottom-0 right-0"
             : "bg-white/20 text-slate-700/60 hover:bg-white/60 hover:text-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04),inset_0_1px_2px_rgba(255,255,255,0.35)] border border-white/40 cursor-grab active:cursor-grabbing flex"
@@ -321,10 +321,10 @@ export default function Chatbot() {
             className="fixed sm:absolute inset-0 sm:inset-auto sm:bottom-20 sm:right-0 w-full sm:w-[400px] h-[100dvh] sm:h-[600px] max-h-screen sm:max-h-[calc(100vh-8rem)] bg-white rounded-none sm:rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border-0 sm:border border-gray-100 z-50"
           >
             {/* Header (Solid White) */}
-            <div className="bg-white border-b border-gray-100 text-navy px-5 py-4 flex items-center justify-between shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+            <div className="bg-white border-b border-gray-100 text-navy px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-4 sm:py-4 flex items-center justify-between shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-turquoise/10 flex items-center justify-center border border-turquoise/20 relative shadow-inner">
-                  <Bot className="size-6 text-turquoise" />
+                <div className="size-10 rounded-full bg-teal-50 flex items-center justify-center border border-teal-100 relative shadow-inner shrink-0">
+                  <Bot className="size-6 text-teal-600" />
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 border border-white"></span>
                 </div>
                 <div>
@@ -337,9 +337,11 @@ export default function Chatbot() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-full transition-colors focus:outline-none"
+                type="button"
+                aria-label="Tutup percakapan"
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-2 rounded-full transition-colors focus:outline-none"
               >
-                <X className="size-5" />
+                <X className="size-6" />
               </button>
             </div>
 
@@ -359,7 +361,7 @@ export default function Chatbot() {
                       className={cn(
                         "max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed",
                         isUser
-                          ? "bg-turquoise/20 text-slate-900 border border-turquoise/30 rounded-tr-none font-medium shadow-sm"
+                          ? "bg-teal-50 text-slate-900 border border-teal-100 rounded-tr-none font-medium shadow-sm"
                           : msg.isError
                           ? "bg-rose-50 text-rose-700 border border-rose-100/80 rounded-tl-none flex items-start gap-2.5 font-medium shadow-sm"
                           : "bg-white text-gray-800 border border-gray-100 rounded-tl-none font-normal shadow-sm"
@@ -429,7 +431,7 @@ export default function Chatbot() {
             {/* Input Form Footer (Solid White) */}
             <form
               onSubmit={handleSubmit}
-              className="p-3 border-t border-gray-150 bg-white flex items-center gap-2 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.01)]"
+              className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-gray-150 bg-white flex items-center gap-2 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.01)]"
             >
               <input
                 ref={inputRef}
@@ -439,7 +441,7 @@ export default function Chatbot() {
                 disabled={isLoading}
                 placeholder={isLoading ? "Menunggu balasan..." : "Tulis pesan Anda..."}
                 className={cn(
-                  "flex-1 border rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-turquoise focus:ring-1 focus:ring-turquoise transition-all bg-slate-50",
+                  "flex-1 border rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all bg-slate-50",
                   isLoading ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-150" : "border-slate-200"
                 )}
               />
