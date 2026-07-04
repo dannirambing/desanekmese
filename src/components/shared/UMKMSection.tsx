@@ -28,7 +28,7 @@ export default function UMKMSection({ products }: UMKMSectionProps) {
         <div className="text-center mt-10">
           <Link
             href="/umkm"
-            className="inline-flex items-center gap-2 bg-navy hover:bg-navy/90 text-black px-8 py-3.5 rounded-full font-semibold uppercase text-sm tracking-widest transition-all hover:gap-3 shadow-lg shadow-navy/10"
+            className="inline-flex items-center gap-2 bg-navy hover:bg-navy/90 text-white px-8 py-3.5 rounded-full font-semibold uppercase text-sm tracking-widest transition-all hover:gap-3 shadow-lg shadow-navy/10"
           >
             Lihat Semua Produk UMKM
             <ArrowRight size={18} />
