@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
 import ImagePickerField from "@/components/admin/ImagePickerField";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditBudayaPage({
   params,
@@ -14,7 +15,11 @@ export default async function EditBudayaPage({
   const [item, categories] = await Promise.all([
     prisma.cultureItem.findUnique({
       where: { id },
-      include: { media: { take: 1 } },
+      include: { 
+        media: { take: 1 },
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     }),
     prisma.cultureCategory.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -120,6 +125,13 @@ export default async function EditBudayaPage({
             <Save className="mr-2" size={20} /> Simpan Perubahan
           </button>
         </form>
+
+        <AuditTrailInfo
+          createdBy={item.createdBy}
+          updatedBy={item.updatedBy}
+          createdAt={item.createdAt}
+          updatedAt={item.updatedAt}
+        />
       </div>
     </div>
   );

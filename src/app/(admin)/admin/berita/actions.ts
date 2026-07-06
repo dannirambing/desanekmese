@@ -57,7 +57,7 @@ export async function deleteNewsArticle(formData: FormData) {
 }
 
 export async function createNewsArticle(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const summary = (formData.get("summary") as string) || null;
   const content = formData.get("content") as string;
@@ -72,6 +72,7 @@ export async function createNewsArticle(formData: FormData) {
       content,
       status,
       publishedAt: status === "PUBLISHED" ? new Date() : null,
+      createdById: session.user.id,
     },
   });
 
@@ -85,7 +86,7 @@ export async function createNewsArticle(formData: FormData) {
 }
 
 export async function updateNewsArticle(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const summary = (formData.get("summary") as string) || null;
   const content = formData.get("content") as string;
@@ -115,6 +116,7 @@ export async function updateNewsArticle(id: string, formData: FormData) {
       content,
       status,
       publishedAt,
+      updatedById: session.user.id,
     },
   });
 

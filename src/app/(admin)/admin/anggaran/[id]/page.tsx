@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { formatRupiah } from "@/lib/format-rupiah";
 import { addBudgetDetail, updateBudgetYear } from "../actions";
 import BudgetDetailRow from "./BudgetDetailRow";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export const revalidate = 0; // Dynamic rendering
 
@@ -20,6 +21,8 @@ export default async function DetailAnggaranPage({
       items: {
         orderBy: { createdAt: "asc" },
       },
+      createdBy: { select: { name: true } },
+      updatedBy: { select: { name: true } },
     },
   });
 
@@ -305,6 +308,15 @@ export default async function DetailAnggaranPage({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <AuditTrailInfo
+          createdBy={budget.createdBy}
+          updatedBy={budget.updatedBy}
+          createdAt={budget.createdAt}
+          updatedAt={budget.updatedAt}
+        />
       </div>
     </div>
   );

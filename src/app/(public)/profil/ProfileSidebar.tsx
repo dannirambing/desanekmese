@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Info, Building2, BookOpen, Compass, MapPin, Users, Map, Award, TrendingUp } from "lucide-react";
+import { Info, Building2, BookOpen, Compass, MapPin, Users, Map, Award, TrendingUp, Droplets } from "lucide-react";
 
 const sections = [
   { id: "sambutan", label: "Sambutan Kepala Desa", icon: Info },
@@ -13,6 +13,7 @@ const sections = [
   { id: "struktur", label: "Struktur Pemerintahan", icon: Map },
   { id: "potensi", label: "Potensi & Komoditas", icon: Award },
   { id: "lembaga", label: "Lembaga Desa", icon: TrendingUp },
+  { id: "titik-air", label: "Lokasi Titik Air", icon: Droplets },
 ];
 
 export default function ProfileSidebar() {

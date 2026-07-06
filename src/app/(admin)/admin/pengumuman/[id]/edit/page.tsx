@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
 import ImagePickerField from "@/components/admin/ImagePickerField";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditAnnouncementPage({
   params,
@@ -13,6 +14,10 @@ export default async function EditAnnouncementPage({
   const { id } = await params;
   const announcement = await prisma.announcement.findUnique({
     where: { id },
+    include: {
+      createdBy: { select: { name: true } },
+      updatedBy: { select: { name: true } },
+    }
   });
 
   if (!announcement) notFound();
@@ -103,6 +108,13 @@ export default async function EditAnnouncementPage({
             <Save className="mr-2" size={20} /> Simpan Perubahan
           </button>
         </form>
+
+        <AuditTrailInfo
+          createdBy={announcement.createdBy}
+          updatedBy={announcement.updatedBy}
+          createdAt={announcement.createdAt}
+          updatedAt={announcement.updatedAt}
+        />
       </div>
     </div>
   );

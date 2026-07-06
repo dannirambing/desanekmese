@@ -180,7 +180,7 @@ export default function GalleryManager({ initialAssets }: GalleryManagerProps) {
                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 />
                 {/* Actions Overlay */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 px-2">
+                <div className="absolute inset-0 bg-black/50 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 px-2">
                   <button
                     onClick={() => handleViewDetails(asset)}
                     className="p-1.5 bg-white text-navy hover:bg-turquoise hover:text-white rounded-lg transition-all shadow-md cursor-pointer"

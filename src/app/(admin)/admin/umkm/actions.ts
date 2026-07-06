@@ -40,7 +40,7 @@ export async function deleteUMKMProduct(formData: FormData) {
 }
 
 export async function createUMKMProduct(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
   const data = parseProductForm(formData);
 
   await prisma.productUMKM.create({
@@ -54,6 +54,7 @@ export async function createUMKMProduct(formData: FormData) {
       orderType: data.orderType,
       status: data.status,
       imageUrl: data.removeImage ? null : data.newImageUrl,
+      createdById: session.user.id,
     },
   });
 
@@ -66,7 +67,7 @@ export async function createUMKMProduct(formData: FormData) {
 }
 
 export async function updateUMKMProduct(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
   const data = parseProductForm(formData);
 
   const existing = await prisma.productUMKM.findUnique({ where: { id } });
@@ -86,6 +87,7 @@ export async function updateUMKMProduct(id: string, formData: FormData) {
       orderType: data.orderType,
       status: data.status,
       imageUrl,
+      updatedById: session.user.id,
     },
   });
 

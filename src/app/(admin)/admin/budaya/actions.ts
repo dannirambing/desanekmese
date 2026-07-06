@@ -57,7 +57,7 @@ export async function deleteCultureItem(formData: FormData) {
 }
 
 export async function createCultureItem(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const summary = (formData.get("summary") as string) || null;
   const description = formData.get("description") as string;
@@ -73,6 +73,7 @@ export async function createCultureItem(formData: FormData) {
       description,
       status,
       categoryId,
+      createdById: session.user.id,
     },
   });
 
@@ -86,7 +87,7 @@ export async function createCultureItem(formData: FormData) {
 }
 
 export async function updateCultureItem(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const summary = (formData.get("summary") as string) || null;
   const description = formData.get("description") as string;
@@ -111,6 +112,7 @@ export async function updateCultureItem(id: string, formData: FormData) {
       description,
       categoryId,
       status: statusInput || existing.status,
+      updatedById: session.user.id,
     },
   });
 

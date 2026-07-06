@@ -39,6 +39,11 @@ model TourismPlace {
   
   media       MediaFile[]
   
+  createdById String?
+  createdBy   Admin?        @relation("TourismPlaceCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("TourismPlaceUpdatedBy", fields: [updatedById], references: [id])
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -65,6 +70,11 @@ model CultureItem {
   category    CultureCategory @relation(fields: [categoryId], references: [id])
 
   media       MediaFile[]
+
+  createdById String?
+  createdBy   Admin?          @relation("CultureItemCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?          @relation("CultureItemUpdatedBy", fields: [updatedById], references: [id])
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -102,6 +112,11 @@ model NewsArticle {
 
   media       MediaFile[]
 
+  createdById String?
+  createdBy   Admin?        @relation("NewsArticleCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("NewsArticleUpdatedBy", fields: [updatedById], references: [id])
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -122,6 +137,28 @@ model Admin {
   role         AdminRole @default(SUPER_ADMIN)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  // Relasi Audit Trail (Pembuat & Pengubah)
+  createdTourismPlaces TourismPlace[] @relation("TourismPlaceCreatedBy")
+  updatedTourismPlaces TourismPlace[] @relation("TourismPlaceUpdatedBy")
+
+  createdCultureItems  CultureItem[]  @relation("CultureItemCreatedBy")
+  updatedCultureItems  CultureItem[]  @relation("CultureItemUpdatedBy")
+
+  createdNewsArticles  NewsArticle[]  @relation("NewsArticleCreatedBy")
+  updatedNewsArticles  NewsArticle[]  @relation("NewsArticleUpdatedBy")
+
+  createdProductsUMKM  ProductUMKM[]  @relation("ProductUMKMCreatedBy")
+  updatedProductsUMKM  ProductUMKM[]  @relation("ProductUMKMUpdatedBy")
+
+  createdAnnouncements Announcement[] @relation("AnnouncementCreatedBy")
+  updatedAnnouncements Announcement[] @relation("AnnouncementUpdatedBy")
+
+  createdBudgets       VillageBudget[] @relation("VillageBudgetCreatedBy")
+  updatedBudgets       VillageBudget[] @relation("VillageBudgetUpdatedBy")
+
+  createdWaterSources  WaterSource[]  @relation("WaterSourceCreatedBy")
+  updatedWaterSources  WaterSource[]  @relation("WaterSourceUpdatedBy")
 }
 
 enum OrderChannel {
@@ -143,6 +180,11 @@ model ProductUMKM {
   orderUrl    String        @default("")
   orderType   OrderChannel  @default(WHATSAPP)
   status      PublishStatus @default(DRAFT)
+
+  createdById String?
+  createdBy   Admin?        @relation("ProductUMKMCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("ProductUMKMUpdatedBy", fields: [updatedById], references: [id])
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -179,6 +221,11 @@ model Announcement {
   status      PublishStatus @default(DRAFT)
   imageUrl    String?       // Opsional: foto/cover pengumuman
   category    String        @default("Umum")
+  createdById String?
+  createdBy   Admin?        @relation("AnnouncementCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("AnnouncementUpdatedBy", fields: [updatedById], references: [id])
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -248,6 +295,11 @@ model VillageBudget {
   
   items                       BudgetDetail[]
   
+  createdById                 String?
+  createdBy                   Admin?         @relation("VillageBudgetCreatedBy", fields: [createdById], references: [id])
+  updatedById                 String?
+  updatedBy                   Admin?         @relation("VillageBudgetUpdatedBy", fields: [updatedById], references: [id])
+  
   createdAt                   DateTime       @default(now())
   updatedAt                   DateTime       @updatedAt
 }
@@ -274,4 +326,25 @@ model ChatCache {
   useCount  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Tabel Titik Air
+model WaterSource {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String        @db.Text
+  latitude    Float
+  longitude   Float
+  imageUrl    String?       @db.Text
+  images      String[]      @default([]) // Array foto titik air
+  status      PublishStatus @default(DRAFT)
+  
+  createdById String?
+  createdBy   Admin?        @relation("WaterSourceCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("WaterSourceUpdatedBy", fields: [updatedById], references: [id])
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }

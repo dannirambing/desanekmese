@@ -24,7 +24,7 @@ export async function deleteAnnouncement(formData: FormData) {
 }
 
 export async function createAnnouncement(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
   const status = (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
@@ -39,6 +39,7 @@ export async function createAnnouncement(formData: FormData) {
       status,
       imageUrl,
       category,
+      createdById: session.user.id,
     },
   });
 
@@ -50,7 +51,7 @@ export async function createAnnouncement(formData: FormData) {
 }
 
 export async function updateAnnouncement(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
   const statusInput = formData.get("status") as "PUBLISHED" | "DRAFT" | null;
@@ -77,6 +78,7 @@ export async function updateAnnouncement(id: string, formData: FormData) {
       status: statusInput || existing.status,
       imageUrl: finalImageUrl,
       category: category || existing.category,
+      updatedById: session.user.id,
     },
   });
 

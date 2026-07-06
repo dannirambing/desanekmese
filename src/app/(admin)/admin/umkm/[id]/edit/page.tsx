@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { updateUMKMProduct } from "@/app/(admin)/admin/umkm/actions";
 import ImagePickerField from "@/components/admin/ImagePickerField";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 import { ORDER_CHANNEL_OPTIONS } from "@/lib/umkm-order";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
@@ -17,7 +18,13 @@ export default async function EditUmkmPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await prisma.productUMKM.findUnique({ where: { id } });
+  const product = await prisma.productUMKM.findUnique({ 
+    where: { id },
+    include: {
+      createdBy: { select: { name: true } },
+      updatedBy: { select: { name: true } },
+    }
+  });
 
   if (!product) notFound();
 
@@ -134,6 +141,13 @@ export default async function EditUmkmPage({
             <Save className="mr-2" size={20} /> Simpan Perubahan
           </button>
         </form>
+
+        <AuditTrailInfo
+          createdBy={product.createdBy}
+          updatedBy={product.updatedBy}
+          createdAt={product.createdAt}
+          updatedAt={product.updatedAt}
+        />
       </div>
     </div>
   );

@@ -15,7 +15,11 @@ import {
   Map,
   Quote,
   Trophy,
+  Droplets,
 } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import DynamicWaterSourceMap from "@/components/public/DynamicWaterSourceMap";
+import ZoomableImage from "@/components/shared/ZoomableImage";
 
 export const metadata: Metadata = {
   title: "Profil Desa | Desa Nekmese",
@@ -25,7 +29,13 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ProfilPage() {
-  const profile = await getVillageProfile();
+  const [profile, waterSources] = await Promise.all([
+    getVillageProfile(),
+    prisma.waterSource.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { name: "asc" }
+    })
+  ]);
 
   // Memisahkan butir-butir misi yang dipisahkan oleh baris baru
   const missionItems = profile.mission
@@ -375,15 +385,10 @@ export default async function ProfilPage() {
 
                 <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all duration-300">
                   {profile.structureImageUrl ? (
-                    <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
-                      <Image
-                        src={profile.structureImageUrl}
-                        alt="Struktur Organisasi Desa Nekmese"
-                        fill
-                        className="object-contain bg-white"
-                        sizes="(max-width: 768px) 100vw, 768px"
-                      />
-                    </div>
+                    <ZoomableImage
+                      src={profile.structureImageUrl}
+                      alt="Struktur Organisasi Desa Nekmese"
+                    />
                   ) : (
                     <div className="w-full aspect-[16/9] rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-400 italic">
                       Bagan struktur organisasi belum diunggah.
@@ -455,6 +460,30 @@ export default async function ProfilPage() {
                 </div>
               </section>
 
+              {/* SEKSI 10: LOKASI TITIK AIR */}
+              <section id="titik-air" className="scroll-mt-32">
+                <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                  Infrastruktur Air Bersih
+                </span>
+                <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                  Lokasi Titik Air
+                </h2>
+
+                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                  <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <p className="text-slate-600 font-medium leading-relaxed text-sm md:text-base max-w-2xl">
+                      Peta persebaran fasilitas air bersih dan sumber air yang dapat diakses oleh warga di sekitar wilayah Desa Nekmese.
+                    </p>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold text-xs uppercase tracking-wider shrink-0">
+                      <Droplets className="w-4 h-4" />
+                      {waterSources.length} Titik Lokasi
+                    </div>
+                  </div>
+                  
+                  <DynamicWaterSourceMap sources={waterSources} />
+                </div>
+              </section>
+
             </div>
           </div>
         </div>
@@ -462,3 +491,4 @@ export default async function ProfilPage() {
     </>
   );
 }
+// Trigger HMR

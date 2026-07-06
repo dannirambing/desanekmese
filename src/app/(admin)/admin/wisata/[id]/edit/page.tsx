@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
 import ImagePickerField from "@/components/admin/ImagePickerField";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditWisataPage({
   params,
@@ -14,7 +15,11 @@ export default async function EditWisataPage({
   const [place, categories] = await Promise.all([
     prisma.tourismPlace.findUnique({
       where: { id },
-      include: { media: { take: 1 } },
+      include: { 
+        media: { take: 1 },
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     }),
     prisma.category.findMany(),
   ]);
@@ -134,6 +139,13 @@ export default async function EditWisataPage({
             <Save className="mr-2" size={20} /> Simpan Perubahan
           </button>
         </form>
+
+        <AuditTrailInfo
+          createdBy={place.createdBy}
+          updatedBy={place.updatedBy}
+          createdAt={place.createdAt}
+          updatedAt={place.updatedAt}
+        />
       </div>
     </div>
   );

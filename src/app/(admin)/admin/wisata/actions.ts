@@ -57,7 +57,7 @@ export async function deleteTourismPlace(formData: FormData) {
 }
 
 export async function createTourismPlace(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
@@ -78,6 +78,7 @@ export async function createTourismPlace(formData: FormData) {
       status,
       categoryId,
       facilities,
+      createdById: session.user.id,
     },
   });
 
@@ -91,7 +92,7 @@ export async function createTourismPlace(formData: FormData) {
 }
 
 export async function updateTourismPlace(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
@@ -121,6 +122,7 @@ export async function updateTourismPlace(id: string, formData: FormData) {
       categoryId,
       status: statusInput || existing.status,
       facilities,
+      updatedById: session.user.id,
     },
   });
 

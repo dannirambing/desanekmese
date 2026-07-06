@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
 import ImagePickerField from "@/components/admin/ImagePickerField";
+import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditBeritaPage({
   params,
@@ -13,7 +14,11 @@ export default async function EditBeritaPage({
   const { id } = await params;
   const article = await prisma.newsArticle.findUnique({
     where: { id },
-    include: { media: { take: 1 } },
+    include: { 
+      media: { take: 1 },
+      createdBy: { select: { name: true } },
+      updatedBy: { select: { name: true } },
+    },
   });
 
   if (!article) notFound();
@@ -99,6 +104,13 @@ export default async function EditBeritaPage({
             <Save className="mr-2" size={20} /> Simpan Perubahan
           </button>
         </form>
+
+        <AuditTrailInfo
+          createdBy={article.createdBy}
+          updatedBy={article.updatedBy}
+          createdAt={article.createdAt}
+          updatedAt={article.updatedAt}
+        />
       </div>
     </div>
   );

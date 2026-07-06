@@ -228,7 +228,7 @@ export default async function AdminDashboardPage() {
               </p>
               
               {/* Animated subtle arrow */}
-              <div className="absolute bottom-6 right-6 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+              <div className="absolute bottom-6 right-6 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                 <ArrowRight className="w-5 h-5 text-navy/40" />
               </div>
             </Link>

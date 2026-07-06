@@ -140,7 +140,7 @@ export default function ImagePickerModal({
                         className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                       />
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/40 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <div className="bg-turquoise text-white p-1.5 rounded-full shadow-lg scale-90 group-hover:scale-100 transition-transform duration-200">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </div>

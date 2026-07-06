@@ -39,7 +39,7 @@ async function recalculateBudgetTotals(budgetId: string) {
 }
 
 export async function createBudget(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   
   const yearStr = formData.get("year") as string;
   const year = parseInt(yearStr, 10);
@@ -63,6 +63,7 @@ export async function createBudget(formData: FormData) {
       totalRevenueRealization: 0,
       totalExpenditureBudget: 0,
       totalExpenditureRealization: 0,
+      createdById: session.user.id,
     },
   });
 
@@ -74,7 +75,7 @@ export async function createBudget(formData: FormData) {
 }
 
 export async function updateBudgetYear(id: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
   
   const yearStr = formData.get("year") as string;
   const year = parseInt(yearStr, 10);
@@ -93,7 +94,10 @@ export async function updateBudgetYear(id: string, formData: FormData) {
 
   await prisma.villageBudget.update({
     where: { id },
-    data: { year },
+    data: { 
+      year,
+      updatedById: session.user.id,
+    },
   });
 
   revalidatePath("/admin/anggaran");
