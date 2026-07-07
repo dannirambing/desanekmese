@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Link from "next/link";
@@ -27,6 +27,24 @@ interface WaterSourceData {
   latitude: number;
   longitude: number;
   imageUrl: string | null;
+}
+
+// Component to dynamically fit maps zoom/center based on all sources
+function MapBoundsFit({ sources }: { sources: WaterSourceData[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (sources.length === 0) return;
+
+    if (sources.length === 1) {
+      map.setView([sources[0].latitude, sources[0].longitude], 15);
+    } else {
+      const bounds = L.latLngBounds(sources.map((s) => [s.latitude, s.longitude]));
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [sources, map]);
+
+  return null;
 }
 
 export default function WaterSourceMap({ sources }: { sources: WaterSourceData[] }) {
@@ -60,6 +78,8 @@ export default function WaterSourceMap({ sources }: { sources: WaterSourceData[]
         scrollWheelZoom={false}
         className="w-full h-full z-0"
       >
+        <MapBoundsFit sources={sources} />
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

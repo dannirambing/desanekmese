@@ -66,11 +66,11 @@ export default async function PublicPeraturanPage({ searchParams }: PublicPeratu
   };
 
   const getTabClass = (currentType: string) => {
-    const base = "px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border cursor-pointer";
+    const base = "px-4 py-2 rounded-full text-xs font-semibold border cursor-pointer transition-all duration-300";
     if (typeFilter === currentType) {
-      return `${base} bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-600/20`;
+      return `${base} bg-turquoise text-white border-turquoise shadow-md shadow-turquoise/15`;
     }
-    return `${base} bg-white border-gray-200 text-slate-600 hover:border-teal-500 hover:text-teal-600`;
+    return `${base} bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-navy`;
   };
 
   return (
@@ -100,7 +100,7 @@ export default async function PublicPeraturanPage({ searchParams }: PublicPeratu
       </section>
 
       {/* Main Content Section */}
-      <section className="py-16 md:py-24 bg-gray-50 min-h-screen">
+      <section className="py-16 md:py-24 bg-gray-50/50 min-h-screen">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center mb-14">
             <SectionTitle
@@ -109,10 +109,10 @@ export default async function PublicPeraturanPage({ searchParams }: PublicPeratu
             />
           </div>
 
-          {/* Search & Filter Controls */}
-          <div className="space-y-6 mb-12">
+          {/* Search & Filter Controls Card */}
+          <div className="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm max-w-4xl mx-auto space-y-6 mb-12">
             {/* Search Input Box */}
-            <form method="GET" action="/peraturan" className="relative max-w-2xl mx-auto flex items-center gap-2">
+            <form method="GET" action="/peraturan" className="relative flex items-center gap-2">
               {typeFilter && <input type="hidden" name="type" value={typeFilter} />}
               <div className="relative flex-1">
                 <input
@@ -120,20 +120,20 @@ export default async function PublicPeraturanPage({ searchParams }: PublicPeratu
                   name="search"
                   defaultValue={search}
                   placeholder="Cari nomor, judul, atau ringkasan peraturan..."
-                  className="w-full pl-12 pr-4 py-4.5 rounded-2xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 text-sm font-normal transition-all text-slate-800"
+                  className="w-full h-12 pl-12 pr-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-turquoise focus:bg-white outline-none transition-all text-slate-800"
                 />
-                <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               </div>
               <button
                 type="submit"
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-4.5 rounded-2xl text-xs uppercase tracking-widest transition-colors shadow-md shadow-teal-600/10 cursor-pointer"
+                className="bg-turquoise hover:bg-turquoise/90 text-white font-bold h-12 px-6 rounded-2xl text-xs uppercase tracking-widest transition-colors shadow-md shadow-turquoise/10 cursor-pointer"
               >
                 Cari
               </button>
             </form>
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap justify-center gap-2.5">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100/70">
               <Link href={`/peraturan${search ? `?search=${search}` : ""}`} className={getTabClass("")}>
                 Semua Dokumen
               </Link>
