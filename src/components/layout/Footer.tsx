@@ -54,6 +54,7 @@ const menuItems = [
   { name: "UMKM", href: "/umkm" },
   { name: "Berita", href: "/berita" },
   { name: "Pengumuman", href: "/pengumuman" },
+  { name: "Peraturan Desa", href: "/peraturan" },
 ];
 
 export default async function Footer() {

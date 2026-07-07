@@ -120,6 +120,19 @@ export default async function EditWisataPage({
 
           <div>
             <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
+              Link Google Maps (Opsional)
+            </label>
+            <input
+              type="url"
+              name="mapUrl"
+              defaultValue={place.mapUrl || ""}
+              placeholder="https://goo.gl/maps/..."
+              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
               Status
             </label>
             <select

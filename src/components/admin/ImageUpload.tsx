@@ -24,6 +24,7 @@ export default function ImageUpload({
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [uploadedKey, setUploadedKey] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
@@ -52,9 +53,12 @@ export default function ImageUpload({
     setUploadedUrl(null);
     setUploadedKey(null);
     setIsCompressing(true);
+    setCompressProgress(0);
 
     try {
-      const compressed = await compressImage(file);
+      const compressed = await compressImage(file, (percent) => {
+        setCompressProgress(Math.round(percent));
+      });
       await startUpload([compressed]);
     } catch {
       alert("Gagal memproses gambar. Silakan coba lagi.");
@@ -93,7 +97,9 @@ export default function ImageUpload({
               <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2">
                 <Loader2 className="h-8 w-8 animate-spin text-white" />
                 <span className="text-xs font-bold text-white">
-                  {isCompressing ? "Mengompresi..." : "Mengupload..."}
+                  {isCompressing 
+                    ? `Mengompresi (${compressProgress}%)...` 
+                    : "Mengupload..."}
                 </span>
               </div>
             )}

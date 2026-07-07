@@ -14,7 +14,7 @@ function generateSlug(title: string) {
 }
 
 export async function deleteAnnouncement(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_PENGUMUMAN"]);
   const id = formData.get("id") as string;
   await prisma.announcement.delete({ where: { id } });
   revalidatePath("/admin/pengumuman");
@@ -24,7 +24,7 @@ export async function deleteAnnouncement(formData: FormData) {
 }
 
 export async function createAnnouncement(formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_PENGUMUMAN"]);
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
   const status = (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
@@ -51,7 +51,7 @@ export async function createAnnouncement(formData: FormData) {
 }
 
 export async function updateAnnouncement(id: string, formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_PENGUMUMAN"]);
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
   const statusInput = formData.get("status") as "PUBLISHED" | "DRAFT" | null;

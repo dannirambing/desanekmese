@@ -31,8 +31,8 @@ const formatCompactRupiah = (amount: number) => {
 
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
-  const userRole = session?.user?.role;
-  const canManageKonten = userRole === "SUPER_ADMIN" || userRole === "ADMIN_KONTEN";
+  const userPerms = session?.user?.permissions || [];
+  const canManageKonten = userPerms.includes("ALL_ACCESS") || userPerms.includes("MANAGE_BERITA");
 
   // Parallel data fetching for extremely fast load times
   const [
@@ -76,7 +76,7 @@ export default async function AdminDashboardPage() {
       color: "from-blue-500 to-blue-400",
       bgLight: "bg-blue-50",
       textLight: "text-blue-600",
-      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
+      perms: ["MANAGE_WISATA", "ALL_ACCESS"],
     },
     {
       title: "Konten Budaya",
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
       color: "from-amber-500 to-amber-400",
       bgLight: "bg-amber-50",
       textLight: "text-amber-600",
-      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
+      perms: ["MANAGE_BUDAYA", "ALL_ACCESS"],
     },
     {
       title: "Produk UMKM",
@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
       color: "from-emerald-500 to-emerald-400",
       bgLight: "bg-emerald-50",
       textLight: "text-emerald-600",
-      roles: ["SUPER_ADMIN", "ADMIN_UMKM"],
+      perms: ["MANAGE_UMKM", "ALL_ACCESS"],
     },
     {
       title: "Berita Desa",
@@ -106,7 +106,7 @@ export default async function AdminDashboardPage() {
       color: "from-indigo-500 to-indigo-400",
       bgLight: "bg-indigo-50",
       textLight: "text-indigo-600",
-      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
+      perms: ["MANAGE_BERITA", "ALL_ACCESS"],
     },
     {
       title: "Pengumuman",
@@ -116,7 +116,7 @@ export default async function AdminDashboardPage() {
       color: "from-rose-500 to-rose-400",
       bgLight: "bg-rose-50",
       textLight: "text-rose-600",
-      roles: ["SUPER_ADMIN", "ADMIN_KONTEN"],
+      perms: ["MANAGE_PENGUMUMAN", "ALL_ACCESS"],
     },
     {
       title: "Admin Aktif",
@@ -126,7 +126,7 @@ export default async function AdminDashboardPage() {
       color: "from-slate-700 to-slate-600",
       bgLight: "bg-slate-100",
       textLight: "text-slate-700",
-      roles: ["SUPER_ADMIN"],
+      perms: ["ALL_ACCESS"],
     },
     {
       title: "Log Chatbot AI",
@@ -136,11 +136,11 @@ export default async function AdminDashboardPage() {
       color: "from-turquoise to-teal-400",
       bgLight: "bg-teal-50",
       textLight: "text-teal-700",
-      roles: ["SUPER_ADMIN"],
+      perms: ["ALL_ACCESS"],
     },
   ];
 
-  const metrics = metricsData.filter(m => userRole && m.roles.includes(userRole));
+  const metrics = metricsData.filter(m => m.perms.some(p => userPerms.includes(p)));
 
   // Combine and sort activities
   const recentActivities = [

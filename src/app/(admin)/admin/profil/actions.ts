@@ -6,7 +6,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 export async function updateVillageProfile(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_PROFIL"]);
 
   const welcomeName = formData.get("welcomeName") as string;
   const welcomeRole = formData.get("welcomeRole") as string;

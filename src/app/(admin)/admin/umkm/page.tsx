@@ -5,15 +5,57 @@ import DeleteForm from "./DeleteForm";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/lib/format-rupiah";
 import { getOrderLabel } from "@/lib/umkm-order";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
-export default async function AdminUmkmPage() {
-  const products = await prisma.productUMKM.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    page?: string;
+  }>;
+}
+
+export default async function AdminUmkmPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.ProductUMKMWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { ownerName: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status && (status === "PUBLISHED" || status === "DRAFT")) {
+    where.status = status as "PUBLISHED" | "DRAFT";
+  }
+
+  // Fetch paginated products
+  const [products, totalItems] = await Promise.all([
+    prisma.productUMKM.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.productUMKM.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-navy tracking-tight uppercase">
             Kelola UMKM
@@ -30,6 +72,8 @@ export default async function AdminUmkmPage() {
           Tambah Produk
         </Link>
       </div>
+
+      <AdminTableFilters placeholder="Cari produk (nama, pemilik)..." />
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -115,6 +159,13 @@ export default async function AdminUmkmPage() {
           </table>
         </div>
       </div>
+
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

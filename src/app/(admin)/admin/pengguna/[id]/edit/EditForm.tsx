@@ -9,10 +9,10 @@ interface AdminData {
   id: string;
   name: string | null;
   email: string;
-  role: string;
+  roleId: string | null;
 }
 
-export default function EditForm({ admin }: { admin: AdminData }) {
+export default function EditForm({ admin, roles }: { admin: AdminData, roles: { id: string, name: string }[] }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -71,14 +71,15 @@ export default function EditForm({ admin }: { admin: AdminData }) {
                 Hak Akses (Role)
               </label>
               <select
-                name="role"
+                name="roleId"
                 required
-                defaultValue={admin.role}
+                defaultValue={admin.roleId || ""}
                 className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] bg-white focus:ring-2 focus:ring-[#14b8a6] outline-none"
               >
-                <option value="SUPER_ADMIN">Super Admin</option>
-                <option value="ADMIN_KONTEN">Admin Konten</option>
-                <option value="ADMIN_UMKM">Admin UMKM</option>
+                <option value="">-- Pilih Peran --</option>
+                {roles.map(role => (
+                  <option key={role.id} value={role.id}>{role.name}</option>
+                ))}
               </select>
             </div>
 

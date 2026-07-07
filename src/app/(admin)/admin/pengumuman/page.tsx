@@ -4,6 +4,9 @@ import { Edit, Plus, Eye, Megaphone } from "lucide-react";
 import DeleteForm from "./DeleteForm";
 import { cn } from "@/lib/utils";
 import { formatIndonesianDate } from "@/lib/format-date";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
 const getCategoryStyle = (category: string) => {
   switch (category) {
@@ -20,14 +23,66 @@ const getCategoryStyle = (category: string) => {
   }
 };
 
-export default async function AdminPengumumanPage() {
-  const announcements = await prisma.announcement.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+const staticCategories = [
+  { label: "Umum", value: "Umum" },
+  { label: "Layanan Publik", value: "Layanan Publik" },
+  { label: "Kegiatan Desa", value: "Kegiatan Desa" },
+  { label: "Pembangunan", value: "Pembangunan" },
+  { label: "Keuangan", value: "Keuangan" },
+];
+
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    category?: string;
+    page?: string;
+  }>;
+}
+
+export default async function AdminPengumumanPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const category = params.category || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.AnnouncementWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { content: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status && (status === "PUBLISHED" || status === "DRAFT")) {
+    where.status = status as "PUBLISHED" | "DRAFT";
+  }
+
+  if (category) {
+    where.category = category;
+  }
+
+  // Fetch paginated announcements
+  const [announcements, totalItems] = await Promise.all([
+    prisma.announcement.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.announcement.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-navy tracking-tight uppercase">
             Kelola Pengumuman
@@ -44,6 +99,12 @@ export default async function AdminPengumumanPage() {
           Tambah Pengumuman
         </Link>
       </div>
+
+      <AdminTableFilters
+        placeholder="Cari pengumuman (judul, konten)..."
+        categories={staticCategories}
+        categoryLabel="Kategori Pengumuman"
+      />
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -140,6 +201,13 @@ export default async function AdminPengumumanPage() {
           </table>
         </div>
       </div>
+
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

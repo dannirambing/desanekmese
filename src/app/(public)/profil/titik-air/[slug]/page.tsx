@@ -55,12 +55,12 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
           >
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Profil Desa
           </Link>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight drop-shadow-lg mb-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight drop-shadow-md mb-6 leading-tight">
             {source.name}
           </h1>
-          <div className="flex items-center justify-center gap-2 text-teal-400 font-bold text-sm tracking-wider uppercase drop-shadow-sm">
+          <div className="flex items-center justify-center gap-2 text-teal-300 font-semibold text-xs tracking-widest uppercase drop-shadow-sm bg-black/20 backdrop-blur-sm px-5 py-2 rounded-full inline-flex border border-white/5">
             <MapPin className="w-4 h-4" />
-            <span>Titik Air Desa Nekmese</span>
+            <span>Fasilitas Air Bersih Desa</span>
           </div>
         </div>
       </section>
@@ -83,13 +83,18 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1 space-y-6">
                   <div>
-                    <h2 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-3">
-                      Deskripsi
+                    <h2 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-5 flex items-center gap-3">
+                      <span className="w-8 h-px bg-slate-200 block"></span>
+                      Deskripsi Lokasi
                     </h2>
-                    <div className="prose prose-slate prose-p:text-slate-600 prose-p:leading-relaxed max-w-none">
-                      <p className="whitespace-pre-line text-lg text-slate-700 font-medium">
-                        {source.description}
-                      </p>
+                    <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                      {source.description.split("\n").map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
                     </div>
                   </div>
 
@@ -99,30 +104,31 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
                 </div>
 
                 <div className="w-full md:w-80 shrink-0 space-y-6">
-                  <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                    <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest mb-4">
-                      Informasi Lokasi
+                  <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 shadow-sm">
+                    <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-3">
+                      <span className="w-5 h-px bg-slate-200 block"></span>
+                      Informasi Geografis
                     </h3>
                     
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
-                          <MapPin className="w-4 h-4" />
+                    <div className="space-y-5">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 shadow-inner">
+                          <MapPin className="w-5 h-5" />
                         </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Koordinat</p>
-                          <p className="text-sm font-bold text-slate-700 mt-0.5">{source.latitude}, {source.longitude}</p>
+                        <div className="pt-0.5">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Koordinat Lokasi</p>
+                          <p className="text-sm font-black text-slate-700 font-mono tracking-tight">{source.latitude}, {source.longitude}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                          <Calendar className="w-4 h-4" />
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 shadow-inner">
+                          <Calendar className="w-5 h-5" />
                         </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ditambahkan Pada</p>
-                          <p className="text-sm font-bold text-slate-700 mt-0.5">
-                            {new Date(source.createdAt).toLocaleDateString("id-ID", {
+                        <div className="pt-0.5">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Terakhir Diperbarui</p>
+                          <p className="text-sm font-bold text-slate-700">
+                            {new Date(source.updatedAt || source.createdAt).toLocaleDateString("id-ID", {
                               day: "numeric",
                               month: "long",
                               year: "numeric"
@@ -133,12 +139,12 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
                     </div>
 
                     <a
-                      href={googleMapsLink}
+                      href={source.mapUrl || googleMapsLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-6 w-full flex items-center justify-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
+                      className="mt-8 w-full flex items-center justify-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                     >
-                      Buka di Google Maps <ExternalLink className="w-4 h-4" />
+                      Buka di Google Maps <ExternalLink className="w-4 h-4 ml-1" />
                     </a>
                   </div>
                 </div>

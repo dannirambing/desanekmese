@@ -68,8 +68,14 @@ export default async function PengumumanDetailPage({ params }: PageProps) {
             {announcement.title}
           </h1>
 
-          <div className="text-stone-700 leading-relaxed whitespace-pre-line text-base md:text-lg font-light">
-            {announcement.content}
+          <div className="text-stone-700 leading-loose text-base md:text-lg space-y-6">
+            {announcement.content.split("\n").map((paragraph, index) => (
+              paragraph.trim() ? (
+                <p key={index} className="font-medium text-justify tracking-wide">
+                  {paragraph}
+                </p>
+              ) : null
+            ))}
           </div>
 
           <div className="mt-12 pt-8 border-t border-stone-100">

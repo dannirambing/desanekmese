@@ -4,23 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { AdminRole } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth-session";
 
 export async function createAdmin(formData: FormData) {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "SUPER_ADMIN") {
-    throw new Error("Tidak memiliki izin (Hanya Super Admin).");
-  }
+  const session = await requireAdminSession(["ALL_ACCESS"]);
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const role = formData.get("role") as AdminRole | null;
+  const roleId = formData.get("roleId") as string;
 
-  if (!email || !password || !name) {
+  if (!email || !password || !name || !roleId) {
     throw new Error("Harap isi semua field yang wajib.");
   }
 
@@ -43,7 +38,8 @@ export async function createAdmin(formData: FormData) {
       name,
       email,
       passwordHash,
-      role: role || "SUPER_ADMIN",
+      roleId,
+      isActive: true,
     },
   });
 
@@ -52,16 +48,13 @@ export async function createAdmin(formData: FormData) {
 }
 
 export async function updateAdmin(id: string, formData: FormData) {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "SUPER_ADMIN") {
-    throw new Error("Tidak memiliki izin (Hanya Super Admin).");
-  }
+  const session = await requireAdminSession(["ALL_ACCESS"]);
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const role = formData.get("role") as AdminRole | null;
+  const roleId = formData.get("roleId") as string;
 
   if (!email || !name) {
     throw new Error("Harap isi Nama dan Email.");
@@ -78,15 +71,15 @@ export async function updateAdmin(id: string, formData: FormData) {
   const updateData: {
     name: string;
     email: string;
-    role?: AdminRole;
+    roleId?: string;
     passwordHash?: string;
   } = {
     name,
     email,
   };
   
-  if (role) {
-    updateData.role = role;
+  if (roleId) {
+    updateData.roleId = roleId;
   }
 
   if (password) {
@@ -105,28 +98,33 @@ export async function updateAdmin(id: string, formData: FormData) {
   redirect("/admin/pengguna");
 }
 
-export async function deleteAdmin(formData: FormData) {
-  const id = formData.get("id") as string;
-
+export async function toggleAdminStatus(id: string) {
   if (!id) return;
 
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "SUPER_ADMIN") {
-    throw new Error("Tidak memiliki izin (Hanya Super Admin).");
-  }
+  const session = await requireAdminSession(["ALL_ACCESS"]);
 
   if (session?.user?.id === id) {
-    throw new Error("Anda tidak dapat menghapus akun Anda sendiri.");
+    throw new Error("Anda tidak dapat menonaktifkan akun Anda sendiri.");
   }
 
-  // Cek apakah ini admin terakhir
-  const adminCount = await prisma.admin.count();
-  if (adminCount <= 1) {
-    throw new Error("Tidak dapat menghapus admin terakhir.");
-  }
-
-  await prisma.admin.delete({
+  const admin = await prisma.admin.findUnique({
     where: { id },
+    include: { role: true },
+  });
+
+  if (!admin) {
+    throw new Error("Admin tidak ditemukan.");
+  }
+
+  if (admin.role?.name === "Super Admin") {
+    throw new Error("Akun Super Admin tidak dapat dinonaktifkan.");
+  }
+
+  await prisma.admin.update({
+    where: { id },
+    data: {
+      isActive: !admin.isActive,
+    },
   });
 
   revalidatePath("/admin/pengguna");

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { getVillageProfile } from "@/lib/queries";
 import ProfileSidebar from "./ProfileSidebar";
 import ExpandableText from "./ExpandableText";
@@ -274,9 +275,15 @@ export default async function ProfilPage() {
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Kondisi Geografis
                     </span>
-                    <p className="text-slate-600 font-medium leading-relaxed text-base">
-                      {profile.geography}
-                    </p>
+                    <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                      {profile.geography.split("\n").map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
                   </div>
 
                   {/* Peta Wilayah */}
@@ -407,8 +414,14 @@ export default async function ProfilPage() {
                 </h2>
 
                 <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                  <div className="text-slate-600 font-medium leading-relaxed text-base space-y-6">
-                    <p className="whitespace-pre-line">{profile.potential}</p>
+                  <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                    {profile.potential.split("\n").map((paragraph, index) => (
+                      paragraph.trim() ? (
+                        <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          {paragraph}
+                        </p>
+                      ) : null
+                    ))}
                   </div>
                 </div>
               </section>
@@ -428,9 +441,15 @@ export default async function ProfilPage() {
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Lembaga Kemasyarakatan Desa
                     </span>
-                    <p className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line">
-                      {profile.organizations}
-                    </p>
+                    <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                      {profile.organizations.split("\n").map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
                   </div>
 
                   {/* Sarpras */}
@@ -438,9 +457,15 @@ export default async function ProfilPage() {
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Sarana & Prasarana Desa
                     </span>
-                    <p className="text-slate-600 font-medium leading-relaxed text-base whitespace-pre-line">
-                      {profile.facilities}
-                    </p>
+                    <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                      {profile.facilities.split("\n").map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
                   </div>
 
                   {/* Prestasi */}
@@ -452,8 +477,14 @@ export default async function ProfilPage() {
                       <span className="block text-[10px] text-stone-900/60 font-black uppercase tracking-widest mb-3">
                         Prestasi & Program Unggulan
                       </span>
-                      <div className="text-stone-950 font-bold leading-relaxed text-base whitespace-pre-line">
-                        {profile.achievements}
+                      <div className="text-stone-950 font-bold leading-loose text-base md:text-lg space-y-5">
+                        {profile.achievements.split("\n").map((paragraph, index) => (
+                          paragraph.trim() ? (
+                            <p key={index} className="text-justify tracking-wide">
+                              {paragraph}
+                            </p>
+                          ) : null
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -481,6 +512,36 @@ export default async function ProfilPage() {
                   </div>
                   
                   <DynamicWaterSourceMap sources={waterSources} />
+                  
+                  {/* Daftar Mata Air */}
+                  {waterSources.length > 0 && (
+                    <div className="mt-8 pt-8 border-t border-slate-100">
+                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                        Daftar Mata Air & Fasilitas
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {waterSources.map((source) => (
+                          <Link 
+                            key={source.id} 
+                            href={`/profil/titik-air/${source.slug}`}
+                            className="flex items-start gap-4 p-4 rounded-2xl border border-slate-100 hover:border-turquoise/30 hover:shadow-md hover:shadow-turquoise/5 bg-slate-50/50 hover:bg-white transition-all group"
+                          >
+                            <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform">
+                              {source.imageUrl ? (
+                                <Image src={source.imageUrl} alt={source.name} fill className="object-cover" />
+                              ) : (
+                                <Droplets className="w-6 h-6" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-navy text-sm mb-1 truncate group-hover:text-turquoise transition-colors">{source.name}</h4>
+                              <p className="text-xs text-slate-500 line-clamp-2">{source.description}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </section>
 

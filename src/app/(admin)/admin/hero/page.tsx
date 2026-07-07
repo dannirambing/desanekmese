@@ -5,7 +5,7 @@ import HeroForm from "./HeroForm";
 export const dynamic = "force-dynamic";
 
 export default async function AdminHeroPage() {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_HERO"]);
   const settings = await getHeroSettings();
 
   return <HeroForm initialSettings={settings} />;

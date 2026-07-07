@@ -2,11 +2,52 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Plus, MapPin, Edit, Eye } from "lucide-react";
 import DeleteForm from "./DeleteForm";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
-export default async function WaterSourceAdminPage() {
-  const sources = await prisma.waterSource.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    page?: string;
+  }>;
+}
+
+export default async function WaterSourceAdminPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.WaterSourceWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status && (status === "PUBLISHED" || status === "DRAFT")) {
+    where.status = status as "PUBLISHED" | "DRAFT";
+  }
+
+  // Fetch paginated water sources
+  const [sources, totalItems] = await Promise.all([
+    prisma.waterSource.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.waterSource.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
   return (
     <div className="space-y-6">
@@ -27,6 +68,8 @@ export default async function WaterSourceAdminPage() {
           Tambah Titik Air
         </Link>
       </div>
+
+      <AdminTableFilters placeholder="Cari titik air (nama)..." />
 
       <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -98,6 +141,13 @@ export default async function WaterSourceAdminPage() {
           </table>
         </div>
       </div>
+
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

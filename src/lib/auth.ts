@@ -24,8 +24,12 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) return null;
 
-        const admin = await prisma.admin.findUnique({ where: { email } });
+        const admin = await prisma.admin.findUnique({ 
+          where: { email },
+          include: { role: true }
+        });
         if (!admin) return null;
+        if (!admin.isActive) throw new Error("Akun Anda telah dinonaktifkan.");
 
         const isValid = await verifyPassword(password, admin.passwordHash);
         if (!isValid) return null;
@@ -34,7 +38,8 @@ export const authOptions: NextAuthOptions = {
           id: admin.id,
           email: admin.email,
           name: admin.name ?? "Administrator",
-          role: admin.role,
+          roleId: admin.roleId,
+          permissions: admin.role?.permissions || [],
         };
       },
     }),
@@ -43,18 +48,26 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-      }
-      // Backward compatibility for old sessions without role
-      if (!token.role) {
-        token.role = "SUPER_ADMIN";
+        token.roleId = (user as any).roleId;
+        token.permissions = (user as any).permissions || [];
+      } else if (token.id) {
+        // Fetch current permissions from database to support real-time updates and migration
+        const admin = await prisma.admin.findUnique({
+          where: { id: token.id as string },
+          include: { role: true }
+        });
+        if (admin) {
+          token.roleId = admin.roleId;
+          token.permissions = admin.role?.permissions || [];
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role;
+        session.user.roleId = token.roleId as string;
+        session.user.permissions = (token.permissions as string[]) || [];
       }
       return session;
     },

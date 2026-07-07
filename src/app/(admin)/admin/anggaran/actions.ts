@@ -39,7 +39,7 @@ async function recalculateBudgetTotals(budgetId: string) {
 }
 
 export async function createBudget(formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_BUDGET"]);
   
   const yearStr = formData.get("year") as string;
   const year = parseInt(yearStr, 10);
@@ -75,7 +75,7 @@ export async function createBudget(formData: FormData) {
 }
 
 export async function updateBudgetYear(id: string, formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_BUDGET"]);
   
   const yearStr = formData.get("year") as string;
   const year = parseInt(yearStr, 10);
@@ -108,7 +108,7 @@ export async function updateBudgetYear(id: string, formData: FormData) {
 }
 
 export async function deleteBudget(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDGET"]);
   
   const id = formData.get("id") as string;
   
@@ -124,7 +124,7 @@ export async function deleteBudget(formData: FormData) {
 }
 
 export async function addBudgetDetail(budgetId: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDGET"]);
 
   const type = formData.get("type") as "REVENUE" | "EXPENDITURE";
   const category = formData.get("category") as string;
@@ -154,7 +154,7 @@ export async function addBudgetDetail(budgetId: string, formData: FormData) {
 }
 
 export async function deleteBudgetDetail(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDGET"]);
 
   const detailId = formData.get("detailId") as string;
   const budgetId = formData.get("budgetId") as string;
@@ -176,7 +176,7 @@ export async function deleteBudgetDetail(formData: FormData) {
 }
 
 export async function updateBudgetDetail(detailId: string, budgetId: string, formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDGET"]);
 
   const category = formData.get("category") as string;
   const amountBudget = parseFloat(formData.get("amountBudget") as string);

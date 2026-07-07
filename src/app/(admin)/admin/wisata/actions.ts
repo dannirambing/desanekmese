@@ -48,7 +48,7 @@ async function syncTourismMedia(
 }
 
 export async function deleteTourismPlace(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_WISATA"]);
   const id = formData.get("id") as string;
   await prisma.tourismPlace.delete({ where: { id } });
   revalidatePath("/admin/wisata");
@@ -57,7 +57,7 @@ export async function deleteTourismPlace(formData: FormData) {
 }
 
 export async function createTourismPlace(formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_WISATA"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
@@ -68,6 +68,7 @@ export async function createTourismPlace(formData: FormData) {
   const facilities = facilitiesInput
     ? facilitiesInput.split(",").map((f) => f.trim()).filter(Boolean)
     : [];
+  const mapUrl = formData.get("mapUrl") as string | null;
 
   const place = await prisma.tourismPlace.create({
     data: {
@@ -78,6 +79,7 @@ export async function createTourismPlace(formData: FormData) {
       status,
       categoryId,
       facilities,
+      mapUrl,
       createdById: session.user.id,
     },
   });
@@ -92,7 +94,7 @@ export async function createTourismPlace(formData: FormData) {
 }
 
 export async function updateTourismPlace(id: string, formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_WISATA"]);
   const name = formData.get("name") as string;
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
@@ -102,6 +104,7 @@ export async function updateTourismPlace(id: string, formData: FormData) {
   const facilities = facilitiesInput
     ? facilitiesInput.split(",").map((f) => f.trim()).filter(Boolean)
     : [];
+  const mapUrl = formData.get("mapUrl") as string | null;
 
   const existing = await prisma.tourismPlace.findUnique({
     where: { id },
@@ -122,6 +125,7 @@ export async function updateTourismPlace(id: string, formData: FormData) {
       categoryId,
       status: statusInput || existing.status,
       facilities,
+      mapUrl,
       updatedById: session.user.id,
     },
   });

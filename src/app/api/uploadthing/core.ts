@@ -36,6 +36,25 @@ export const ourFileRouter = {
       }
       return { url: file.ufsUrl, key: file.key };
     }),
+
+  documentUploader: f({
+    pdf: {
+      maxFileSize: "16MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async () => {
+      const session = await getServerSession(authOptions);
+
+      if (!session?.user) {
+        throw new UploadThingError("Unauthorized");
+      }
+
+      return { adminId: session.user.id };
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.ufsUrl, key: file.key };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

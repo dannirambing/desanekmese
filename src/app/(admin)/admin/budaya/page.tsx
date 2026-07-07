@@ -3,16 +3,72 @@ import { prisma } from "@/lib/prisma";
 import { Edit, Plus, Eye, Sparkles } from "lucide-react";
 import DeleteForm from "./DeleteForm";
 import { cn } from "@/lib/utils";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
-export default async function AdminBudayaPage() {
-  const cultureItems = await prisma.cultureItem.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { category: true },
-  });
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    category?: string;
+    page?: string;
+  }>;
+}
+
+export default async function AdminBudayaPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const category = params.category || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.CultureItemWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { summary: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status && (status === "PUBLISHED" || status === "DRAFT")) {
+    where.status = status as "PUBLISHED" | "DRAFT";
+  }
+
+  if (category) {
+    where.categoryId = category;
+  }
+
+  // Fetch paginated culture items
+  const [cultureItems, totalItems, dbCategories] = await Promise.all([
+    prisma.cultureItem.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { category: true },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.cultureItem.count({ where }),
+    prisma.cultureCategory.findMany({
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+  const categoryOptions = dbCategories.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-navy tracking-tight uppercase">
             Kelola Budaya
@@ -29,6 +85,12 @@ export default async function AdminBudayaPage() {
           Tambah Budaya
         </Link>
       </div>
+
+      <AdminTableFilters
+        placeholder="Cari budaya (nama, ringkasan)..."
+        categories={categoryOptions}
+        categoryLabel="Kategori Budaya"
+      />
 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -112,6 +174,13 @@ export default async function AdminBudayaPage() {
           </table>
         </div>
       </div>
+
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

@@ -121,11 +121,15 @@ model NewsArticle {
   updatedAt   DateTime      @updatedAt
 }
 
-// Role Administrator
-enum AdminRole {
-  SUPER_ADMIN
-  ADMIN_KONTEN
-  ADMIN_UMKM
+// Tabel Role & Hak Akses (RBAC)
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  permissions String[]
+  isSystem    Boolean  @default(false) // Jika true, role tidak bisa dihapus
+  admins      Admin[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Akun Administrator
@@ -134,7 +138,9 @@ model Admin {
   email        String    @unique
   passwordHash String
   name         String?
-  role         AdminRole @default(SUPER_ADMIN)
+  roleId       String?
+  role         Role?     @relation(fields: [roleId], references: [id])
+  isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -159,6 +165,9 @@ model Admin {
 
   createdWaterSources  WaterSource[]  @relation("WaterSourceCreatedBy")
   updatedWaterSources  WaterSource[]  @relation("WaterSourceUpdatedBy")
+
+  createdRegulations   VillageRegulation[] @relation("VillageRegulationCreatedBy")
+  updatedRegulations   VillageRegulation[] @relation("VillageRegulationUpdatedBy")
 }
 
 enum OrderChannel {
@@ -336,6 +345,7 @@ model WaterSource {
   description String        @db.Text
   latitude    Float
   longitude   Float
+  mapUrl      String?       @db.Text
   imageUrl    String?       @db.Text
   images      String[]      @default([]) // Array foto titik air
   status      PublishStatus @default(DRAFT)
@@ -347,4 +357,31 @@ model WaterSource {
   
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+}
+
+// Model untuk Peraturan Desa
+model VillageRegulation {
+  id           String        @id @default(cuid())
+  title        String        @db.Text
+  number       String        // Nomor Peraturan (contoh: "02/2025")
+  year         Int           // Tahun Peraturan
+  description  String?       @db.Text
+  type         RegulationType @default(PERATURAN_DESA)
+  fileUrl      String        @db.Text
+  fileKey      String?       @db.Text
+  status       PublishStatus @default(DRAFT)
+  
+  createdById  String?
+  createdBy    Admin?        @relation("VillageRegulationCreatedBy", fields: [createdById], references: [id])
+  updatedById  String?
+  updatedBy    Admin?        @relation("VillageRegulationUpdatedBy", fields: [updatedById], references: [id])
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum RegulationType {
+  PERATURAN_DESA
+  KEPUTUSAN_KEPALA_DESA
+  PERATURAN_BERSAMA
 }

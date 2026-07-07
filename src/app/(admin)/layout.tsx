@@ -3,6 +3,8 @@ import { extractRouterConfig } from "uploadthing/server";
 
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminRouteGroupLayout({
   children,
 }: {

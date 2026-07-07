@@ -23,6 +23,7 @@ export default function MultiImageUpload({
   // Store uploaded URLs and previews of currently uploading/compressing files
   const [urls, setUrls] = useState<string[]>(initialUrls);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
@@ -48,10 +49,21 @@ export default function MultiImageUpload({
     }
 
     setIsCompressing(true);
+    setCompressProgress(0);
 
     try {
+      const progressMap: Record<number, number> = {};
+      const updateProgress = (index: number, percent: number) => {
+        progressMap[index] = percent;
+        const totalPercent = Object.values(progressMap).reduce((a, b) => a + b, 0);
+        const averagePercent = Math.round(totalPercent / files.length);
+        setCompressProgress(averagePercent);
+      };
+
       const compressedFiles = await Promise.all(
-        files.map((file) => compressImage(file))
+        files.map((file, idx) => 
+          compressImage(file, (percent) => updateProgress(idx, percent))
+        )
       );
       await startUpload(compressedFiles);
     } catch {
@@ -94,7 +106,9 @@ export default function MultiImageUpload({
             <div className="flex flex-col items-center justify-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-turquoise" />
               <span className="text-xs font-bold text-slate-500">
-                {isCompressing ? "Mengompresi..." : "Mengupload..."}
+                {isCompressing 
+                  ? `Mengompresi (${compressProgress}%)...` 
+                  : "Mengupload..."}
               </span>
             </div>
           ) : (

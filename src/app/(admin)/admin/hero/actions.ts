@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 export async function updateHeroSettings(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_HERO"]);
 
   const tagline = formData.get("tagline") as string;
   const titleLine1 = formData.get("titleLine1") as string;

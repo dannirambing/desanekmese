@@ -9,8 +9,8 @@ export async function deleteChatLog(id: string) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "SUPER_ADMIN") {
-      throw new Error("Unauthorized access. Only SUPER_ADMIN can delete logs.");
+    if (!session || !session.user.permissions.includes("ALL_ACCESS")) {
+      throw new Error("Unauthorized access. Only ALL_ACCESS can delete logs.");
     }
 
     await prisma.chatCache.delete({

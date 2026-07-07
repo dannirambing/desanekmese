@@ -6,7 +6,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 // Fungsi untuk sinkronisasi gambar yang sudah terunggah di modul lain ke tabel MediaAsset
 export async function syncExistingMedia() {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"]);
+  await requireAdminSession(["MANAGE_GALERI"]);
 
   // Ambil semua URL unik dari MediaFile, ProductUMKM, dan HeroSettings
   const mediaFiles = await prisma.mediaFile.findMany({ select: { url: true, publicId: true } });
@@ -64,7 +64,7 @@ export async function syncExistingMedia() {
 
 // Mendapatkan data penggunaan gambar pada modul-modul web portal
 export async function getMediaUsage(url: string) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"]);
+  await requireAdminSession(["MANAGE_GALERI"]);
 
   const usages: { type: string; name: string; link: string }[] = [];
 
@@ -108,12 +108,62 @@ export async function getMediaUsage(url: string) {
     usages.push({ type: "Hero Section", name: "Spanduk Utama Halaman Depan", link: `/admin/hero` });
   }
 
+  // 6. Periksa Pengumuman Desa
+  const announcement = await prisma.announcement.findFirst({
+    where: { imageUrl: url },
+  });
+  if (announcement) {
+    usages.push({ type: "Pengumuman Desa", name: announcement.title, link: `/admin/pengumuman/${announcement.id}/edit` });
+  }
+
+  // 7. Periksa Profil Desa
+  const profile = await prisma.villageProfile.findFirst({
+    where: {
+      OR: [
+        { welcomeImageUrl: url },
+        { structureImageUrl: url }
+      ]
+    }
+  });
+  if (profile) {
+    usages.push({ type: "Profil Desa", name: "Informasi/Struktur Organisasi", link: `/admin/profil` });
+  }
+
+  // 8. Periksa Titik Air
+  const waterSource = await prisma.waterSource.findFirst({
+    where: {
+      OR: [
+        { imageUrl: url },
+        { images: { has: url } }
+      ]
+    }
+  });
+  if (waterSource) {
+    usages.push({ type: "Titik Air", name: waterSource.name, link: `/admin/titik-air/${waterSource.id}/edit` });
+  }
+
   return usages;
 }
 
 // Menghapus aset gambar dari galeri media
 export async function deleteMediaAsset(id: string) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"]);
+  await requireAdminSession(["MANAGE_GALERI"]);
+
+  const asset = await prisma.mediaAsset.findUnique({
+    where: { id },
+  });
+
+  if (!asset) {
+    throw new Error("Aset media tidak ditemukan.");
+  }
+
+  // Periksa apakah gambar sedang digunakan pada modul mana pun
+  const usages = await getMediaUsage(asset.url);
+
+  if (usages.length > 0) {
+    const modules = usages.map((u) => `${u.type} (${u.name})`);
+    throw new Error(`Gambar tidak dapat dihapus karena masih digunakan pada: ${modules.join(", ")}`);
+  }
 
   await prisma.mediaAsset.delete({
     where: { id },
@@ -124,7 +174,7 @@ export async function deleteMediaAsset(id: string) {
 
 // Mendapatkan semua aset gambar dalam galeri
 export async function getMediaAssets() {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"]);
+  await requireAdminSession(["MANAGE_GALERI"]);
   return prisma.mediaAsset.findMany({
     orderBy: { createdAt: "desc" },
   });

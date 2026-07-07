@@ -2,18 +2,74 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Edit, Plus, Eye, MapPin } from "lucide-react";
 import DeleteForm from "./DeleteForm";
-import { cn } from "@/lib/utils"; // <-- Di sini letak import utilitasnya
+import { cn } from "@/lib/utils";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
-export default async function AdminWisataPage() {
-  const destinations = await prisma.tourismPlace.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { category: true },
-  });
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    category?: string;
+    page?: string;
+  }>;
+}
+
+export default async function AdminWisataPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const category = params.category || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.TourismPlaceWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { location: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status && (status === "PUBLISHED" || status === "DRAFT")) {
+    where.status = status as "PUBLISHED" | "DRAFT";
+  }
+
+  if (category) {
+    where.categoryId = category;
+  }
+
+  // Fetch data
+  const [destinations, totalItems, dbCategories] = await Promise.all([
+    prisma.tourismPlace.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { category: true },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.tourismPlace.count({ where }),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+  const categoryOptions = dbCategories.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
 
   return (
     <div className="w-full">
       {/* Header Halaman */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-navy tracking-tight uppercase">
             Kelola Wisata
@@ -24,12 +80,18 @@ export default async function AdminWisataPage() {
         </div>
         <Link 
           href="/admin/wisata/tambah" 
-          className="inline-flex items-center justify-center bg-turquoise hover:bg-turquoise/90 text-black px-6 py-3 rounded-full font-bold text-xs tracking-widest uppercase transition-all shadow-md shadow-turquoise/10"
+          className="inline-flex items-center justify-center bg-turquoise hover:bg-turquoise/90 text-black px-6 py-3 rounded-full font-bold text-xs tracking-widest uppercase transition-all shadow-md shadow-turquoise/10 animate-fade-in"
         >
           <Plus className="w-4 h-4 mr-2 stroke-[3]" />
           Tambah Wisata
         </Link>
       </div>
+
+      <AdminTableFilters
+        placeholder="Cari wisata (nama, lokasi)..."
+        categories={categoryOptions}
+        categoryLabel="Kategori Wisata"
+      />
 
       {/* Kontainer Tabel */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
@@ -102,6 +164,13 @@ export default async function AdminWisataPage() {
           </table>
         </div>
       </div>
+
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

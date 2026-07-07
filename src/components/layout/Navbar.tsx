@@ -24,10 +24,11 @@ const menuItems = [
   { name: "UMKM", href: "/umkm" },
   { name: "Berita", href: "/berita" },
   { name: "Pengumuman", href: "/pengumuman" },
+  { name: "Peraturan", href: "/peraturan" },
 ];
 
 const DARK_HERO_EXACT = ["/", "/profil", "/umkm"];
-const DARK_HERO_PREFIX = ["/wisata", "/budaya", "/berita", "/pengumuman", "/destinasi"];
+const DARK_HERO_PREFIX = ["/wisata", "/budaya", "/berita", "/pengumuman", "/destinasi", "/peraturan"];
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/wisata" && pathname.startsWith("/destinasi/")) return true;

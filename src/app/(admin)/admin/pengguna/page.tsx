@@ -1,19 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Edit, Plus, Users, User } from "lucide-react";
-import DeleteForm from "./DeleteForm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { Edit, Plus, Users, User, Shield, CheckCircle2, XCircle } from "lucide-react";
+import ToggleStatusForm from "./ToggleStatusForm";
+import { requireAdminSession } from "@/lib/auth-session";
 
 export default async function AdminPenggunaPage() {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== "SUPER_ADMIN") {
-    redirect("/admin");
-  }
+  await requireAdminSession(["ALL_ACCESS"]);
 
   const admins = await prisma.admin.findMany({
     orderBy: { createdAt: "desc" },
+    include: { role: true }
   });
 
   return (
@@ -44,7 +40,8 @@ export default async function AdminPenggunaPage() {
             <thead className="bg-slate-50 border-b border-slate-200 uppercase text-xs font-extrabold text-navy/70 tracking-wider">
               <tr>
                 <th className="px-6 py-4.5">Nama & Email</th>
-                <th className="px-6 py-4.5">Hak Akses</th>
+                <th className="px-6 py-4.5">Peran (Role)</th>
+                <th className="px-6 py-4.5">Status</th>
                 <th className="px-6 py-4.5">Dibuat Pada</th>
                 <th className="px-6 py-4.5 text-right">Aksi</th>
               </tr>
@@ -52,7 +49,7 @@ export default async function AdminPenggunaPage() {
             <tbody className="divide-y divide-slate-100 font-medium text-navy/80">
               {admins.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-16 text-center text-navy/40 font-semibold">
+                  <td colSpan={5} className="px-6 py-16 text-center text-navy/40 font-semibold">
                     Belum ada data admin yang direkam.
                   </td>
                 </tr>
@@ -69,18 +66,23 @@ export default async function AdminPenggunaPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border ${
-                        admin.role === "SUPER_ADMIN"
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : admin.role === "ADMIN_KONTEN"
-                          ? "bg-blue-50 text-blue-700 border-blue-200"
-                          : "bg-teal-50 text-teal-700 border-teal-200"
-                      }`}>
-                        {admin.role === "SUPER_ADMIN" ? "Super Admin" : admin.role === "ADMIN_KONTEN" ? "Admin Konten" : "Admin UMKM"}
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border bg-blue-50 text-blue-700 border-blue-200 flex items-center inline-flex w-fit">
+                        <Shield className="w-3 h-3 mr-1" />
+                        {admin.role?.name || "Tidak ada peran"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border bg-green-50 text-green-700 border-green-200">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border flex items-center inline-flex w-fit ${
+                        admin.isActive 
+                          ? "bg-green-50 text-green-700 border-green-200" 
+                          : "bg-red-50 text-red-700 border-red-200"
+                      }`}>
+                        {admin.isActive ? <CheckCircle2 className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+                        {admin.isActive ? "Aktif" : "Nonaktif"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border bg-slate-50 text-slate-700 border-slate-200">
                         {new Date(admin.createdAt).toLocaleDateString("id-ID", {
                           year: "numeric",
                           month: "short",
@@ -97,7 +99,9 @@ export default async function AdminPenggunaPage() {
                         >
                           <Edit className="w-5 h-5" />
                         </Link>
-                        <DeleteForm id={admin.id} />
+                        {admin.role?.name !== "Super Admin" && (
+                          <ToggleStatusForm id={admin.id} currentStatus={admin.isActive} />
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -183,6 +183,18 @@ export default function WaterSourceForm({
             <p className="text-[10px] text-slate-400 mt-2 font-medium">
               Anda dapat menggunakan fitur GPS otomatis di atas, atau menyalin koordinat manual dari Google Maps (klik kanan pada peta).
             </p>
+            
+            <div className="mt-4">
+              <label className="block text-[10px] font-bold text-slate-500 mb-1">Link Google Maps (Opsional)</label>
+              <input
+                name="mapUrl"
+                type="url"
+                defaultValue={initialData?.mapUrl || ""}
+                placeholder="https://maps.app.goo.gl/..."
+                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+              />
+              <p className="text-[10px] text-slate-400 mt-1 font-medium">Tautan untuk tombol 'Buka di Google Maps'</p>
+            </div>
           </div>
 
           <div className="pt-4 border-t border-slate-100">

@@ -60,19 +60,25 @@ export default async function UmkmDetailPage({ params }: PageProps) {
             </div>
 
             <div className="p-8 md:p-10 flex flex-col justify-center">
-              <span className="inline-block w-fit text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full mb-4">
+              <span className="inline-block w-fit text-[11px] font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-1.5 rounded-full mb-6">
                 UMKM Lokal
               </span>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-navy mb-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-navy mb-4 leading-tight">
                 {product.name}
               </h1>
-              <p className="text-stone-500 mb-4">Oleh {product.ownerName}</p>
-              <p className="text-2xl font-bold text-gold mb-6">
+              <p className="text-stone-500 mb-6 font-semibold">Oleh {product.ownerName}</p>
+              <p className="text-2xl md:text-3xl font-extrabold text-gold mb-8">
                 {formatRupiah(product.price)}
               </p>
-              <p className="text-stone-600 leading-relaxed mb-8 whitespace-pre-line">
-                {product.description}
-              </p>
+              <div className="text-stone-600 leading-loose text-base md:text-lg space-y-6 mb-8">
+                {product.description.split("\n").map((paragraph, index) => (
+                  paragraph.trim() ? (
+                    <p key={index} className="font-medium text-stone-700 text-justify tracking-wide">
+                      {paragraph}
+                    </p>
+                  ) : null
+                ))}
+              </div>
               <Button
                 asChild
                 size="lg"

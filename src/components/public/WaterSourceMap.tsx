@@ -38,7 +38,7 @@ export default function WaterSourceMap({ sources }: { sources: WaterSourceData[]
 
   if (!isMounted) {
     return (
-      <div className="w-full h-[500px] bg-slate-100 rounded-3xl flex items-center justify-center border border-slate-200">
+      <div className="w-full h-[250px] sm:h-[350px] md:h-[500px] bg-slate-100 rounded-3xl flex items-center justify-center border border-slate-200">
         <div className="animate-pulse flex flex-col items-center">
           <MapPin className="w-8 h-8 text-slate-300 mb-2" />
           <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Memuat Peta...</span>
@@ -53,7 +53,7 @@ export default function WaterSourceMap({ sources }: { sources: WaterSourceData[]
     : [-10.2974, 123.754]; // Approximate Nekmese coordinates
 
   return (
-    <div className="w-full h-[500px] rounded-3xl overflow-hidden border-4 border-white shadow-xl shadow-slate-200/50 relative z-0">
+    <div className="w-full h-[250px] sm:h-[350px] md:h-[500px] rounded-3xl overflow-hidden border-4 border-white shadow-xl shadow-slate-200/50 relative z-0">
       <MapContainer 
         center={center} 
         zoom={14} 

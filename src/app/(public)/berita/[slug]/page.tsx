@@ -67,13 +67,19 @@ export default async function BeritaDetailPage({ params }: PageProps) {
           </h1>
 
           {article.summary && (
-            <p className="text-lg text-slate-500 mb-8 font-light italic border-l-4 border-turquoise pl-4">
+            <p className="text-lg text-slate-500 mb-8 font-medium italic border-l-4 border-turquoise pl-4 py-1">
               {article.summary}
             </p>
           )}
 
-          <div className="text-slate-600 leading-relaxed whitespace-pre-line text-base md:text-lg">
-            {article.content}
+          <div className="text-slate-600 leading-relaxed text-base md:text-lg space-y-4">
+            {article.content.split("\n").map((paragraph, index) => (
+              paragraph.trim() ? (
+                <p key={index} className="font-medium text-slate-700 text-justify">
+                  {paragraph}
+                </p>
+              ) : null
+            ))}
           </div>
 
           <div className="mt-12 pt-8 border-t border-slate-100">

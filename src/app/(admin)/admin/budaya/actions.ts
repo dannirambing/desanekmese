@@ -48,7 +48,7 @@ async function syncCultureMedia(
 }
 
 export async function deleteCultureItem(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDAYA"]);
   const id = formData.get("id") as string;
   await prisma.cultureItem.delete({ where: { id } });
   revalidatePath("/admin/budaya");
@@ -57,7 +57,7 @@ export async function deleteCultureItem(formData: FormData) {
 }
 
 export async function createCultureItem(formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_BUDAYA"]);
   const name = formData.get("name") as string;
   const summary = (formData.get("summary") as string) || null;
   const description = formData.get("description") as string;
@@ -87,7 +87,7 @@ export async function createCultureItem(formData: FormData) {
 }
 
 export async function updateCultureItem(id: string, formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  const session = await requireAdminSession(["MANAGE_BUDAYA"]);
   const name = formData.get("name") as string;
   const summary = (formData.get("summary") as string) || null;
   const description = formData.get("description") as string;
@@ -126,7 +126,7 @@ export async function updateCultureItem(id: string, formData: FormData) {
 }
 
 export async function createCultureCategory(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_KONTEN"]);
+  await requireAdminSession(["MANAGE_BUDAYA"]);
   const name = formData.get("name") as string;
   if (!name?.trim()) return;
 

@@ -30,7 +30,7 @@ function parseProductForm(formData: FormData) {
 }
 
 export async function deleteUMKMProduct(formData: FormData) {
-  await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
+  await requireAdminSession(["MANAGE_UMKM"]);
   const id = formData.get("id") as string;
   await prisma.productUMKM.delete({ where: { id } });
   revalidatePath("/admin/umkm");
@@ -40,7 +40,7 @@ export async function deleteUMKMProduct(formData: FormData) {
 }
 
 export async function createUMKMProduct(formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
+  const session = await requireAdminSession(["MANAGE_UMKM"]);
   const data = parseProductForm(formData);
 
   await prisma.productUMKM.create({
@@ -67,7 +67,7 @@ export async function createUMKMProduct(formData: FormData) {
 }
 
 export async function updateUMKMProduct(id: string, formData: FormData) {
-  const session = await requireAdminSession(["SUPER_ADMIN", "ADMIN_UMKM"]);
+  const session = await requireAdminSession(["MANAGE_UMKM"]);
   const data = parseProductForm(formData);
 
   const existing = await prisma.productUMKM.findUnique({ where: { id } });

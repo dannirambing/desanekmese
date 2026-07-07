@@ -52,31 +52,39 @@ export default async function BudayaDetailPage({ params }: PageProps) {
       <div className="container mx-auto px-6 -mt-20 relative z-20">
         <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 max-w-5xl mx-auto flex flex-col lg:flex-row gap-12">
           <div className="w-full lg:w-2/3">
-            <span className="inline-block text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full mb-4">
+            <span className="inline-block text-[11px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-full mb-6">
               {item.category.name}
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-stone-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-stone-900 mb-6 leading-tight">
               {item.name}
             </h1>
             {item.summary && (
-              <p className="text-stone-500 text-lg mb-8 font-light italic border-l-4 border-amber-400 pl-4">
+              <p className="text-stone-500 text-lg mb-8 font-medium italic border-l-4 border-amber-400 pl-4 py-1">
                 {item.summary}
               </p>
             )}
-            <div className="text-stone-600 leading-relaxed whitespace-pre-line">
-              {item.description}
+            <div className="text-stone-600 leading-loose text-base md:text-lg space-y-6 mt-8">
+              {item.description.split("\n").map((paragraph, index) => (
+                paragraph.trim() ? (
+                  <p key={index} className="font-medium text-stone-700 text-justify tracking-wide">
+                    {paragraph}
+                  </p>
+                ) : null
+              ))}
             </div>
           </div>
 
           <div className="w-full lg:w-1/3 space-y-6">
             <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100">
-              <h3 className="font-bold text-stone-900 mb-4 border-b border-amber-200 pb-2 uppercase text-sm">
+              <h3 className="text-[11px] font-extrabold uppercase text-amber-600 tracking-widest mb-6 flex items-center gap-3">
+                <span className="w-5 h-px bg-amber-200 block"></span>
                 Kategori Budaya
               </h3>
               <p className="text-sm text-stone-600">{item.category.name}</p>
             </div>
             <div className="bg-stone-50 p-6 rounded-2xl border">
-              <h3 className="font-bold text-stone-900 mb-4 border-b pb-2 uppercase text-sm">
+              <h3 className="text-[11px] font-extrabold uppercase text-stone-400 tracking-widest mb-6 flex items-center gap-3">
+                <span className="w-5 h-px bg-stone-300 block"></span>
                 Jelajahi Lainnya
               </h3>
               <p className="text-sm text-stone-600 mb-4">

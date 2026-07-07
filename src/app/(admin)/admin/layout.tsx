@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image as ImageIcon, Megaphone, FileText, TrendingUp, Menu, X, Bot, Droplets } from "lucide-react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image as ImageIcon, Megaphone, FileText, TrendingUp, Menu, X, Bot, Droplets, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
@@ -70,23 +70,27 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           ) : (
             [
-              { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
-              { name: "Edit Hero Section", href: "/admin/hero", icon: Sliders, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Profil Desa", href: "/admin/profil", icon: FileText, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Titik Air", href: "/admin/titik-air", icon: Droplets, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Wisata", href: "/admin/wisata", icon: Map, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Budaya", href: "/admin/budaya", icon: Sparkles, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola UMKM", href: "/admin/umkm", icon: Store, roles: ["SUPER_ADMIN", "ADMIN_UMKM"] },
-              { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Pengumuman", href: "/admin/pengumuman", icon: Megaphone, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Kelola Anggaran", href: "/admin/anggaran", icon: TrendingUp, roles: ["SUPER_ADMIN", "ADMIN_KONTEN"] },
-              { name: "Galeri Media", href: "/admin/galeri", icon: ImageIcon, roles: ["SUPER_ADMIN", "ADMIN_KONTEN", "ADMIN_UMKM"] },
-              { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, roles: ["SUPER_ADMIN"] },
-              { name: "Log Chatbot AI", href: "/admin/chatbot-log", icon: Bot, roles: ["SUPER_ADMIN"] },
+              { name: "Dashboard", href: "/admin", icon: LayoutDashboard, perms: [] }, // Everyone has dashboard access
+              { name: "Edit Hero Section", href: "/admin/hero", icon: Sliders, perms: ["MANAGE_HERO"] },
+              { name: "Kelola Profil Desa", href: "/admin/profil", icon: FileText, perms: ["MANAGE_PROFIL"] },
+              { name: "Kelola Titik Air", href: "/admin/titik-air", icon: Droplets, perms: ["MANAGE_AIR"] },
+              { name: "Kelola Wisata", href: "/admin/wisata", icon: Map, perms: ["MANAGE_WISATA"] },
+              { name: "Kelola Budaya", href: "/admin/budaya", icon: Sparkles, perms: ["MANAGE_BUDAYA"] },
+              { name: "Kelola UMKM", href: "/admin/umkm", icon: Store, perms: ["MANAGE_UMKM"] },
+              { name: "Kelola Berita", href: "/admin/berita", icon: Newspaper, perms: ["MANAGE_BERITA"] },
+              { name: "Kelola Pengumuman", href: "/admin/pengumuman", icon: Megaphone, perms: ["MANAGE_PENGUMUMAN"] },
+              { name: "Kelola Anggaran", href: "/admin/anggaran", icon: TrendingUp, perms: ["MANAGE_BUDGET"] },
+              { name: "Galeri Media", href: "/admin/galeri", icon: ImageIcon, perms: ["MANAGE_GALERI"] },
+              { name: "Peraturan Desa", href: "/admin/peraturan", icon: Scale, perms: ["MANAGE_PERATURAN"] },
+              { name: "Kelola Peran & Hak Akses", href: "/admin/roles", icon: Sparkles, perms: ["ALL_ACCESS"] },
+              { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, perms: ["ALL_ACCESS"] },
+              { name: "Log Chatbot AI", href: "/admin/chatbot-log", icon: Bot, perms: ["ALL_ACCESS"] },
             ]
               .filter((item) => {
-                if (!session?.user?.role) return false;
-                return item.roles.includes(session.user.role);
+                if (!session?.user?.permissions) return false;
+                if (session.user.permissions.includes("ALL_ACCESS")) return true;
+                if (item.perms.length === 0) return true; // Dashboard
+                return item.perms.some(p => session.user.permissions.includes(p));
               })
               .map((item) => {
                 const Icon = item.icon;
