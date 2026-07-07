@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { PublishStatus } from "@prisma/client";
 import { requireAdminSession } from "@/lib/auth-session";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
 
 const waterSourceSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
@@ -128,6 +130,12 @@ export async function updateWaterSource(id: string, prevState: any, formData: Fo
       slug = `${slug}-${Date.now()}`;
     }
 
+    // Ambil data sebelum diubah untuk proses pembersihan berkas
+    const current = await prisma.waterSource.findUnique({
+      where: { id },
+      select: { imageUrl: true, images: true },
+    });
+
     await prisma.waterSource.update({
       where: { id },
       data: {
@@ -136,6 +144,37 @@ export async function updateWaterSource(id: string, prevState: any, formData: Fo
         updatedById: session.user.id,
       },
     });
+
+    // Clean up replaced images from UploadThing jika tidak digunakan di tempat lain
+    if (current) {
+      const keysToClean: string[] = [];
+
+      if (current.imageUrl && current.imageUrl !== validatedFields.data.imageUrl) {
+        const key = getUploadThingKey(current.imageUrl);
+        if (key) keysToClean.push(key);
+      }
+
+      if (current.images && current.images.length > 0) {
+        const newImages = validatedFields.data.images || [];
+        current.images.forEach((oldImg) => {
+          if (!newImages.includes(oldImg)) {
+            const key = getUploadThingKey(oldImg);
+            if (key) keysToClean.push(key);
+          }
+        });
+      }
+
+      for (const key of keysToClean) {
+        if (!(await isFileKeyReferenced(key))) {
+          const utapi = new UTApi();
+          try {
+            await utapi.deleteFiles(key);
+          } catch (err) {
+            console.error("Gagal menghapus file lama dari UploadThing:", err);
+          }
+        }
+      }
+    }
 
     revalidatePath("/admin/titik-air");
     revalidatePath("/profil");
@@ -153,9 +192,40 @@ export async function updateWaterSource(id: string, prevState: any, formData: Fo
 export async function deleteWaterSource(id: string) {
   try {
     await requireAdminSession(["MANAGE_AIR"]);
+
+    const current = await prisma.waterSource.findUnique({
+      where: { id },
+      select: { imageUrl: true, images: true },
+    });
+
     await prisma.waterSource.delete({
       where: { id },
     });
+
+    if (current) {
+      const keysToClean: string[] = [];
+
+      const coverKey = getUploadThingKey(current.imageUrl);
+      if (coverKey) keysToClean.push(coverKey);
+
+      if (current.images && current.images.length > 0) {
+        current.images.forEach((imgUrl) => {
+          const key = getUploadThingKey(imgUrl);
+          if (key) keysToClean.push(key);
+        });
+      }
+
+      for (const key of keysToClean) {
+        if (!(await isFileKeyReferenced(key))) {
+          const utapi = new UTApi();
+          try {
+            await utapi.deleteFiles(key);
+          } catch (err) {
+            console.error("Gagal menghapus file dari UploadThing:", err);
+          }
+        }
+      }
+    }
     
     revalidatePath("/admin/titik-air");
     revalidatePath("/profil");

@@ -5,6 +5,8 @@ import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
 
 export async function updateHeroSettings(formData: FormData) {
   await requireAdminSession(["MANAGE_HERO"]);
@@ -57,6 +59,21 @@ export async function updateHeroSettings(formData: FormData) {
       description,
     },
   });
+
+  // Clean up replaced/removed image from UploadThing jika tidak digunakan di tempat lain
+  if (existing?.imageUrl && existing.imageUrl !== defaultImageUrl) {
+    if (removeImage || (newImageUrl && newImageUrl !== existing.imageUrl)) {
+      const key = getUploadThingKey(existing.imageUrl);
+      if (key && !(await isFileKeyReferenced(key))) {
+        const utapi = new UTApi();
+        try {
+          await utapi.deleteFiles(key);
+        } catch (err) {
+          console.error("Gagal menghapus file lama dari UploadThing:", err);
+        }
+      }
+    }
+  }
 
   revalidatePath("/");
   revalidateTag("hero", "max");

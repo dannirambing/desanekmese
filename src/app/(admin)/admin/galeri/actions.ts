@@ -145,6 +145,9 @@ export async function getMediaUsage(url: string) {
   return usages;
 }
 
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced } from "@/lib/uploadthing-server";
+
 // Menghapus aset gambar dari galeri media
 export async function deleteMediaAsset(id: string) {
   await requireAdminSession(["MANAGE_GALERI"]);
@@ -165,9 +168,20 @@ export async function deleteMediaAsset(id: string) {
     throw new Error(`Gambar tidak dapat dihapus karena masih digunakan pada: ${modules.join(", ")}`);
   }
 
+  // Hapus dari database terlebih dahulu
   await prisma.mediaAsset.delete({
     where: { id },
   });
+
+  // Hapus dari UploadThing jika memiliki publicId yang bukan "external" dan tidak digunakan di tempat lain
+  if (asset.publicId && asset.publicId !== "external" && !(await isFileKeyReferenced(asset.publicId))) {
+    const utapi = new UTApi();
+    try {
+      await utapi.deleteFiles(asset.publicId);
+    } catch (err) {
+      console.error("Gagal menghapus file dari UploadThing:", err);
+    }
+  }
 
   revalidatePath("/admin/galeri");
 }

@@ -6,6 +6,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 import type { OrderChannel } from "@prisma/client";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
 
 function generateSlug(name: string) {
   return name
@@ -32,7 +34,26 @@ function parseProductForm(formData: FormData) {
 export async function deleteUMKMProduct(formData: FormData) {
   await requireAdminSession(["MANAGE_UMKM"]);
   const id = formData.get("id") as string;
+
+  const existing = await prisma.productUMKM.findUnique({
+    where: { id },
+    select: { imageUrl: true },
+  });
+
   await prisma.productUMKM.delete({ where: { id } });
+
+  if (existing?.imageUrl) {
+    const key = getUploadThingKey(existing.imageUrl);
+    if (key && !(await isFileKeyReferenced(key))) {
+      const utapi = new UTApi();
+      try {
+        await utapi.deleteFiles(key);
+      } catch (err) {
+        console.error("Gagal menghapus file dari UploadThing:", err);
+      }
+    }
+  }
+
   revalidatePath("/admin/umkm");
   revalidatePath("/umkm");
   revalidateTag("umkm", "max");
@@ -90,6 +111,19 @@ export async function updateUMKMProduct(id: string, formData: FormData) {
       updatedById: session.user.id,
     },
   });
+
+  // Clean up replaced or removed file from UploadThing jika tidak digunakan di tempat lain
+  if (existing.imageUrl && (data.removeImage || (data.newImageUrl && data.newImageUrl !== existing.imageUrl))) {
+    const key = getUploadThingKey(existing.imageUrl);
+    if (key && !(await isFileKeyReferenced(key))) {
+      const utapi = new UTApi();
+      try {
+        await utapi.deleteFiles(key);
+      } catch (err) {
+        console.error("Gagal menghapus file lama dari UploadThing:", err);
+      }
+    }
+  }
 
   revalidatePath("/admin/umkm");
   revalidatePath("/umkm");

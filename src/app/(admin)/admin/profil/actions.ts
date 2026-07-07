@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
 
 export async function updateVillageProfile(formData: FormData) {
   await requireAdminSession(["MANAGE_PROFIL"]);
@@ -12,7 +14,7 @@ export async function updateVillageProfile(formData: FormData) {
   const welcomeRole = formData.get("welcomeRole") as string;
   const welcomeText = formData.get("welcomeText") as string;
   const welcomeImageUrl = formData.get("welcomeImageUrl") as string | null;
-
+  
   const history = formData.get("history") as string;
   const vision = formData.get("vision") as string;
   const mission = formData.get("mission") as string;
@@ -41,6 +43,12 @@ export async function updateVillageProfile(formData: FormData) {
   const organizations = formData.get("organizations") as string;
   const facilities = formData.get("facilities") as string;
   const achievements = formData.get("achievements") as string;
+
+  // Ambil data sebelum diubah untuk proses pembersihan berkas
+  const existing = await prisma.villageProfile.findUnique({
+    where: { id: "main" },
+    select: { welcomeImageUrl: true, structureImageUrl: true },
+  });
 
   // Cek field konten utama yang kosong (untuk panduan kelengkapan, bukan memblokir)
   const incompleteFields: string[] = [];
@@ -123,6 +131,32 @@ export async function updateVillageProfile(formData: FormData) {
       achievements,
     },
   });
+
+  // Clean up replaced images from UploadThing jika tidak digunakan di tempat lain
+  if (existing) {
+    const keysToClean: string[] = [];
+
+    if (existing.welcomeImageUrl && existing.welcomeImageUrl !== welcomeImageUrl) {
+      const key = getUploadThingKey(existing.welcomeImageUrl);
+      if (key) keysToClean.push(key);
+    }
+
+    if (existing.structureImageUrl && existing.structureImageUrl !== structureImageUrl) {
+      const key = getUploadThingKey(existing.structureImageUrl);
+      if (key) keysToClean.push(key);
+    }
+
+    for (const key of keysToClean) {
+      if (!(await isFileKeyReferenced(key))) {
+        const utapi = new UTApi();
+        try {
+          await utapi.deleteFiles(key);
+        } catch (err) {
+          console.error("Gagal menghapus file lama dari UploadThing:", err);
+        }
+      }
+    }
+  }
 
   revalidatePath("/profil");
   revalidateTag("profile", "max");

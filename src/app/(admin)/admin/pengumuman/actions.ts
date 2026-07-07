@@ -5,6 +5,8 @@ import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
 
 function generateSlug(title: string) {
   return title
@@ -16,7 +18,26 @@ function generateSlug(title: string) {
 export async function deleteAnnouncement(formData: FormData) {
   await requireAdminSession(["MANAGE_PENGUMUMAN"]);
   const id = formData.get("id") as string;
+
+  const existing = await prisma.announcement.findUnique({
+    where: { id },
+    select: { imageUrl: true },
+  });
+
   await prisma.announcement.delete({ where: { id } });
+
+  if (existing?.imageUrl) {
+    const key = getUploadThingKey(existing.imageUrl);
+    if (key && !(await isFileKeyReferenced(key))) {
+      const utapi = new UTApi();
+      try {
+        await utapi.deleteFiles(key);
+      } catch (err) {
+        console.error("Gagal menghapus file dari UploadThing:", err);
+      }
+    }
+  }
+
   revalidatePath("/admin/pengumuman");
   revalidatePath("/pengumuman");
   revalidateTag("announcement", "max");
@@ -81,6 +102,19 @@ export async function updateAnnouncement(id: string, formData: FormData) {
       updatedById: session.user.id,
     },
   });
+
+  // Clean up replaced or removed file from UploadThing jika tidak digunakan di tempat lain
+  if (existing.imageUrl && (removeImage || (imageUrl && imageUrl !== existing.imageUrl))) {
+    const key = getUploadThingKey(existing.imageUrl);
+    if (key && !(await isFileKeyReferenced(key))) {
+      const utapi = new UTApi();
+      try {
+        await utapi.deleteFiles(key);
+      } catch (err) {
+        console.error("Gagal menghapus file lama dari UploadThing:", err);
+      }
+    }
+  }
 
   revalidatePath("/admin/pengumuman");
   revalidatePath("/pengumuman");

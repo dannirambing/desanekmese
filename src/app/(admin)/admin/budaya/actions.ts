@@ -5,6 +5,8 @@ import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
+import { UTApi } from "uploadthing/server";
+import { isFileKeyReferenced } from "@/lib/uploadthing-server";
 
 function generateSlug(name: string) {
   return name
@@ -25,16 +27,34 @@ async function syncCultureMedia(
     (formData.get("currentMediaId") as string | null) || existingMediaId;
 
   if (removeImage && currentMediaId) {
+    const media = await prisma.mediaFile.findUnique({ where: { id: currentMediaId } });
     await prisma.mediaFile.delete({ where: { id: currentMediaId } });
+    if (media?.publicId && !(await isFileKeyReferenced(media.publicId))) {
+      const utapi = new UTApi();
+      try {
+        await utapi.deleteFiles(media.publicId);
+      } catch (err) {
+        console.error("Gagal menghapus file dari UploadThing:", err);
+      }
+    }
     return;
   }
 
   if (imageUrl && imageKey) {
     if (currentMediaId) {
+      const media = await prisma.mediaFile.findUnique({ where: { id: currentMediaId } });
       await prisma.mediaFile.update({
         where: { id: currentMediaId },
         data: { url: imageUrl, publicId: imageKey },
       });
+      if (media?.publicId && media.publicId !== imageKey && !(await isFileKeyReferenced(media.publicId))) {
+        const utapi = new UTApi();
+        try {
+          await utapi.deleteFiles(media.publicId);
+        } catch (err) {
+          console.error("Gagal menghapus file lama dari UploadThing:", err);
+        }
+      }
     } else {
       await prisma.mediaFile.create({
         data: {
@@ -50,7 +70,29 @@ async function syncCultureMedia(
 export async function deleteCultureItem(formData: FormData) {
   await requireAdminSession(["MANAGE_BUDAYA"]);
   const id = formData.get("id") as string;
+
+  // Hapus semua file media yang terasosiasi dari UploadThing jika tidak digunakan di tempat lain
+  const item = await prisma.cultureItem.findUnique({
+    where: { id },
+    include: { media: true },
+  });
+
   await prisma.cultureItem.delete({ where: { id } });
+
+  if (item?.media && item.media.length > 0) {
+    const keys = item.media.map((m) => m.publicId).filter(Boolean);
+    for (const key of keys) {
+      if (!(await isFileKeyReferenced(key))) {
+        const utapi = new UTApi();
+        try {
+          await utapi.deleteFiles(key);
+        } catch (err) {
+          console.error("Gagal menghapus media budaya dari UploadThing:", err);
+        }
+      }
+    }
+  }
+
   revalidatePath("/admin/budaya");
   revalidateTag("culture", "max");
   await clearChatCacheByCategory("BUDAYA");

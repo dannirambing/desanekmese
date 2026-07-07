@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Newspaper, Landmark } from "lucide-react";
 import NewsListWithFilter from "./NewsListWithFilter";
 import BudgetDashboard from "./BudgetDashboard";
@@ -48,6 +48,16 @@ export default function NewsAndBudgetTabs({
   budgets: VillageBudget[];
 }) {
   const [activeTab, setActiveTab] = useState<"news" | "budget">("news");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get("tab");
+    if (tabParam === "budget") {
+      setActiveTab("budget");
+    } else if (tabParam === "news") {
+      setActiveTab("news");
+    }
+  }, []);
 
   return (
     <div className="space-y-12">
