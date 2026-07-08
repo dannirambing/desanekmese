@@ -15,6 +15,8 @@ import {
   ArrowRight,
   Plus,
   Clock,
+  Shield,
+  User,
 } from "lucide-react";
 import { formatIndonesianDate } from "@/lib/format-date";
 
@@ -34,6 +36,8 @@ export default async function AdminDashboardPage() {
   const userPerms = session?.user?.permissions || [];
   const canManageKonten = userPerms.includes("ALL_ACCESS") || userPerms.includes("MANAGE_BERITA");
 
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
   // Parallel data fetching for extremely fast load times
   const [
     wisata,
@@ -41,11 +45,12 @@ export default async function AdminDashboardPage() {
     umkm,
     berita,
     pengumuman,
-    admins,
+    adminsCount,
     chatbotQueries,
     recentBerita,
     recentPengumuman,
     latestBudget,
+    activeAdmins,
   ] = await Promise.all([
     prisma.tourismPlace.count(),
     prisma.cultureItem.count(),
@@ -65,6 +70,19 @@ export default async function AdminDashboardPage() {
       select: { id: true, title: true, createdAt: true, status: true, category: true },
     }),
     prisma.villageBudget.findFirst({ orderBy: { year: "desc" } }),
+    prisma.admin.findMany({
+      where: {
+        lastActiveAt: {
+          gte: fiveMinutesAgo,
+        },
+      },
+      include: {
+        role: true,
+      },
+      orderBy: {
+        lastActiveAt: "desc",
+      },
+    }),
   ]);
 
   const metricsData = [
@@ -120,7 +138,7 @@ export default async function AdminDashboardPage() {
     },
     {
       title: "Admin Aktif",
-      count: admins,
+      count: adminsCount,
       href: "/admin/pengguna",
       icon: Users,
       color: "from-slate-700 to-slate-600",
@@ -371,6 +389,81 @@ export default async function AdminDashboardPage() {
         </div>
 
       </div>
+
+      {/* Super Admin Section: Active Users Tracker */}
+      {userPerms.includes("ALL_ACCESS") && (
+        <div className="mt-8 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl relative">
+                <span className="animate-ping absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="absolute top-2 right-2 inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-navy">Pemantauan Sesi Aktif</h2>
+                <p className="text-sm text-slate-500 font-medium">Administrator yang sedang aktif mengelola portal saat ini</p>
+              </div>
+            </div>
+            <Link href="/admin/pengguna" className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-navy transition-colors">
+              Kelola Pengguna →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {activeAdmins.length > 0 ? (
+              activeAdmins.map((admin) => {
+                const initials = admin.name
+                  ? admin.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase()
+                  : "AD";
+                
+                const isCurrentUser = session?.user?.id === admin.id;
+
+                return (
+                  <div key={admin.id} className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-turquoise to-teal-500 flex items-center justify-center text-navy font-black text-sm shadow-sm relative shrink-0">
+                      {initials}
+                      <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-white"></span>
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-navy truncate">
+                          {admin.name || "Administrator"}
+                        </p>
+                        {isCurrentUser && (
+                          <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100 font-bold text-[9px] tracking-wider uppercase shrink-0">
+                            Anda
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-semibold text-slate-400 truncate mt-0.5 flex items-center">
+                        <User className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                        {admin.email}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-200 text-slate-600 border border-slate-300 flex items-center">
+                          <Shield className="w-3 h-3 mr-0.5 text-slate-500" />
+                          {admin.role?.name || "No Role"}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-600">
+                          Aktif
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <p className="text-sm font-semibold text-slate-400">Tidak ada administrator aktif.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

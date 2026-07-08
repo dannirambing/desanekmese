@@ -1,19 +1,19 @@
 import Link from "next/link";
 
 const MapPinIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
   </svg>
 );
 
 const PhoneIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6 19.79 19.79 0 0 1 1.64 5.11 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
   </svg>
 );
 
 const MailIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
   </svg>
 );
@@ -37,7 +37,7 @@ const YoutubeIcon = () => (
 );
 
 const ChevronRightIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-turquoise group-hover:text-amber-400 transition-colors">
     <path d="m9 18 6-6-6-6" />
   </svg>
 );
@@ -62,7 +62,7 @@ export default async function Footer() {
   const recentAnnouncements = await getRecentAnnouncements();
 
   return (
-    <footer className="bg-stone-950 text-white pt-20 pb-10 border-t-4 border-turquoise">
+    <footer className="bg-stone-950 text-white pt-20 pb-10 border-t-4 border-turquoise relative">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
@@ -70,32 +70,47 @@ export default async function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <span className="text-3xl font-extrabold tracking-tighter text-white">
-                Desa <span className="text-turquoise">Nekmese</span>
+                Desa Nekmese
               </span>
             </Link>
-            <p className="text-stone-400 font-light leading-relaxed mb-6">
+            <p className="text-stone-400 font-light leading-relaxed mb-6 text-sm">
               &quot;Nekaf Mese, Atoni Meto Nao Fatu Nao Oe&quot;. Harmoni alam dan budaya di jantung Timor. Temukan kedamaian dan keindahan yang tak terlupakan bersama kami.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-stone-400 hover:bg-turquoise hover:text-white transition-all">
+            {/* Social Media Link Glassmorphism */}
+            <div className="flex gap-3">
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-stone-400 hover:text-white hover:bg-turquoise hover:border-turquoise transition-all duration-300 transform hover:-translate-y-1"
+              >
                 <InstagramIcon />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-stone-400 hover:bg-turquoise hover:text-white transition-all">
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-stone-400 hover:text-white hover:bg-turquoise hover:border-turquoise transition-all duration-300 transform hover:-translate-y-1"
+              >
                 <FacebookIcon />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-stone-400 hover:bg-turquoise hover:text-white transition-all">
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-stone-400 hover:text-white hover:bg-[#ff0000] hover:border-[#ff0000] transition-all duration-300 transform hover:-translate-y-1"
+              >
                 <YoutubeIcon />
               </a>
             </div>
           </div>
 
-          {/* Kolom 2: Tautan Cepat (Diambil dari array menuItems) */}
+          {/* Kolom 2: Tautan Cepat */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Jelajahi</h4>
+            <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
+              Jelajahi
+            </h4>
             <ul className="space-y-3">
               {menuItems.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-stone-400 hover:text-turquoise transition-colors flex items-center gap-2 group">
+                  <Link
+                    href={item.href}
+                    className="text-stone-400 hover:text-turquoise transition-all duration-300 flex items-center gap-2 group translate-x-0 hover:translate-x-1 font-medium text-sm"
+                  >
                     <ChevronRightIcon />
                     {item.name}
                   </Link>
@@ -106,19 +121,21 @@ export default async function Footer() {
 
           {/* Kolom 3: Pengumuman Terbaru */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Pengumuman</h4>
+            <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
+              Pengumuman Desa
+            </h4>
             <div className="space-y-4">
               {recentAnnouncements.length === 0 ? (
-                <p className="text-stone-500 text-sm italic">Belum ada pengumuman.</p>
+                <p className="text-stone-500 text-sm italic">Belum ada pengumuman desa.</p>
               ) : (
-                <div className="space-y-3.5">
+                <div className="space-y-4">
                   {recentAnnouncements.map((ann) => (
                     <Link
                       key={ann.id}
                       href={`/pengumuman/${ann.slug}`}
                       className="group block text-sm leading-normal transition-all"
                     >
-                      <span className="block text-[11px] text-stone-500 font-semibold tracking-wider uppercase mb-0.5 group-hover:text-turquoise/80 transition-colors">
+                      <span className="block text-[10px] text-turquoise/80 font-bold tracking-wider uppercase mb-0.5">
                         {formatIndonesianDate(ann.createdAt)}
                       </span>
                       <span className="text-stone-300 group-hover:text-white group-hover:underline line-clamp-2 leading-relaxed transition-colors font-medium">
@@ -127,13 +144,15 @@ export default async function Footer() {
                     </Link>
                   ))}
 
-                  <div className="pt-2 border-t border-stone-900">
+                  <div className="pt-3 border-t border-stone-900">
                     <Link
                       href="/pengumuman"
-                      className="text-turquoise hover:text-white transition-colors text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 group/btn"
+                      className="text-turquoise hover:text-amber-400 transition-colors text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 group/btn"
                     >
                       Semua Pengumuman
-                      <span className="inline-block transform transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+                      <span className="inline-block transform transition-transform duration-300 group-hover/btn:translate-x-1">
+                        →
+                      </span>
                     </Link>
                   </div>
                 </div>
@@ -143,18 +162,32 @@ export default async function Footer() {
 
           {/* Kolom 4: Kontak */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white uppercase tracking-wider">Hubungi Kami</h4>
-            <ul className="space-y-4 text-stone-400 font-light">
+            <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
+              Hubungi Kami
+            </h4>
+            <ul className="space-y-4 text-stone-400 font-light text-sm">
               <li className="flex items-start gap-3">
-                <span className="text-turquoise shrink-0 mt-1"><MapPinIcon /></span>
-                <span>Kantor Desa Nekmese,<br />Kecamatan Amarasi Selatan,<br />Kabupaten Kupang, NTT.</span>
+                <span className="text-turquoise shrink-0 mt-1">
+                  <MapPinIcon />
+                </span>
+                <span className="leading-relaxed">
+                  Kantor Desa Nekmese,
+                  <br />
+                  Kecamatan Amarasi Selatan,
+                  <br />
+                  Kabupaten Kupang, NTT.
+                </span>
               </li>
-              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <span className="text-turquoise shrink-0"><PhoneIcon /></span>
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer group">
+                <span className="text-turquoise shrink-0 group-hover:text-amber-400 transition-colors">
+                  <PhoneIcon />
+                </span>
                 <span>+62 812 3456 7890</span>
               </li>
-              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <span className="text-turquoise shrink-0"><MailIcon /></span>
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer group">
+                <span className="text-turquoise shrink-0 group-hover:text-amber-400 transition-colors">
+                  <MailIcon />
+                </span>
                 <span>info@nekmese.desa.id</span>
               </li>
             </ul>
@@ -163,7 +196,7 @@ export default async function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-sm text-stone-500 font-light">
+        <div className="pt-8 border-t border-stone-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-xs text-stone-500 font-light">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5">
               <span>© {currentYear}</span>
@@ -174,9 +207,11 @@ export default async function Footer() {
                 height={32}
                 className="h-8 w-8 rounded-full bg-white object-contain p-0.5 shadow-sm hover:scale-105 transition-all duration-300"
               />
-              <span className="font-semibold text-stone-300">LPPM Universitas Katolik Widya Mandira</span>
+              <span className="font-semibold text-stone-300">
+                LPPM Universitas Katolik Widya Mandira
+              </span>
             </div>
-            <div className="text-xs text-stone-500 space-y-1 pl-0 md:pl-0">
+            <div className="text-xs text-stone-500 space-y-1">
               <p>
                 Pengembang Sistem:{" "}
                 <a
@@ -186,12 +221,19 @@ export default async function Footer() {
                   Danni Rambing
                 </a>
               </p>
-              <p>Mitra Pelaksana: <span className="font-medium text-stone-400">Pemerintah Desa Nekmese</span></p>
+              <p>
+                Mitra Pelaksana:{" "}
+                <span className="font-medium text-stone-400">Pemerintah Desa Nekmese</span>
+              </p>
             </div>
           </div>
-          <div className="flex gap-6 text-xs self-start md:self-auto">
-            <Link href="/privacy" className="hover:text-white transition-colors">Kebijakan Privasi</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Syarat & Ketentuan</Link>
+          <div className="flex gap-6 text-xs self-start md:self-auto font-medium">
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Kebijakan Privasi
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Syarat & Ketentuan
+            </Link>
           </div>
         </div>
       </div>

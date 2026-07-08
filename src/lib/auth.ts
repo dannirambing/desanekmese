@@ -50,6 +50,16 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.roleId = (user as any).roleId;
         token.permissions = (user as any).permissions || [];
+
+        // Update lastActiveAt on login
+        try {
+          await prisma.admin.update({
+            where: { id: user.id },
+            data: { lastActiveAt: new Date() },
+          });
+        } catch (e) {
+          console.error("Failed to update lastActiveAt on login:", e);
+        }
       } else if (token.id) {
         // Fetch current permissions from database to support real-time updates and migration
         const admin = await prisma.admin.findUnique({
@@ -59,6 +69,20 @@ export const authOptions: NextAuthOptions = {
         if (admin) {
           token.roleId = admin.roleId;
           token.permissions = admin.role?.permissions || [];
+
+          // Throttled update of lastActiveAt: only update if last active is older than 1 minute
+          const now = new Date();
+          const oneMinuteAgo = new Date(now.getTime() - 60 * 1000);
+          if (!admin.lastActiveAt || admin.lastActiveAt < oneMinuteAgo) {
+            try {
+              await prisma.admin.update({
+                where: { id: admin.id },
+                data: { lastActiveAt: now },
+              });
+            } catch (e) {
+              console.error("Failed to update lastActiveAt:", e);
+            }
+          }
         }
       }
       return token;

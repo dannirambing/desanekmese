@@ -21,6 +21,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import DynamicWaterSourceMap from "@/components/public/DynamicWaterSourceMap";
 import ZoomableImage from "@/components/shared/ZoomableImage";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "Profil Desa | Desa Nekmese",
@@ -92,7 +93,8 @@ export default async function ProfilPage() {
                   Sambutan Kepala Desa Nekmese
                 </h2>
 
-                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
+                <ScrollReveal>
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
                   {profile.welcomeImageUrl ? (
                     <div className="relative w-44 h-56 rounded-2xl overflow-hidden shrink-0 shadow-md bg-slate-100 border border-slate-200/50 hover:scale-[1.02] transition-transform duration-300">
                       <Image
@@ -121,6 +123,7 @@ export default async function ProfilPage() {
                     </div>
                   </div>
                 </div>
+                </ScrollReveal>
               </section>
 
               {/* SEKSI 2: IDENTITAS DESA */}
@@ -143,19 +146,21 @@ export default async function ProfilPage() {
                   ].map((item, idx) => {
                     const Icon = item.icon;
                     return (
-                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-4">
-                        <div className="p-3 bg-slate-50 text-turquoise rounded-xl">
-                          <Icon size={20} />
+                      <ScrollReveal key={idx} delay={idx * 0.05} className="w-full">
+                        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-4 w-full h-full">
+                          <div className="p-3 bg-slate-50 text-turquoise rounded-xl">
+                            <Icon size={20} />
+                          </div>
+                          <div>
+                            <span className="block text-[10px] text-slate-450 font-bold uppercase tracking-wider">
+                              {item.label}
+                            </span>
+                            <span className="font-extrabold text-[#0f172a] text-sm md:text-base mt-0.5 block">
+                              {item.value}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="block text-[10px] text-slate-450 font-bold uppercase tracking-wider">
-                            {item.label}
-                          </span>
-                          <span className="font-extrabold text-[#0f172a] text-sm md:text-base mt-0.5 block">
-                            {item.value}
-                          </span>
-                        </div>
-                      </div>
+                      </ScrollReveal>
                     );
                   })}
                 </div>
@@ -169,13 +174,15 @@ export default async function ProfilPage() {
                 <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
                   Sejarah Desa Nekmese
                 </h2>
-                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                  <ExpandableText 
-                    text={profile.history} 
-                    maxCollapsedHeight="max-h-36"
-                    className="text-slate-600 font-medium leading-relaxed text-base first-letter:text-5xl first-letter:font-black first-letter:text-turquoise first-letter:float-left first-letter:mr-2.5 first-letter:leading-none"
-                  />
-                </div>
+                <ScrollReveal>
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <ExpandableText 
+                      text={profile.history} 
+                      maxCollapsedHeight="max-h-36"
+                      className="text-slate-600 font-medium leading-relaxed text-base first-letter:text-5xl first-letter:font-black first-letter:text-turquoise first-letter:float-left first-letter:mr-2.5 first-letter:leading-none"
+                    />
+                  </div>
+                </ScrollReveal>
               </section>
 
               {/* SEKSI 4: VISI & MISI */}
@@ -189,37 +196,41 @@ export default async function ProfilPage() {
 
                 <div className="space-y-6">
                   {/* Visi */}
-                  <div className="bg-gradient-to-br from-navy to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
-                    <div className="absolute right-0 bottom-0 w-32 h-32 bg-turquoise/10 rounded-full blur-2xl pointer-events-none" />
-                    <span className="block text-[10px] text-turquoise font-black uppercase tracking-widest mb-3">
-                      Visi Desa
-                    </span>
-                    <p className="text-xl md:text-2xl font-bold leading-relaxed italic pr-4">
-                      &ldquo;{profile.vision}&rdquo;
-                    </p>
-                  </div>
+                  <ScrollReveal>
+                    <div className="bg-gradient-to-br from-navy to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
+                      <div className="absolute right-0 bottom-0 w-32 h-32 bg-turquoise/10 rounded-full blur-2xl pointer-events-none" />
+                      <span className="block text-[10px] text-turquoise font-black uppercase tracking-widest mb-3">
+                        Visi Desa
+                      </span>
+                      <p className="text-xl md:text-2xl font-bold leading-relaxed italic pr-4">
+                        &ldquo;{profile.vision}&rdquo;
+                      </p>
+                    </div>
+                  </ScrollReveal>
 
                   {/* Misi */}
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                    <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6">
-                      Misi Desa
-                    </span>
-                    <div className="space-y-4">
-                      {missionItems.map((item, idx) => (
-                        <div key={idx} className="flex gap-4 items-start hover:-translate-x-0.5 transition-transform duration-300">
-                          <span className="w-8 h-8 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center font-extrabold text-sm shrink-0 mt-0.5">
-                            {idx + 1}
-                          </span>
-                          <p className="text-slate-600 font-medium text-base leading-relaxed pt-1">
-                            {item.startsWith(String(idx + 1) + ".") ? item.replace(String(idx + 1) + ".", "").trim() : item}
-                          </p>
-                        </div>
-                      ))}
-                      {missionItems.length === 0 && (
-                        <p className="text-slate-400 italic">Misi desa belum dikonfigurasi.</p>
-                      )}
+                  <ScrollReveal delay={0.1}>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6">
+                        Misi Desa
+                      </span>
+                      <div className="space-y-4">
+                        {missionItems.map((item, idx) => (
+                          <div key={idx} className="flex gap-4 items-start hover:-translate-x-0.5 transition-transform duration-300">
+                            <span className="w-8 h-8 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center font-extrabold text-sm shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <p className="text-slate-600 font-medium text-base leading-relaxed pt-1">
+                              {item.startsWith(String(idx + 1) + ".") ? item.replace(String(idx + 1) + ".", "").trim() : item}
+                            </p>
+                          </div>
+                        ))}
+                        {missionItems.length === 0 && (
+                          <p className="text-slate-400 italic">Misi desa belum dikonfigurasi.</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 </div>
               </section>
 
@@ -234,7 +245,8 @@ export default async function ProfilPage() {
 
                 <div className="space-y-8">
                   {/* Compass boundaries */}
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                  <ScrollReveal>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-6 text-center">
                       Batas-Batas Wilayah
                     </span>
@@ -269,9 +281,11 @@ export default async function ProfilPage() {
                       </div>
                     </div>
                   </div>
+                  </ScrollReveal>
 
                   {/* Deskripsi Geografis */}
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                  <ScrollReveal>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Kondisi Geografis
                     </span>
@@ -285,10 +299,12 @@ export default async function ProfilPage() {
                       ))}
                     </div>
                   </div>
+                  </ScrollReveal>
 
                   {/* Peta Wilayah */}
                   {profile.mapUrl && (
-                    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+                    <ScrollReveal>
+                      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
                       <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                         Peta Lokasi Desa
                       </span>
@@ -305,6 +321,7 @@ export default async function ProfilPage() {
                         />
                       </div>
                     </div>
+                    </ScrollReveal>
                   )}
                 </div>
               </section>
@@ -327,23 +344,26 @@ export default async function ProfilPage() {
                       { label: "Penduduk Laki-Laki", value: profile.populationMale, unit: "Jiwa", color: "text-blue-500" },
                       { label: "Penduduk Perempuan", value: profile.populationFemale, unit: "Jiwa", color: "text-pink-500" },
                     ].map((stat, idx) => (
-                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                          {stat.label}
-                        </span>
-                        <div className="flex items-baseline gap-2 mt-2">
-                          <span className={`text-2xl md:text-3xl font-black ${stat.color}`}>
-                            {stat.value.toLocaleString("id-ID")}
+                      <ScrollReveal key={idx} delay={idx * 0.05} className="w-full">
+                        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 w-full h-full">
+                          <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            {stat.label}
                           </span>
-                          <span className="text-xs text-slate-400 font-semibold">{stat.unit}</span>
+                          <div className="flex items-baseline gap-2 mt-2">
+                            <span className={`text-2xl md:text-3xl font-black ${stat.color}`}>
+                              {stat.value.toLocaleString("id-ID")}
+                            </span>
+                            <span className="text-xs text-slate-400 font-semibold">{stat.unit}</span>
+                          </div>
                         </div>
-                      </div>
+                      </ScrollReveal>
                     ))}
                   </div>
 
                   {/* Gender ratio bar chart */}
                   {profile.populationTotal > 0 && (
-                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <ScrollReveal>
+                      <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
                       <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                         Rasio Jenis Kelamin
                       </span>
@@ -377,6 +397,7 @@ export default async function ProfilPage() {
                         );
                       })()}
                     </div>
+                    </ScrollReveal>
                   )}
                 </div>
               </section>
@@ -390,18 +411,20 @@ export default async function ProfilPage() {
                   Struktur Organisasi Pemerintahan Desa
                 </h2>
 
-                <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                  {profile.structureImageUrl ? (
-                    <ZoomableImage
-                      src={profile.structureImageUrl}
-                      alt="Struktur Organisasi Desa Nekmese"
-                    />
-                  ) : (
-                    <div className="w-full aspect-[16/9] rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-400 italic">
-                      Bagan struktur organisasi belum diunggah.
-                    </div>
-                  )}
-                </div>
+                <ScrollReveal>
+                  <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    {profile.structureImageUrl ? (
+                      <ZoomableImage
+                        src={profile.structureImageUrl}
+                        alt="Struktur Organisasi Desa Nekmese"
+                      />
+                    ) : (
+                      <div className="w-full aspect-[16/9] rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-400 italic">
+                        Bagan struktur organisasi belum diunggah.
+                      </div>
+                    )}
+                  </div>
+                </ScrollReveal>
               </section>
 
               {/* SEKSI 8: POTENSI DESA */}
@@ -413,17 +436,19 @@ export default async function ProfilPage() {
                   Potensi & Komoditas Unggulan
                 </h2>
 
-                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                  <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
-                    {profile.potential.split("\n").map((paragraph, index) => (
-                      paragraph.trim() ? (
-                        <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
-                          {paragraph}
-                        </p>
-                      ) : null
-                    ))}
+                <ScrollReveal>
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
+                      {profile.potential.split("\n").map((paragraph, index) => (
+                        paragraph.trim() ? (
+                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                            {paragraph}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </ScrollReveal>
               </section>
 
               {/* SEKSI 9: LEMBAGA & SARANA */}
@@ -437,7 +462,8 @@ export default async function ProfilPage() {
 
                 <div className="space-y-8">
                   {/* Lembaga */}
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                  <ScrollReveal>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Lembaga Kemasyarakatan Desa
                     </span>
@@ -451,9 +477,11 @@ export default async function ProfilPage() {
                       ))}
                     </div>
                   </div>
+                  </ScrollReveal>
 
                   {/* Sarpras */}
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                  <ScrollReveal>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
                     <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
                       Sarana & Prasarana Desa
                     </span>
@@ -467,9 +495,11 @@ export default async function ProfilPage() {
                       ))}
                     </div>
                   </div>
+                  </ScrollReveal>
 
                   {/* Prestasi */}
-                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 text-stone-955 shadow-md flex items-start gap-4 hover:shadow-lg transition-all duration-300">
+                  <ScrollReveal delay={0.1}>
+                    <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 text-stone-955 shadow-md flex items-start gap-4 hover:shadow-lg transition-all duration-300">
                     <div className="p-3 bg-white/20 text-stone-955 rounded-xl mt-1">
                       <Trophy size={24} className="stroke-2 text-stone-950" />
                     </div>
@@ -488,6 +518,7 @@ export default async function ProfilPage() {
                       </div>
                     </div>
                   </div>
+                  </ScrollReveal>
                 </div>
               </section>
 
@@ -500,8 +531,9 @@ export default async function ProfilPage() {
                   Lokasi Titik Air
                 </h2>
 
-                <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-                  <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <ScrollReveal>
+                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                    <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <p className="text-slate-600 font-medium leading-relaxed text-sm md:text-base max-w-2xl">
                       Peta persebaran fasilitas air bersih dan sumber air yang dapat diakses oleh warga di sekitar wilayah Desa Nekmese.
                     </p>
@@ -543,6 +575,7 @@ export default async function ProfilPage() {
                     </div>
                   )}
                 </div>
+                </ScrollReveal>
               </section>
 
             </div>

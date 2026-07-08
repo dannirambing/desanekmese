@@ -30,6 +30,19 @@ export const getFeaturedDestinations = unstable_cache(
   { revalidate: 60, tags: ["tourism"] }
 );
 
+export const getDestinationStats = unstable_cache(
+  async () => {
+    const [destinasiCount, mediaCount, kategoriCount] = await Promise.all([
+      prisma.tourismPlace.count({ where: { status: "PUBLISHED" } }),
+      prisma.mediaFile.count({ where: { tourismPlaceId: { not: null } } }),
+      prisma.category.count(),
+    ]);
+    return { destinasiCount, mediaCount, kategoriCount };
+  },
+  ["destination-stats"],
+  { revalidate: 60, tags: ["tourism"] }
+);
+
 export function getTourismPlaceBySlug(slug: string) {
   return unstable_cache(
     async () =>
@@ -60,6 +73,25 @@ export const getAllPublishedUMKMProducts = unstable_cache(
       orderBy: { createdAt: "desc" },
     }),
   ["published-umkm-all"],
+  { revalidate: 60, tags: ["umkm"] }
+);
+
+export const getUMKMStats = unstable_cache(
+  async () => {
+    const [productCount, owners] = await Promise.all([
+      prisma.productUMKM.count({ where: { status: "PUBLISHED" } }),
+      prisma.productUMKM.findMany({
+        where: { status: "PUBLISHED" },
+        select: { ownerName: true },
+        distinct: ["ownerName"],
+      }),
+    ]);
+    return {
+      productCount,
+      ownerCount: owners.length,
+    };
+  },
+  ["umkm-stats"],
   { revalidate: 60, tags: ["umkm"] }
 );
 

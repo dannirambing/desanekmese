@@ -48,10 +48,10 @@ export default function CultureSection({ cultureItems = [] }: CultureSectionProp
           <div className="w-full lg:w-1/2 relative h-[500px] md:h-[600px]">
             {/* Gambar Utama */}
             <motion.div
-              initial={{ opacity: 1, x: 0 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.75, ease: "easeOut" }}
               className="absolute top-0 left-0 w-3/4 h-4/5 rounded-2xl overflow-hidden shadow-2xl z-10 bg-stone-200"
             >
               <Image
@@ -74,10 +74,10 @@ export default function CultureSection({ cultureItems = [] }: CultureSectionProp
 
             {/* Gambar Pendukung */}
             <motion.div
-              initial={{ opacity: 1, y: 0 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.75, delay: 0.15, ease: "easeOut" }}
               className="absolute bottom-0 right-0 w-3/5 h-2/3 rounded-2xl overflow-hidden shadow-xl z-20 border-4 border-stone-50 bg-stone-200"
             >
               <Image
@@ -93,10 +93,10 @@ export default function CultureSection({ cultureItems = [] }: CultureSectionProp
           {/* Kolom Kanan: Teks Storytelling */}
           <div className="w-full lg:w-1/2 lg:pl-12 flex flex-col justify-center">
             <motion.div
-              initial={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.65, delay: 0.2, ease: "easeOut" }}
             >
               <h3 className="text-3xl md:text-4xl font-black text-[#0f172a] mb-6 leading-tight tracking-tight">
                 Helai Benang, <span className="text-[#14b8a6]">Untaian Doa.</span>
