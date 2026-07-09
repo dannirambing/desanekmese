@@ -8,6 +8,7 @@ import type {
   Announcement,
   NewsArticle,
   VillageBudget,
+  VillageRegulation,
 } from "@prisma/client";
 import { getTrigramCosineSimilarity, normalizeText } from "@/lib/similarity";
 
@@ -19,9 +20,22 @@ const MAX_REQUESTS_PER_WINDOW = 15; // Max 10 messages per minute per IP
 function detectCategory(
   question: string,
   answer: string
-): "WISATA" | "UMKM" | "ANGGARAN" | "PENGUMUMAN" | "BERITA" | "BUDAYA" | "PROFIL" {
+): "WISATA" | "UMKM" | "ANGGARAN" | "PENGUMUMAN" | "BERITA" | "BUDAYA" | "PROFIL" | "PERATURAN" {
   const q = question.toLowerCase();
   const a = answer.toLowerCase();
+
+  if (
+    q.includes("peraturan") ||
+    q.includes("hukum") ||
+    q.includes("regulasi") ||
+    q.includes("sk kades") ||
+    q.includes("keputusan kades") ||
+    q.includes("perdes") ||
+    a.includes("peraturan") ||
+    a.includes("regulasi")
+  ) {
+    return "PERATURAN";
+  }
 
   if (
     q.includes("wisata") ||
@@ -178,6 +192,7 @@ export async function POST(req: Request) {
     let pengumumanData: Partial<Announcement>[] = [];
     let beritaData: Partial<NewsArticle>[] = [];
     let anggaranData: Partial<VillageBudget>[] = [];
+    let peraturanData: Partial<VillageRegulation>[] = [];
 
     try {
       profileData = await prisma.villageProfile.findUnique({
@@ -250,6 +265,15 @@ export async function POST(req: Request) {
       });
     } catch (e) {
       console.error("Gagal mengambil data anggaran:", e);
+    }
+
+    try {
+      peraturanData = await prisma.villageRegulation.findMany({
+        where: { status: "PUBLISHED" },
+        select: { title: true, number: true, year: true, type: true, description: true, fileUrl: true, createdAt: true },
+      });
+    } catch (e) {
+      console.error("Gagal mengambil data peraturan desa:", e);
     }
 
     // Helper to truncate text to keep context token count low (under Groq free limits)
@@ -336,6 +360,14 @@ ${anggaranData.map((a) => {
       }).join("\n")}\n\n`;
     }
 
+    if (peraturanData.length > 0) {
+      contextText += `### 8. Peraturan Desa & Regulasi Resmi
+${peraturanData.map((p, idx) => {
+        const tipeLabel = p.type === "PERATURAN_DESA" ? "Peraturan Desa" : "Surat Keputusan (SK) Kades";
+        return `${idx + 1}. **${tipeLabel} Nomor ${p.number} Tahun ${p.year}** - "${p.title}" (Keterangan: ${p.description || "N/A"}). Tautan berkas resmi untuk diunduh/dibaca: ${p.fileUrl}`;
+      }).join("\n")}\n\n`;
+    }
+
     // 3. Bangun Sistem Prompt
     const systemPrompt = `Anda adalah "Nina", Asisten AI Desa Nekmese (Nekmese AI Assistant), asisten virtual cerdas, ramah, dan solutif yang berdedikasi untuk membantu warga maupun pengunjung website Desa Nekmese.
 
@@ -355,13 +387,13 @@ PANDUAN AKURASI DATA & ANTI-HALUSINASI:
    PENTING: Jika pengguna menanyakan data "terbaru" (misal: anggaran terbaru/2026) namun Anda hanya memiliki data tahun sebelumnya (misal: 2025), JANGAN gunakan kalimat penolakan atau minta maaf. Langsung saja berikan data tahun terbaru yang Anda miliki dengan percaya diri (contoh: "Total anggaran APBDes terbaru yang kami catat untuk tahun 2025 adalah...").
 
 Tugas utama Anda:
-1. Jawab pertanyaan pengguna mengenai profil desa, sejarah, visi misi, potensi, wisata, kebudayaan, produk UMKM lokal, berita, pengumuman (termasuk prosedur administrasi seperti KTP-el dan KK jika tercantum), dan transparansi anggaran (APBDes) berdasarkan data resmi desa yang diberikan di bawah ini.
+1. Jawab pertanyaan pengguna mengenai profil desa, sejarah, visi misi, potensi, wisata, kebudayaan, produk UMKM lokal, berita, pengumuman, peraturan desa (Perdes) atau Surat Keputusan (SK) Kades, dan transparansi anggaran (APBDes) berdasarkan data resmi desa yang diberikan di bawah ini.
 2. Gunakan bahasa Indonesia yang sopan, ramah, dan mudah dipahami dengan sentuhan logat Kupang halus sesuai panduan bahasa di atas.
 3. Jawablah secara akurat sesuai dengan informasi yang ada dalam Konteks Informasi Desa. Khusus untuk pertanyaan "Total Anggaran" atau "APBDes", sebutkan kedua metrik secara rinci (Total Anggaran Pendapatan dan Total Anggaran Belanja).
 4. Jika ada pertanyaan mengenai informasi yang tidak tercantum dalam Konteks Informasi Desa, berikan penolakan sopan sesuai aturan nomor 3 di atas. Jangan mengarang informasi.
 5. PENTING (KONSISTENSI RIWAYAT): Jika di riwayat percakapan sebelumnya Anda pernah menjawab "tidak memiliki data", namun pada Konteks di bawah ternyata datanya ADA (misal data anggaran tahun lalu), Anda WAJIB mengabaikan jawaban lama Anda dan langsung berikan data yang ada di Konteks tanpa beralasan.
 6. Berikan jawaban terstruktur dengan list atau poin-poin jika penjelasannya panjang agar mudah dibaca oleh warga.
-7. SELALU sertakan tautan/URL menggunakan format Markdown standard \`[Judul Teks](URL-nya)\` di dalam kalimat Anda jika konteks memberikan informasi URL untuk item tersebut (seperti wisata, budaya, produk, berita, atau pengumuman).
+7. SELALU sertakan tautan/URL menggunakan format Markdown standard \`[Judul Teks](URL-nya)\` di dalam kalimat Anda jika konteks memberikan informasi URL untuk item tersebut (seperti wisata, budaya, produk, berita, pengumuman, atau berkas peraturan).
    - PENTING: Gunakan EXACT URL (tautan lengkap) yang tertulis di keterangan "URL:" pada teks konteks.
    - Jangan memotong atau menyingkat URL tersebut.
    - Contoh format yang benar: \`Kaka bisa melihat [Tenun Motif Burung](${origin}/umkm/tenun-motif-burung)\`.

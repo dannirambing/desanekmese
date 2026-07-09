@@ -8,6 +8,7 @@ import { UTApi } from "uploadthing/server";
 import { isFileKeyReferenced } from "@/lib/uploadthing-server";
 import { createSafeAction } from "@/lib/action-utils";
 import { regulationSchema, RegulationInput } from "@/lib/validations/peraturan";
+import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
 
 // Tambah Peraturan Baru
 export async function createVillageRegulation(formData: FormData) {
@@ -34,6 +35,7 @@ export async function createVillageRegulation(formData: FormData) {
         },
       });
 
+      await clearChatCacheByCategory("PERATURAN");
       revalidatePath("/admin/peraturan");
       revalidatePath("/peraturan");
       return { entityId: regulation.id, details: `Membuat Peraturan: ${data.number} - ${data.title}` };
@@ -82,6 +84,7 @@ export async function updateVillageRegulation(id: string, formData: FormData) {
         }
       }
 
+      await clearChatCacheByCategory("PERATURAN");
       revalidatePath("/admin/peraturan");
       revalidatePath("/peraturan");
       return { entityId: id, details: `Memperbarui Peraturan: ${data.number} - ${data.title}` };
@@ -119,6 +122,7 @@ export async function deleteVillageRegulation(formData: FormData) {
         }
       }
 
+      await clearChatCacheByCategory("PERATURAN");
       revalidatePath("/admin/peraturan");
       revalidatePath("/peraturan");
       return { entityId: id, details: `Menghapus Peraturan: ${oldReg.number} - ${oldReg.title}` };

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function clearChatCacheByCategory(
-  category: "WISATA" | "UMKM" | "ANGGARAN" | "PENGUMUMAN" | "BERITA" | "BUDAYA" | "PROFIL"
+  category: "WISATA" | "UMKM" | "ANGGARAN" | "PENGUMUMAN" | "BERITA" | "BUDAYA" | "PROFIL" | "PERATURAN"
 ) {
   try {
     const deleted = await prisma.chatCache.deleteMany({
