@@ -2,7 +2,7 @@
 
 import { useOptimistic, useTransition, useState } from "react";
 import Link from "next/link";
-import { Edit, Eye, Store, Trash2, Loader2 } from "lucide-react";
+import { Edit, Eye, Store, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ConfirmDeleteButton from "./ConfirmDeleteButton";
 import { deleteUMKMProduct, bulkDeleteUMKM } from "@/app/(admin)/admin/umkm/actions";
@@ -22,7 +22,6 @@ interface ProductUMKM {
 export default function UmkmTable({ initialProducts }: { initialProducts: ProductUMKM[] }) {
   const [isPending, startTransition] = useTransition();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   const [optimisticProducts, addOptimisticAction] = useOptimistic(
     initialProducts,
@@ -43,17 +42,10 @@ export default function UmkmTable({ initialProducts }: { initialProducts: Produc
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    const confirm = window.confirm(`Hapus ${selectedIds.size} produk secara permanen?`);
-    if (!confirm) return;
-
-    setIsBulkDeleting(true);
-    startTransition(async () => {
-      const idsToDelete = Array.from(selectedIds);
-      addOptimisticAction({ type: "deleteBulk", ids: idsToDelete });
-      await bulkDeleteUMKM({ ids: idsToDelete });
-      setSelectedIds(new Set());
-      setIsBulkDeleting(false);
-    });
+    const idsToDelete = Array.from(selectedIds);
+    addOptimisticAction({ type: "deleteBulk", ids: idsToDelete });
+    await bulkDeleteUMKM({ ids: idsToDelete });
+    setSelectedIds(new Set());
   };
 
   const toggleSelect = (id: string) => {
@@ -79,18 +71,15 @@ export default function UmkmTable({ initialProducts }: { initialProducts: Produc
           <span className="text-sm font-bold text-navy">
             {selectedIds.size} produk dipilih
           </span>
-          <button
-            onClick={handleBulkDelete}
-            disabled={isBulkDeleting}
-            className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50"
+          <ConfirmDeleteButton
+            onConfirm={handleBulkDelete}
+            title="Hapus Produk Terpilih"
+            message={`Apakah Anda yakin ingin menghapus ${selectedIds.size} produk terpilih secara permanen? Tindakan ini tidak dapat dibatalkan.`}
+            buttonClassName="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isBulkDeleting ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4 mr-2" />
-            )}
+            <Trash2 className="w-4 h-4 mr-2" />
             Hapus Terpilih
-          </button>
+          </ConfirmDeleteButton>
         </div>
       )}
 

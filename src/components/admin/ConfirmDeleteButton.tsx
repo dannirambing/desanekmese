@@ -8,13 +8,15 @@ interface ConfirmDeleteButtonProps {
   title?: string;
   message?: string;
   buttonClassName?: string;
+  children?: React.ReactNode;
 }
 
 export default function ConfirmDeleteButton({
   onConfirm,
   title = "Hapus Data Permanen",
   message = "Apakah Anda yakin ingin menghapus data ini secara permanen? Tindakan ini tidak dapat dibatalkan.",
-  buttonClassName = "p-2 text-navy/40 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer flex items-center justify-center disabled:opacity-50"
+  buttonClassName = "p-2 text-navy/40 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer flex items-center justify-center disabled:opacity-50",
+  children,
 }: ConfirmDeleteButtonProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -41,9 +43,9 @@ export default function ConfirmDeleteButton({
         title={title}
       >
         {isPending ? (
-          <Loader2 size={18} className="animate-spin text-red-600" />
+          <Loader2 size={18} className="animate-spin" />
         ) : (
-          <Trash2 size={18} />
+          children || <Trash2 size={18} />
         )}
       </button>
 

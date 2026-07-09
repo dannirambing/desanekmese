@@ -2,7 +2,7 @@
 
 import { useOptimistic, useTransition, useState } from "react";
 import Link from "next/link";
-import { Edit, Eye, Newspaper, Trash2, Loader2, CheckSquare } from "lucide-react";
+import { Edit, Eye, Newspaper, Trash2, CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatIndonesianDate } from "@/lib/format-date";
 import ConfirmDeleteButton from "./ConfirmDeleteButton";
@@ -21,7 +21,6 @@ interface Article {
 export default function BeritaTable({ initialArticles }: { initialArticles: Article[] }) {
   const [isPending, startTransition] = useTransition();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   const [optimisticArticles, addOptimisticAction] = useOptimistic(
     initialArticles,
@@ -44,17 +43,10 @@ export default function BeritaTable({ initialArticles }: { initialArticles: Arti
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    const confirm = window.confirm(`Hapus ${selectedIds.size} berita secara permanen?`);
-    if (!confirm) return;
-
-    setIsBulkDeleting(true);
-    startTransition(async () => {
-      const idsToDelete = Array.from(selectedIds);
-      addOptimisticAction({ type: "deleteBulk", ids: idsToDelete });
-      await deleteBulkNewsArticles(idsToDelete);
-      setSelectedIds(new Set());
-      setIsBulkDeleting(false);
-    });
+    const idsToDelete = Array.from(selectedIds);
+    addOptimisticAction({ type: "deleteBulk", ids: idsToDelete });
+    await deleteBulkNewsArticles(idsToDelete);
+    setSelectedIds(new Set());
   };
 
   const toggleSelect = (id: string) => {
@@ -80,18 +72,15 @@ export default function BeritaTable({ initialArticles }: { initialArticles: Arti
           <span className="text-sm font-bold text-navy">
             {selectedIds.size} berita dipilih
           </span>
-          <button
-            onClick={handleBulkDelete}
-            disabled={isBulkDeleting}
-            className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50"
+          <ConfirmDeleteButton
+            onConfirm={handleBulkDelete}
+            title="Hapus Berita Terpilih"
+            message={`Apakah Anda yakin ingin menghapus ${selectedIds.size} berita terpilih secara permanen? Tindakan ini tidak dapat dibatalkan.`}
+            buttonClassName="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isBulkDeleting ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4 mr-2" />
-            )}
+            <Trash2 className="w-4 h-4 mr-2" />
             Hapus Terpilih
-          </button>
+          </ConfirmDeleteButton>
         </div>
       )}
 
