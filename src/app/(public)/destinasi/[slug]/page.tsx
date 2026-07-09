@@ -26,6 +26,7 @@ export default async function DetailWisataPage({ params }: PageProps) {
             src={place.media[0].url}
             alt={place.name}
             className="object-cover"
+            priority
           />
         ) : (
           <div className="flex items-center justify-center h-full text-stone-400">

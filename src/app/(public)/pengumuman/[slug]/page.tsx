@@ -43,6 +43,7 @@ export default async function PengumumanDetailPage({ params }: PageProps) {
             src={announcement.imageUrl}
             alt={announcement.title}
             className="object-cover"
+            priority
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-stone-400 bg-stone-100">

@@ -44,6 +44,7 @@ export default async function BeritaDetailPage({ params }: PageProps) {
             src={article.media[0].url}
             alt={article.title}
             className="object-cover"
+            priority
           />
         ) : (
           <div className="flex items-center justify-center h-full text-slate-400">

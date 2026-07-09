@@ -7,9 +7,10 @@ interface SafeImageProps {
   src: string;
   alt: string;
   className?: string;
+  priority?: boolean;
 }
 
-export default function SafeImage({ src, alt, className }: SafeImageProps) {
+export default function SafeImage({ src, alt, className, priority = false }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
 
   return (
@@ -19,6 +20,7 @@ export default function SafeImage({ src, alt, className }: SafeImageProps) {
       fill
       className={className}
       sizes="100vw"
+      priority={priority}
       onError={() => setHasError(true)}
     />
   );

@@ -40,6 +40,7 @@ export default async function BudayaDetailPage({ params }: PageProps) {
             src={item.media[0].url}
             alt={item.name}
             className="object-cover"
+            priority
           />
         ) : (
           <div className="flex items-center justify-center h-full text-stone-400">
