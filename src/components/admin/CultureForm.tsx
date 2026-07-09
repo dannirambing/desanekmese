@@ -81,7 +81,7 @@ export default function CultureForm({ initialData, initialImage, categories }: C
       <ImagePickerField 
         label="Foto Budaya" 
         title="Pilih Foto Budaya" 
-        currentImage={initialImage || null} 
+        currentImage={initialImage?.url || null} 
       />
 
       <div>

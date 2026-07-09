@@ -41,7 +41,7 @@ export default function WaterSourceForm({
     watch,
     formState: { errors },
   } = useForm<WaterSourceInput>({
-    resolver: zodResolver(waterSourceSchema),
+    resolver: zodResolver(waterSourceSchema) as any,
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",

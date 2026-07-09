@@ -86,8 +86,8 @@ export default function TourismForm({ initialData, initialImage, categories }: T
 
       <ImagePickerField 
         label="Foto Destinasi" 
-        title="Pilih Foto Destinasi" 
-        currentImage={initialImage || null} 
+        title="Pilih Foto Wisata" 
+        currentImage={initialImage?.url || null} 
       />
 
       <div>
