@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SafeImage from "@/components/shared/SafeImage";
 import HeroImageOverlay from "@/components/shared/HeroImageOverlay";
@@ -9,6 +10,25 @@ type PageProps = {
 };
 
 export const revalidate = 60;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const place = await getTourismPlaceBySlug(slug);
+
+  if (!place) {
+    return { title: "Destinasi Wisata Tidak Ditemukan | Desa Nekmese" };
+  }
+
+  return {
+    title: `${place.name} | Destinasi Wisata Desa Nekmese`,
+    description: place.description.slice(0, 160),
+    openGraph: {
+      title: `${place.name} | Destinasi Wisata Desa Nekmese`,
+      description: place.description.slice(0, 160),
+      images: place.media && place.media.length > 0 ? [{ url: place.media[0].url }] : undefined,
+    },
+  };
+}
 
 export default async function DetailWisataPage({ params }: PageProps) {
   const { slug } = await params;
