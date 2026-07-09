@@ -143,7 +143,6 @@ async function main() {
   ];
 
   for (const item of umkmData) {
-    // @ts-ignore
     await prisma.productUMKM.upsert({
       where: { slug: item.slug },
       update: {},

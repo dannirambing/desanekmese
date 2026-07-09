@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { updateCultureItem } from "@/app/(admin)/admin/budaya/actions";
 import Link from "next/link";
@@ -11,6 +12,8 @@ export default async function EditBudayaPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_BUDAYA"]);
+
   const { id } = await params;
   const [item, categories] = await Promise.all([
     prisma.cultureItem.findUnique({

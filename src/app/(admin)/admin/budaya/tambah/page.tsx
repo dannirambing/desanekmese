@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createCultureItem } from "@/app/(admin)/admin/budaya/actions";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,8 @@ import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function TambahBudayaPage() {
+  await requireAdminSession(["MANAGE_BUDAYA"]);
+
   const categories = await prisma.cultureCategory.findMany({
     orderBy: { name: "asc" },
   });

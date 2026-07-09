@@ -292,7 +292,7 @@ export default async function ProfilPage() {
                     <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
                       {profile.geography.split("\n").map((paragraph, index) => (
                         paragraph.trim() ? (
-                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          <p key={index} className="font-medium text-slate-700 text-left">
                             {paragraph}
                           </p>
                         ) : null
@@ -441,7 +441,7 @@ export default async function ProfilPage() {
                     <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
                       {profile.potential.split("\n").map((paragraph, index) => (
                         paragraph.trim() ? (
-                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          <p key={index} className="font-medium text-slate-700 text-left">
                             {paragraph}
                           </p>
                         ) : null
@@ -470,7 +470,7 @@ export default async function ProfilPage() {
                     <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
                       {profile.organizations.split("\n").map((paragraph, index) => (
                         paragraph.trim() ? (
-                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          <p key={index} className="font-medium text-slate-700 text-left">
                             {paragraph}
                           </p>
                         ) : null
@@ -488,7 +488,7 @@ export default async function ProfilPage() {
                     <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
                       {profile.facilities.split("\n").map((paragraph, index) => (
                         paragraph.trim() ? (
-                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          <p key={index} className="font-medium text-slate-700 text-left">
                             {paragraph}
                           </p>
                         ) : null
@@ -510,7 +510,7 @@ export default async function ProfilPage() {
                       <div className="text-stone-950 font-bold leading-loose text-base md:text-lg space-y-5">
                         {profile.achievements.split("\n").map((paragraph, index) => (
                           paragraph.trim() ? (
-                            <p key={index} className="text-justify tracking-wide">
+                            <p key={index} className="text-left tracking-wide">
                               {paragraph}
                             </p>
                           ) : null

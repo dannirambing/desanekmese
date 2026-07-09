@@ -36,7 +36,7 @@ export default function AdminTableFilters({
   // Local state for search input
   const [searchVal, setSearchVal] = useState(searchParams.get("search") ?? "");
 
-  // Update search input when url changes (e.g. on reset)
+  // Sync searchVal if the URL changes (e.g. user hits back/forward or resets)
   useEffect(() => {
     setSearchVal(searchParams.get("search") ?? "");
   }, [searchParams]);

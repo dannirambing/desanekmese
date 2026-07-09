@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Scale } from "lucide-react";
 import Link from "next/link";
 import RegulationList from "./RegulationList";
-import { RegulationType } from "@prisma/client";
+import { Prisma, RegulationType } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export default async function AdminPeraturanPage({
   const itemsPerPage = 10;
   const skip = (page - 1) * itemsPerPage;
 
-  const where: any = {};
+  const where: Prisma.VillageRegulationWhereInput = {};
 
   // Server-side filtering by category
   if (category && Object.values(RegulationType).includes(category as RegulationType)) {

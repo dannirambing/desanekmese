@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ArrowLeft, Plus, TrendingUp, TrendingDown } from "lucide-react";
@@ -14,6 +15,8 @@ export default async function DetailAnggaranPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_BUDGET"]);
+
   const { id } = await params;
   const budget = await prisma.villageBudget.findUnique({
     where: { id },

@@ -90,7 +90,7 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
                     <div className="text-slate-600 leading-loose text-base md:text-lg space-y-6">
                       {source.description.split("\n").map((paragraph, index) => (
                         paragraph.trim() ? (
-                          <p key={index} className="font-medium text-slate-700 text-justify tracking-wide">
+                          <p key={index} className="font-medium text-slate-700 text-left">
                             {paragraph}
                           </p>
                         ) : null

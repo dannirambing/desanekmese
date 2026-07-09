@@ -41,17 +41,26 @@ export default function ZoomableImage({ src, alt }: ZoomableImageProps) {
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 sm:p-8 backdrop-blur-sm">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 sm:p-8 backdrop-blur-sm cursor-zoom-out"
+          onClick={() => setIsOpen(false)}
+        >
           <button
-            onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-all z-50 cursor-pointer"
             aria-label="Tutup"
           >
             <X className="w-8 h-8" />
           </button>
           
-          <div className="relative w-full max-w-7xl h-full flex items-center justify-center">
-            <div className="relative w-full h-[85vh]">
+          <div 
+            className="relative w-full max-w-7xl h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative w-full h-[85vh] cursor-default">
               <Image
                 src={src}
                 alt={alt}

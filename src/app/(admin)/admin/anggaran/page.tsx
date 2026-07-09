@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Edit, Plus, FileText, TrendingUp, TrendingDown } from "lucide-react";
@@ -7,6 +8,8 @@ import { formatRupiah } from "@/lib/format-rupiah";
 export const revalidate = 0; // Dynamic rendering
 
 export default async function AdminAnggaranPage() {
+  await requireAdminSession(["MANAGE_BUDGET"]);
+
   const budgets = await prisma.villageBudget.findMany({
     orderBy: { year: "desc" },
   });

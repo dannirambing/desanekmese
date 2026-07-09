@@ -48,8 +48,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.roleId = (user as any).roleId;
-        token.permissions = (user as any).permissions || [];
+        token.roleId = (user as { roleId?: string }).roleId;
+        token.permissions = (user as { permissions?: string[] }).permissions || [];
+        token.lastChecked = Date.now();
 
         // Update lastActiveAt on login
         try {
@@ -61,26 +62,32 @@ export const authOptions: NextAuthOptions = {
           console.error("Failed to update lastActiveAt on login:", e);
         }
       } else if (token.id) {
-        // Fetch current permissions from database to support real-time updates and migration
-        const admin = await prisma.admin.findUnique({
-          where: { id: token.id as string },
-          include: { role: true }
-        });
-        if (admin) {
-          token.roleId = admin.roleId;
-          token.permissions = admin.role?.permissions || [];
+        const now = Date.now();
+        const lastChecked = (token.lastChecked as number) || 0;
 
-          // Throttled update of lastActiveAt: only update if last active is older than 1 minute
-          const now = new Date();
-          const oneMinuteAgo = new Date(now.getTime() - 60 * 1000);
-          if (!admin.lastActiveAt || admin.lastActiveAt < oneMinuteAgo) {
-            try {
-              await prisma.admin.update({
-                where: { id: admin.id },
-                data: { lastActiveAt: now },
-              });
-            } catch (e) {
-              console.error("Failed to update lastActiveAt:", e);
+        // Throttle database queries: only query if last check is older than 30 seconds
+        if (now - lastChecked > 30 * 1000) {
+          // Fetch current permissions from database to support real-time updates and migration
+          const admin = await prisma.admin.findUnique({
+            where: { id: token.id as string },
+            include: { role: true }
+          });
+          if (admin) {
+            token.roleId = admin.roleId;
+            token.permissions = admin.role?.permissions || [];
+            token.lastChecked = now;
+
+            // Throttled update of lastActiveAt: only update if last active is older than 1 minute
+            const lastActiveLimit = new Date(now - 60 * 1000);
+            if (!admin.lastActiveAt || admin.lastActiveAt < lastActiveLimit) {
+              try {
+                await prisma.admin.update({
+                  where: { id: admin.id },
+                  data: { lastActiveAt: new Date() },
+                });
+              } catch (e) {
+                console.error("Failed to update lastActiveAt:", e);
+              }
             }
           }
         }

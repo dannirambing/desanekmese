@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { updateTourismPlace } from "@/app/(admin)/admin/wisata/actions";
 import Link from "next/link";
@@ -11,6 +12,8 @@ export default async function EditWisataPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_WISATA"]);
+
   const { id } = await params;
   const [place, categories] = await Promise.all([
     prisma.tourismPlace.findUnique({

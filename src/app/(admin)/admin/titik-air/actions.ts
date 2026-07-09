@@ -23,7 +23,7 @@ function generateSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
 }
 
-export async function createWaterSource(prevState: any, formData: FormData) {
+export async function createWaterSource(prevState: unknown, formData: FormData) {
   try {
     const session = await requireAdminSession(["MANAGE_AIR"]);
     const imagesRaw = formData.get("images") as string | null;
@@ -76,16 +76,16 @@ export async function createWaterSource(prevState: any, formData: FormData) {
     revalidatePath("/admin/titik-air");
     revalidatePath("/profil");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to create water source:", error);
     return {
       success: false,
-      error: error.message || "Gagal menambahkan titik air",
+      error: error instanceof Error ? error.message : "Gagal menambahkan titik air",
     };
   }
 }
 
-export async function updateWaterSource(id: string, prevState: any, formData: FormData) {
+export async function updateWaterSource(id: string, prevState: unknown, formData: FormData) {
   try {
     const session = await requireAdminSession(["MANAGE_AIR"]);
     const imagesRaw = formData.get("images") as string | null;
@@ -180,11 +180,11 @@ export async function updateWaterSource(id: string, prevState: any, formData: Fo
     revalidatePath("/profil");
     revalidatePath(`/profil/titik-air/${slug}`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to update water source:", error);
     return {
       success: false,
-      error: error.message || "Gagal mengubah titik air",
+      error: error instanceof Error ? error.message : "Gagal mengubah titik air",
     };
   }
 }

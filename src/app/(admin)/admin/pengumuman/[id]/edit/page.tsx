@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { updateAnnouncement } from "@/app/(admin)/admin/pengumuman/actions";
 import Link from "next/link";
@@ -11,6 +12,8 @@ export default async function EditAnnouncementPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_PENGUMUMAN"]);
+
   const { id } = await params;
   const announcement = await prisma.announcement.findUnique({
     where: { id },

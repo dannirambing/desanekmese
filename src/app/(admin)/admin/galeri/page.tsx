@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import GalleryManager from "./GalleryManager";
 import { syncExistingMedia } from "./actions";
+import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function AdminGaleriPage({
   const itemsPerPage = 24;
   const skip = (page - 1) * itemsPerPage;
 
-  const where: any = {};
+  const where: Prisma.MediaAssetWhereInput = {};
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -28,7 +29,7 @@ export default async function AdminGaleriPage({
   }
 
   // Hitung total item berdasarkan filter
-  const totalItems = await prisma.mediaAsset.count({ where });
+  let totalItems = await prisma.mediaAsset.count({ where });
 
   let assets = await prisma.mediaAsset.findMany({
     where,
@@ -41,20 +42,12 @@ export default async function AdminGaleriPage({
   if (totalItems === 0 && !search) {
     try {
       await syncExistingMedia();
-      const updatedTotalItems = await prisma.mediaAsset.count();
-      const updatedAssets = await prisma.mediaAsset.findMany({
+      totalItems = await prisma.mediaAsset.count();
+      assets = await prisma.mediaAsset.findMany({
         orderBy: { createdAt: "desc" },
         skip,
         take: itemsPerPage,
       });
-      return (
-        <GalleryManager 
-          initialAssets={updatedAssets} 
-          totalItems={updatedTotalItems}
-          itemsPerPage={itemsPerPage}
-          currentPage={page}
-        />
-      );
     } catch (e) {
       console.error("Gagal melakukan sinkronisasi otomatis pertama kali:", e);
     }

@@ -46,6 +46,9 @@ model TourismPlace {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Tabel Kategori Budaya
@@ -78,6 +81,9 @@ model CultureItem {
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Tabel File Gambar/Media
@@ -119,6 +125,9 @@ model NewsArticle {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Tabel Role & Hak Akses (RBAC)
@@ -169,6 +178,9 @@ model Admin {
 
   createdRegulations   VillageRegulation[] @relation("VillageRegulationCreatedBy")
   updatedRegulations   VillageRegulation[] @relation("VillageRegulationUpdatedBy")
+
+  @@index([lastActiveAt])
+  @@index([createdAt])
 }
 
 enum OrderChannel {
@@ -198,6 +210,9 @@ model ProductUMKM {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Tabel Pengaturan Hero Section
@@ -238,6 +253,9 @@ model Announcement {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Tabel Profil Desa
@@ -358,6 +376,9 @@ model WaterSource {
   
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Model untuk Peraturan Desa
@@ -379,6 +400,9 @@ model VillageRegulation {
   
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum RegulationType {

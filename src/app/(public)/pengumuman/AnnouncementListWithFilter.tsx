@@ -158,8 +158,8 @@ export default function AnnouncementListWithFilter({
           <span className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">
             Tanggal dengan Pengumuman (Klik untuk Filter):
           </span>
-          <div className="flex flex-wrap gap-2">
-            {availableDates.map((dateStr) => {
+          <div className="flex flex-row items-center gap-2 overflow-x-auto pb-2 scrollbar-none flex-nowrap -mx-6 px-6 sm:mx-0 sm:px-0">
+            {availableDates.slice(0, 8).map((dateStr) => {
               const formatted = formatIndonesianDate(new Date(dateStr));
               const isActive = selectedDate === dateStr;
               return (
@@ -167,7 +167,7 @@ export default function AnnouncementListWithFilter({
                   key={dateStr}
                   type="button"
                   onClick={() => setSelectedDate(isActive ? "" : dateStr)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+                  className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     isActive
                       ? "bg-amber-500 text-stone-950 border-amber-500 shadow-md shadow-amber-500/10"
                       : "bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100"
@@ -178,7 +178,7 @@ export default function AnnouncementListWithFilter({
               );
             })}
             {availableDates.length === 0 && (
-              <span className="text-xs text-stone-400 italic">Tidak ada tanggal aktif.</span>
+              <span className="text-xs text-stone-400 italic">Tidak ada tanggal pengumuman aktif.</span>
             )}
           </div>
         </div>

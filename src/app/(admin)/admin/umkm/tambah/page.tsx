@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createUMKMProduct } from "@/app/(admin)/admin/umkm/actions";
 import { ORDER_CHANNEL_OPTIONS } from "@/lib/umkm-order";
@@ -9,7 +10,9 @@ const inputClass =
 const labelClass =
   "block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2";
 
-export default function TambahUmkmPage() {
+export default async function TambahUmkmPage() {
+  await requireAdminSession(["MANAGE_UMKM"]);
+
   return (
     <div className="max-w-3xl">
       <Link

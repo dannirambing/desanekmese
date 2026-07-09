@@ -8,12 +8,14 @@ import ImagePickerModal from "@/components/admin/ImagePickerModal";
 import MultiImageUpload from "@/components/admin/MultiImageUpload";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
+import { WaterSource } from "@prisma/client";
+
 export default function WaterSourceForm({
   initialData,
   onSubmit,
 }: {
-  initialData?: any;
-  onSubmit: (prevState: any, formData: FormData) => Promise<any>;
+  initialData?: Partial<WaterSource>;
+  onSubmit: (prevState: unknown, formData: FormData) => Promise<{ success: boolean; error?: string } | unknown>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -193,7 +195,7 @@ export default function WaterSourceForm({
                 placeholder="https://maps.app.goo.gl/..."
                 className="w-full p-3 border border-slate-200 rounded-xl font-medium text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
               />
-              <p className="text-[10px] text-slate-400 mt-1 font-medium">Tautan untuk tombol 'Buka di Google Maps'</p>
+              <p className="text-[10px] text-slate-400 mt-1 font-medium">Tautan untuk tombol &apos;Buka di Google Maps&apos;</p>
             </div>
           </div>
 

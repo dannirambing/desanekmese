@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Edit, Plus, Eye, Store } from "lucide-react";
@@ -18,6 +19,8 @@ interface PageProps {
 }
 
 export default async function AdminUmkmPage({ searchParams }: PageProps) {
+  await requireAdminSession(["MANAGE_UMKM"]);
+
   const params = await searchParams;
   const search = params.search || "";
   const status = params.status || "";

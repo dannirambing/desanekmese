@@ -1,17 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath } from "next/cache";
 
 export async function deleteChatLog(id: string) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || !session.user.permissions.includes("ALL_ACCESS")) {
-      throw new Error("Unauthorized access. Only ALL_ACCESS can delete logs.");
-    }
+    await requireAdminSession(["ALL_ACCESS"]);
 
     await prisma.chatCache.delete({
       where: { id },

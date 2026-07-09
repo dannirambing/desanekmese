@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { updateNewsArticle } from "@/app/(admin)/admin/berita/actions";
 import Link from "next/link";
@@ -11,6 +12,8 @@ export default async function EditBeritaPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_BERITA"]);
+
   const { id } = await params;
   const article = await prisma.newsArticle.findUnique({
     where: { id },

@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Plus, MapPin, Edit, Eye } from "lucide-react";
@@ -15,6 +16,8 @@ interface PageProps {
 }
 
 export default async function WaterSourceAdminPage({ searchParams }: PageProps) {
+  await requireAdminSession(["MANAGE_AIR"]);
+
   const params = await searchParams;
   const search = params.search || "";
   const status = params.status || "";

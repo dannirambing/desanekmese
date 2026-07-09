@@ -66,7 +66,7 @@ export default async function BudayaDetailPage({ params }: PageProps) {
             <div className="text-stone-600 leading-loose text-base md:text-lg space-y-6 mt-8">
               {item.description.split("\n").map((paragraph, index) => (
                 paragraph.trim() ? (
-                  <p key={index} className="font-medium text-stone-700 text-justify tracking-wide">
+                  <p key={index} className="font-medium text-stone-700 text-left">
                     {paragraph}
                   </p>
                 ) : null

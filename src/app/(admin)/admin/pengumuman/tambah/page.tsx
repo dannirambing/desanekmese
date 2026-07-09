@@ -1,9 +1,12 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createAnnouncement } from "@/app/(admin)/admin/pengumuman/actions";
 import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function TambahPengumumanPage() {
+export default async function TambahPengumumanPage() {
+  await requireAdminSession(["MANAGE_PENGUMUMAN"]);
+
   return (
     <div className="max-w-3xl">
       <Link

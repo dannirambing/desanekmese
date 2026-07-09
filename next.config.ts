@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // @ts-ignore
-  optimizeFonts: false,
   images: {
     remotePatterns: [
       {

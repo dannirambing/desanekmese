@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { FileText, Search, Download, Calendar, Tag, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import SectionTitle from "@/components/shared/SectionTitle";
-import { RegulationType } from "@prisma/client";
+import { Prisma, RegulationType } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Peraturan Desa | Desa Nekmese",
@@ -25,7 +25,7 @@ export default async function PublicPeraturanPage({ searchParams }: PublicPeratu
   const itemsPerPage = 10;
   const skip = (page - 1) * itemsPerPage;
 
-  const where: any = {
+  const where: Prisma.VillageRegulationWhereInput = {
     status: "PUBLISHED",
   };
 

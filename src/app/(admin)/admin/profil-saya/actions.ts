@@ -3,15 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth-session";
 
 export async function updateMyProfile(formData: FormData) {
-  const session = await getServerSession(authOptions);
-  
-  if (!session?.user?.id) {
-    throw new Error("Sesi tidak valid.");
-  }
+  const session = await requireAdminSession();
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;

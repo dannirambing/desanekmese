@@ -53,9 +53,9 @@ export default function NewsAndBudgetTabs({
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get("tab");
     if (tabParam === "budget") {
-      setActiveTab("budget");
+      setTimeout(() => setActiveTab("budget"), 0);
     } else if (tabParam === "news") {
-      setActiveTab("news");
+      setTimeout(() => setActiveTab("news"), 0);
     }
   }, []);
 

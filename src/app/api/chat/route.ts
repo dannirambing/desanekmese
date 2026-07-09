@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type {
+  VillageProfile,
+  TourismPlace,
+  CultureItem,
+  ProductUMKM,
+  Announcement,
+  NewsArticle,
+  VillageBudget,
+} from "@prisma/client";
 import { getTrigramCosineSimilarity, normalizeText } from "@/lib/similarity";
 
 // Simple in-memory rate limiter to prevent abuse and protect free tier limits
@@ -162,13 +171,13 @@ export async function POST(req: Request) {
     // --- LOGIKA SEMANTIC CACHE (END) ---
 
     // 1. Ambil data dari database untuk membangun konteks secara paralel/aman
-    let profileData: any = null;
-    let wisataData: any[] = [];
-    let budayaData: any[] = [];
-    let produkData: any[] = [];
-    let pengumumanData: any[] = [];
-    let beritaData: any[] = [];
-    let anggaranData: any[] = [];
+    let profileData: VillageProfile | null = null;
+    let wisataData: Partial<TourismPlace>[] = [];
+    let budayaData: Partial<CultureItem>[] = [];
+    let produkData: Partial<ProductUMKM>[] = [];
+    let pengumumanData: Partial<Announcement>[] = [];
+    let beritaData: Partial<NewsArticle>[] = [];
+    let anggaranData: Partial<VillageBudget>[] = [];
 
     try {
       profileData = await prisma.villageProfile.findUnique({
@@ -244,7 +253,7 @@ export async function POST(req: Request) {
     }
 
     // Helper to truncate text to keep context token count low (under Groq free limits)
-    const limitLength = (text: string, max: number) => {
+    const limitLength = (text: string | null | undefined, max: number) => {
       if (!text) return "N/A";
       return text.length > max ? text.substring(0, max) + "..." : text;
     };
@@ -366,7 +375,7 @@ ${contextText}
     const mappedMessages = [
       { role: "system", content: systemPrompt },
       ...(Array.isArray(riwayatPesan)
-        ? riwayatPesan.slice(-4).map((m: any) => ({
+        ? riwayatPesan.slice(-4).map((m: { role: string; content: string }) => ({
           role: m.role === "user" ? "user" : "assistant",
           content: m.content || "",
         }))
@@ -491,7 +500,7 @@ ${contextText}
         "Connection": "keep-alive",
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Terjadi error di Route Handler API Chat:", error);
     return NextResponse.json(
       { error: "Terjadi kesalahan internal pada server. Silakan coba lagi nanti." },

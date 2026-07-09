@@ -1,9 +1,12 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createNewsArticle } from "@/app/(admin)/admin/berita/actions";
 import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function TambahBeritaPage() {
+export default async function TambahBeritaPage() {
+  await requireAdminSession(["MANAGE_BERITA"]);
+
   return (
     <div className="max-w-3xl">
       <Link

@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Edit, Plus, Eye, Sparkles } from "lucide-react";
@@ -17,6 +18,8 @@ interface PageProps {
 }
 
 export default async function AdminBudayaPage({ searchParams }: PageProps) {
+  await requireAdminSession(["MANAGE_BUDAYA"]);
+
   const params = await searchParams;
   const search = params.search || "";
   const status = params.status || "";

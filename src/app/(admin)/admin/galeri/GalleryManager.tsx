@@ -49,15 +49,17 @@ export default function GalleryManager({
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
+  const [prevInitialAssets, setPrevInitialAssets] = useState<MediaAsset[]>(initialAssets);
   const [assets, setAssets] = useState<MediaAsset[]>(initialAssets);
+
+  if (initialAssets !== prevInitialAssets) {
+    setPrevInitialAssets(initialAssets);
+    setAssets(initialAssets);
+  }
+
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSyncing, setIsSyncing] = useState(false);
-  
-  // Sinkronisasi data saat properti awal berubah dari server
-  useEffect(() => {
-    setAssets(initialAssets);
-  }, [initialAssets]);
 
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -67,14 +69,22 @@ export default function GalleryManager({
   const [assetToDelete, setAssetToDelete] = useState<MediaAsset | null>(null);
   const [deleteUsages, setDeleteUsages] = useState<{ type: string; name: string; link: string }[]>([]);
   const [isLoadingDeleteUsages, setIsLoadingDeleteUsages] = useState(false);
+  const [prevAssetToDelete, setPrevAssetToDelete] = useState<MediaAsset | null>(null);
+  if (assetToDelete !== prevAssetToDelete) {
+    setPrevAssetToDelete(assetToDelete);
+    if (!assetToDelete) {
+      setDeleteUsages([]);
+      setIsLoadingDeleteUsages(false);
+    } else {
+      setIsLoadingDeleteUsages(true);
+    }
+  }
 
   // Cek penggunaan media sebelum konfirmasi hapus
   useEffect(() => {
     if (!assetToDelete) {
-      setDeleteUsages([]);
       return;
     }
-    setIsLoadingDeleteUsages(true);
     const fetchDeleteUsages = async () => {
       try {
         const usageData = await getMediaUsage(assetToDelete.url);
@@ -136,8 +146,9 @@ export default function GalleryManager({
         await deleteMediaAsset(assetToDelete.id);
         setAssets(assets.filter((a) => a.id !== assetToDelete.id));
         setAssetToDelete(null);
-      } catch (error: any) {
-        alert(error.message || "Gagal menghapus gambar");
+      } catch (error) {
+        const err = error as Error;
+        alert(err.message || "Gagal menghapus gambar");
       }
     });
   };

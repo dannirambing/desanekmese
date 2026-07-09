@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -10,6 +11,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ChatbotLogPage() {
+  await requireAdminSession(["ALL_ACCESS"]);
+
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.permissions.includes("ALL_ACCESS")) {

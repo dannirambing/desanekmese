@@ -6,11 +6,15 @@ import { ArrowLeft, Save, Scale } from "lucide-react";
 import Link from "next/link";
 import DocumentUpload from "@/components/admin/DocumentUpload";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
-import { RegulationType } from "@prisma/client";
+import { RegulationType, VillageRegulation } from "@prisma/client";
+import { RegulationInput } from "./actions";
 
 interface RegulationFormProps {
-  initialData?: any;
-  onSubmit: (data: any) => Promise<any>;
+  initialData?: Partial<VillageRegulation> & {
+    createdBy?: { name: string | null } | null;
+    updatedBy?: { name: string | null } | null;
+  };
+  onSubmit: (data: RegulationInput) => Promise<any>;
 }
 
 export default function RegulationForm({ initialData, onSubmit }: RegulationFormProps) {
@@ -67,8 +71,8 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
         } else {
           router.push("/admin/peraturan");
         }
-      } catch (err: any) {
-        setError(err.message || "Terjadi kesalahan saat menyimpan data.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menyimpan data.");
       }
     });
   };
@@ -226,10 +230,10 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
           {/* Audit Trail */}
           {initialData && (
             <AuditTrailInfo
-              createdBy={initialData.createdBy}
-              updatedBy={initialData.updatedBy}
-              createdAt={initialData.createdAt}
-              updatedAt={initialData.updatedAt}
+              createdBy={initialData.createdBy || null}
+              updatedBy={initialData.updatedBy || null}
+              createdAt={initialData.createdAt!}
+              updatedAt={initialData.updatedAt!}
             />
           )}
 

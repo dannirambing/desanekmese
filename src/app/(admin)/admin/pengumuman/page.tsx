@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Edit, Plus, Eye, Megaphone } from "lucide-react";
@@ -41,6 +42,8 @@ interface PageProps {
 }
 
 export default async function AdminPengumumanPage({ searchParams }: PageProps) {
+  await requireAdminSession(["MANAGE_PENGUMUMAN"]);
+
   const params = await searchParams;
   const search = params.search || "";
   const status = params.status || "";

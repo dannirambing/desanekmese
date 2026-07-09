@@ -75,7 +75,7 @@ export default async function BeritaDetailPage({ params }: PageProps) {
           <div className="text-slate-600 leading-relaxed text-base md:text-lg space-y-4">
             {article.content.split("\n").map((paragraph, index) => (
               paragraph.trim() ? (
-                <p key={index} className="font-medium text-slate-700 text-justify">
+                <p key={index} className="font-medium text-slate-700 text-left">
                   {paragraph}
                 </p>
               ) : null

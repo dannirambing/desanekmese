@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import ImagePickerField from "@/components/admin/ImagePickerField";
 import { createTourismPlace } from "@/app/(admin)/admin/wisata/actions";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,8 @@ import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function TambahWisataPage() {
+  await requireAdminSession(["MANAGE_WISATA"]);
+
   const categories = await prisma.category.findMany();
 
   return (

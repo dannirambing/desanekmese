@@ -1,8 +1,11 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { createBudget } from "../actions";
 
-export default function TambahAnggaranPage() {
+export default async function TambahAnggaranPage() {
+  await requireAdminSession(["MANAGE_BUDGET"]);
+
   return (
     <div className="max-w-3xl w-full mx-auto">
       <Link

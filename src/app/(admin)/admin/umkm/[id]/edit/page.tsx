@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { updateUMKMProduct } from "@/app/(admin)/admin/umkm/actions";
 import ImagePickerField from "@/components/admin/ImagePickerField";
@@ -17,6 +18,8 @@ export default async function EditUmkmPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminSession(["MANAGE_UMKM"]);
+
   const { id } = await params;
   const product = await prisma.productUMKM.findUnique({ 
     where: { id },

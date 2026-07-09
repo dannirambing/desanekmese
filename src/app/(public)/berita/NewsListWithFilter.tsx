@@ -117,8 +117,8 @@ export default function NewsListWithFilter({
           <span className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
             Tanggal dengan Berita (Klik untuk Filter):
           </span>
-          <div className="flex flex-wrap gap-2">
-            {availableDates.map((dateStr) => {
+          <div className="flex flex-row items-center gap-2 overflow-x-auto pb-2 scrollbar-none flex-nowrap -mx-6 px-6 sm:mx-0 sm:px-0">
+            {availableDates.slice(0, 8).map((dateStr) => {
               const formatted = formatIndonesianDate(new Date(dateStr));
               const isActive = selectedDate === dateStr;
               return (
@@ -126,7 +126,7 @@ export default function NewsListWithFilter({
                   key={dateStr}
                   type="button"
                   onClick={() => setSelectedDate(isActive ? "" : dateStr)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+                  className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     isActive
                       ? "bg-turquoise text-white border-turquoise shadow-md shadow-turquoise/10"
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"

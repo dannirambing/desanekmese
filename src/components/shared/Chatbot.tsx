@@ -44,7 +44,7 @@ const formatMessage = (text: string) => {
     }
 
     // It's a text node, parse raw URLs and bold text
-    let textNode = parts[i];
+    const textNode = parts[i];
     if (!textNode) continue;
 
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -115,17 +115,16 @@ export default function Chatbot() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const isDraggingRef = useRef(false);
 
   const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       const handleResize = () => {
         setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       };
       window.addEventListener("resize", handleResize);
+      setTimeout(handleResize, 0);
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
@@ -192,7 +191,6 @@ export default function Chatbot() {
       // 2. Baca stream dari response body
       const reader = response.body?.getReader();
       const decoder = new TextDecoder("utf-8");
-      let streamContent = "";
 
       if (reader) {
         while (true) {
@@ -200,24 +198,25 @@ export default function Chatbot() {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          streamContent += chunk;
 
           // 3. Update pesan asisten terakhir secara bertahap
           setMessages((prev) => {
             const updated = [...prev];
             if (updated.length > 0) {
+              const lastMsg = updated[updated.length - 1];
               updated[updated.length - 1] = {
-                ...updated[updated.length - 1],
-                content: streamContent,
+                ...lastMsg,
+                content: lastMsg.content + chunk,
               };
             }
             return updated;
           });
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error sending message to chatbot:", error);
-      const userFriendlyError = error?.message || "Terjadi kesalahan. Silakan coba lagi.";
+      const err = error as Error;
+      const userFriendlyError = err.message || "Terjadi kesalahan. Silakan coba lagi.";
       
       // Tampilkan error feedback berwarna merah muda di dalam UI
       setErrorMessage(userFriendlyError);

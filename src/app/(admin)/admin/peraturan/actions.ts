@@ -8,7 +8,7 @@ import { UTApi } from "uploadthing/server";
 import { isFileKeyReferenced } from "@/lib/uploadthing-server";
 
 // Skema input sederhana
-interface RegulationInput {
+export interface RegulationInput {
   title: string;
   number: string;
   year: number;

@@ -1,3 +1,4 @@
+import { requireAdminSession } from "@/lib/auth-session";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -31,12 +32,18 @@ const formatCompactRupiah = (amount: number) => {
   }).format(amount);
 };
 
+const getFiveMinutesAgo = () => {
+  return new Date(Date.now() - 5 * 60 * 1000);
+};
+
 export default async function AdminDashboardPage() {
+  await requireAdminSession();
+
   const session = await getServerSession(authOptions);
   const userPerms = session?.user?.permissions || [];
   const canManageKonten = userPerms.includes("ALL_ACCESS") || userPerms.includes("MANAGE_BERITA");
 
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  const fiveMinutesAgo = getFiveMinutesAgo();
 
   // Parallel data fetching for extremely fast load times
   const [
