@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.roleId = (user as { roleId?: string }).roleId;
+        token.roleId = (user as { roleId?: string }).roleId || null;
         token.permissions = (user as { permissions?: string[] }).permissions || [];
         token.lastChecked = Date.now();
 

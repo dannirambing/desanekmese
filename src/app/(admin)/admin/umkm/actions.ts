@@ -1,13 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/auth-session";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearChatCacheByCategory } from "@/lib/cache-invalidation";
-import type { OrderChannel } from "@prisma/client";
 import { UTApi } from "uploadthing/server";
 import { isFileKeyReferenced, getUploadThingKey } from "@/lib/uploadthing-server";
+import { createSafeAction } from "@/lib/action-utils";
+import { umkmSchema } from "@/lib/validations/umkm";
+import { z } from "zod";
 
 function generateSlug(name: string) {
   return name
@@ -16,119 +17,190 @@ function generateSlug(name: string) {
     .replace(/\s+/g, "-");
 }
 
-function parseProductForm(formData: FormData) {
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const price = parseInt(formData.get("price") as string, 10);
-  const ownerName = formData.get("ownerName") as string;
-  const orderUrl = formData.get("orderUrl") as string;
-  const orderType = formData.get("orderType") as OrderChannel;
-  const status =
-    (formData.get("status") as "PUBLISHED" | "DRAFT") || "DRAFT";
-  const newImageUrl = formData.get("imageUrl") as string | null;
-  const removeImage = formData.get("removeImage") === "true";
+export const createUMKMProduct = async (formData: FormData) => {
+  const result = await createSafeAction(formData, {
+    schema: umkmSchema,
+    permissions: ["MANAGE_UMKM"],
+    actionType: "CREATE",
+    entityName: "ProductUMKM",
+    handler: async (data, adminId) => {
+      const umkm = await prisma.productUMKM.create({
+        data: {
+          name: data.name,
+          slug: generateSlug(data.name),
+          description: data.description,
+          price: data.price,
+          ownerName: data.ownerName,
+          orderUrl: data.orderUrl,
+          orderType: data.orderType,
+          status: data.status,
+          imageUrl: data.removeImage ? null : data.newImageUrl,
+          createdById: adminId,
+        },
+      });
 
-  return { name, description, price, ownerName, orderUrl, orderType, status, newImageUrl, removeImage };
-}
-
-export async function deleteUMKMProduct(formData: FormData) {
-  await requireAdminSession(["MANAGE_UMKM"]);
-  const id = formData.get("id") as string;
-
-  const existing = await prisma.productUMKM.findUnique({
-    where: { id },
-    select: { imageUrl: true },
-  });
-
-  await prisma.productUMKM.delete({ where: { id } });
-
-  if (existing?.imageUrl) {
-    const key = getUploadThingKey(existing.imageUrl);
-    if (key && !(await isFileKeyReferenced(key))) {
-      const utapi = new UTApi();
-      try {
-        await utapi.deleteFiles(key);
-      } catch (err) {
-        console.error("Gagal menghapus file dari UploadThing:", err);
-      }
-    }
-  }
-
-  revalidatePath("/admin/umkm");
-  revalidatePath("/umkm");
-  revalidateTag("umkm", "max");
-  await clearChatCacheByCategory("UMKM");
-}
-
-export async function createUMKMProduct(formData: FormData) {
-  const session = await requireAdminSession(["MANAGE_UMKM"]);
-  const data = parseProductForm(formData);
-
-  await prisma.productUMKM.create({
-    data: {
-      name: data.name,
-      slug: generateSlug(data.name),
-      description: data.description,
-      price: data.price,
-      ownerName: data.ownerName,
-      orderUrl: data.orderUrl,
-      orderType: data.orderType,
-      status: data.status,
-      imageUrl: data.removeImage ? null : data.newImageUrl,
-      createdById: session.user.id,
+      revalidatePath("/admin/umkm");
+      revalidatePath("/umkm");
+      revalidatePath("/");
+      revalidateTag("umkm", "max");
+      await clearChatCacheByCategory("UMKM");
+      
+      return { entityId: umkm.id, details: `Merekam produk UMKM baru: ${umkm.name}` };
     },
   });
 
-  revalidatePath("/admin/umkm");
-  revalidatePath("/umkm");
-  revalidatePath("/");
-  revalidateTag("umkm", "max");
-  await clearChatCacheByCategory("UMKM");
-  redirect("/admin/umkm");
-}
+  if (result.success) {
+    redirect("/admin/umkm");
+  }
+  return result;
+};
 
-export async function updateUMKMProduct(id: string, formData: FormData) {
-  const session = await requireAdminSession(["MANAGE_UMKM"]);
-  const data = parseProductForm(formData);
+export const updateUMKMProduct = async (id: string, formData: FormData) => {
+  const result = await createSafeAction(formData, {
+    schema: umkmSchema,
+    permissions: ["MANAGE_UMKM"],
+    actionType: "UPDATE",
+    entityName: "ProductUMKM",
+    handler: async (data, adminId) => {
+      const existing = await prisma.productUMKM.findUnique({ where: { id } });
+      if (!existing) throw new Error("Produk tidak ditemukan");
 
-  const existing = await prisma.productUMKM.findUnique({ where: { id } });
-  if (!existing) throw new Error("Produk tidak ditemukan");
+      const imageUrl = data.removeImage ? null : (data.newImageUrl || existing.imageUrl);
 
-  const imageUrl = data.removeImage ? null : (data.newImageUrl || existing.imageUrl);
+      await prisma.productUMKM.update({
+        where: { id },
+        data: {
+          name: data.name,
+          slug: generateSlug(data.name),
+          description: data.description,
+          price: data.price,
+          ownerName: data.ownerName,
+          orderUrl: data.orderUrl,
+          orderType: data.orderType,
+          status: data.status,
+          imageUrl,
+          updatedById: adminId,
+        },
+      });
 
-  await prisma.productUMKM.update({
-    where: { id },
-    data: {
-      name: data.name,
-      slug: generateSlug(data.name),
-      description: data.description,
-      price: data.price,
-      ownerName: data.ownerName,
-      orderUrl: data.orderUrl,
-      orderType: data.orderType,
-      status: data.status,
-      imageUrl,
-      updatedById: session.user.id,
+      if (existing.imageUrl && (data.removeImage || (data.newImageUrl && data.newImageUrl !== existing.imageUrl))) {
+        const key = getUploadThingKey(existing.imageUrl);
+        if (key && !(await isFileKeyReferenced(key))) {
+          const utapi = new UTApi();
+          try {
+            await utapi.deleteFiles(key);
+          } catch (err) {
+            console.error("Gagal menghapus file lama dari UploadThing:", err);
+          }
+        }
+      }
+
+      revalidatePath("/admin/umkm");
+      revalidatePath("/umkm");
+      revalidatePath("/");
+      revalidateTag("umkm", "max");
+      await clearChatCacheByCategory("UMKM");
+      
+      return { entityId: id, details: `Memperbarui produk UMKM: ${data.name}` };
     },
   });
 
-  // Clean up replaced or removed file from UploadThing jika tidak digunakan di tempat lain
-  if (existing.imageUrl && (data.removeImage || (data.newImageUrl && data.newImageUrl !== existing.imageUrl))) {
-    const key = getUploadThingKey(existing.imageUrl);
-    if (key && !(await isFileKeyReferenced(key))) {
-      const utapi = new UTApi();
-      try {
-        await utapi.deleteFiles(key);
-      } catch (err) {
-        console.error("Gagal menghapus file lama dari UploadThing:", err);
-      }
-    }
+  if (result.success) {
+    redirect("/admin/umkm");
   }
+  return result;
+};
 
-  revalidatePath("/admin/umkm");
-  revalidatePath("/umkm");
-  revalidatePath("/");
-  revalidateTag("umkm", "max");
-  await clearChatCacheByCategory("UMKM");
-  redirect("/admin/umkm");
-}
+export const deleteUMKMProduct = async (data: { id: string }) => {
+  const formData = new FormData();
+  formData.append("id", data.id);
+
+  return createSafeAction(formData, {
+    schema: z.object({ id: z.string() }),
+    permissions: ["MANAGE_UMKM"],
+    actionType: "DELETE",
+    entityName: "ProductUMKM",
+    handler: async (validData, adminId) => {
+      const existing = await prisma.productUMKM.findUnique({
+        where: { id: validData.id },
+        select: { imageUrl: true },
+      });
+
+      await prisma.productUMKM.delete({ where: { id: validData.id } });
+
+      if (existing?.imageUrl) {
+        const key = getUploadThingKey(existing.imageUrl);
+        if (key && !(await isFileKeyReferenced(key))) {
+          const utapi = new UTApi();
+          try {
+            await utapi.deleteFiles(key);
+          } catch (err) {
+            console.error("Gagal menghapus file dari UploadThing:", err);
+          }
+        }
+      }
+
+      revalidatePath("/admin/umkm");
+      revalidatePath("/umkm");
+      revalidatePath("/");
+      revalidateTag("umkm", "max");
+      await clearChatCacheByCategory("UMKM");
+      
+      return { entityId: validData.id, details: "Menghapus produk UMKM permanen" };
+    },
+  });
+};
+
+export const bulkDeleteUMKM = async (data: { ids: string[] }) => {
+  const formData = new FormData();
+  formData.append("ids", JSON.stringify(data.ids));
+
+  const schema = z.object({
+    ids: z.string().transform((str) => {
+      try {
+        return JSON.parse(str);
+      } catch {
+        return [];
+      }
+    }).pipe(z.array(z.string())),
+  });
+
+  return createSafeAction(formData, {
+    schema,
+    permissions: ["MANAGE_UMKM"],
+    actionType: "DELETE",
+    entityName: "ProductUMKM",
+    handler: async (validData, adminId) => {
+      const items = await prisma.productUMKM.findMany({
+        where: { id: { in: validData.ids } },
+        select: { imageUrl: true },
+      });
+
+      await prisma.productUMKM.deleteMany({
+        where: { id: { in: validData.ids } },
+      });
+
+      const utapi = new UTApi();
+      for (const item of items) {
+        if (item.imageUrl) {
+          const key = getUploadThingKey(item.imageUrl);
+          if (key && !(await isFileKeyReferenced(key))) {
+            try {
+              await utapi.deleteFiles(key);
+            } catch (err) {
+              console.error("Gagal menghapus file dari UploadThing:", err);
+            }
+          }
+        }
+      }
+
+      revalidatePath("/admin/umkm");
+      revalidatePath("/umkm");
+      revalidatePath("/");
+      revalidateTag("umkm", "max");
+      await clearChatCacheByCategory("UMKM");
+      
+      return { entityId: "BULK", details: `Menghapus ${validData.ids.length} produk UMKM secara massal` };
+    },
+  });
+};

@@ -13,6 +13,28 @@ enum PublishStatus {
   PUBLISHED
 }
 
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+// Tabel Jejak Audit (Audit Trails)
+model AuditLog {
+  id        String     @id @default(cuid())
+  action    ActionType
+  entity    String     // Nama tabel/entitas (contoh: "NewsArticle")
+  entityId  String
+  details   String?    @db.Text // Menyimpan data JSON perubahan atau deskripsi
+  adminId   String
+  admin     Admin      @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@index([entity, entityId])
+  @@index([adminId])
+  @@index([createdAt])
+}
+
 // Tabel Kategori Wisata
 model Category {
   id        String         @id @default(cuid())
@@ -178,6 +200,8 @@ model Admin {
 
   createdRegulations   VillageRegulation[] @relation("VillageRegulationCreatedBy")
   updatedRegulations   VillageRegulation[] @relation("VillageRegulationUpdatedBy")
+
+  auditLogs            AuditLog[]
 
   @@index([lastActiveAt])
   @@index([createdAt])

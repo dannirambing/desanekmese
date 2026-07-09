@@ -4,7 +4,7 @@ import { updateCultureItem } from "@/app/(admin)/admin/budaya/actions";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { notFound } from "next/navigation";
-import ImagePickerField from "@/components/admin/ImagePickerField";
+import CultureForm from "@/components/admin/CultureForm";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditBudayaPage({
@@ -46,88 +46,18 @@ export default async function EditBudayaPage({
           Ubah Konten Budaya
         </h1>
 
-        <form action={updateItemWithId} className="space-y-6">
-          <ImagePickerField
-            currentImage={currentMedia?.url ?? null}
-            label="Foto Budaya"
-            title="Pilih Foto Budaya"
-          />
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Nama / Judul
-            </label>
-            <input
-              name="name"
-              defaultValue={item.name}
-              required
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Ringkasan Singkat
-            </label>
-            <input
-              name="summary"
-              defaultValue={item.summary ?? ""}
-              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Kategori Budaya
-            </label>
-            <select
-              name="categoryId"
-              defaultValue={item.categoryId}
-              required
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] bg-white focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Deskripsi Lengkap
-            </label>
-            <textarea
-              name="description"
-              rows={6}
-              defaultValue={item.description}
-              required
-              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Status
-            </label>
-            <select
-              name="status"
-              defaultValue={item.status}
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] bg-white focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#14b8a6] text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#0f172a] transition-all flex justify-center items-center"
-          >
-            <Save className="mr-2" size={20} /> Simpan Perubahan
-          </button>
-        </form>
+        <CultureForm 
+          initialData={{
+            id: item.id,
+            name: item.name,
+            summary: item.summary,
+            description: item.description,
+            categoryId: item.categoryId,
+            status: item.status,
+          }}
+          initialImage={currentMedia}
+          categories={categories}
+        />
 
         <AuditTrailInfo
           createdBy={item.createdBy}

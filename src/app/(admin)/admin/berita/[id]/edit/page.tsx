@@ -1,10 +1,9 @@
 import { requireAdminSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
-import { updateNewsArticle } from "@/app/(admin)/admin/berita/actions";
 import Link from "next/link";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
-import ImagePickerField from "@/components/admin/ImagePickerField";
+import BeritaForm from "@/components/admin/BeritaForm";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 
 export default async function EditBeritaPage({
@@ -27,7 +26,6 @@ export default async function EditBeritaPage({
   if (!article) notFound();
 
   const currentMedia = article.media[0] ?? null;
-  const updateArticleWithId = updateNewsArticle.bind(null, article.id);
 
   return (
     <div className="max-w-3xl w-full mx-auto">
@@ -43,70 +41,16 @@ export default async function EditBeritaPage({
           Ubah Berita
         </h1>
 
-        <form action={updateArticleWithId} className="space-y-6">
-          <ImagePickerField
-            currentImage={currentMedia?.url ?? null}
-            label="Foto Berita"
-            title="Pilih Foto Berita"
-          />
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Judul Berita
-            </label>
-            <input
-              name="title"
-              defaultValue={article.title}
-              required
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Ringkasan Singkat
-            </label>
-            <input
-              name="summary"
-              defaultValue={article.summary ?? ""}
-              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Isi Berita
-            </label>
-            <textarea
-              name="content"
-              rows={10}
-              defaultValue={article.content}
-              required
-              className="w-full p-4 border border-slate-200 rounded-xl font-semibold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
-              Status
-            </label>
-            <select
-              name="status"
-              defaultValue={article.status}
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] bg-white focus:ring-2 focus:ring-[#14b8a6] outline-none"
-            >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#14b8a6] text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#0f172a] transition-all flex justify-center items-center"
-          >
-            <Save className="mr-2" size={20} /> Simpan Perubahan
-          </button>
-        </form>
+        <BeritaForm 
+          initialData={{
+            id: article.id,
+            title: article.title,
+            summary: article.summary,
+            content: article.content,
+            status: article.status,
+          }}
+          initialMedia={currentMedia}
+        />
 
         <AuditTrailInfo
           createdBy={article.createdBy}

@@ -5,25 +5,37 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginInput } from "@/lib/validations/login";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
     setError("");
     setLoading(true);
 
     const result = await signIn("credentials", {
-      email,
-      password,
+      email: data.email,
+      password: data.password,
       redirect: false,
     });
 
@@ -36,10 +48,15 @@ export default function LoginForm() {
 
     router.push(callbackUrl);
     router.refresh();
-  }
+  };
+
+  const inputClass = (err?: any) => 
+    `w-full pl-12 pr-4 py-4 bg-slate-50/50 border rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 transition-all duration-300 outline-none shadow-sm ${
+      err ? "border-red-400 focus:border-red-400 focus:ring-red-200" : "border-slate-200 focus:border-[#14b8a6]"
+    }`;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {error && (
         <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           <AlertCircle className="w-4 h-4 shrink-0" />
@@ -53,19 +70,17 @@ export default function LoginForm() {
         </label>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Mail className="w-5 h-5 text-slate-400 group-focus-within:text-[#14b8a6] transition-colors duration-300" />
+            <Mail className={`w-5 h-5 transition-colors duration-300 ${errors.email ? "text-red-400" : "text-slate-400 group-focus-within:text-[#14b8a6]"}`} />
           </div>
           <input
             type="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            {...register("email")}
             autoComplete="email"
             placeholder="masukan email"
-            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
+            className={inputClass(errors.email)}
           />
         </div>
+        {errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1 font-bold">{errors.email.message}</p>}
       </div>
 
       <div>
@@ -74,19 +89,17 @@ export default function LoginForm() {
         </label>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Lock className="w-5 h-5 text-slate-400 group-focus-within:text-[#14b8a6] transition-colors duration-300" />
+            <Lock className={`w-5 h-5 transition-colors duration-300 ${errors.password ? "text-red-400" : "text-slate-400 group-focus-within:text-[#14b8a6]"}`} />
           </div>
           <input
             type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            {...register("password")}
             autoComplete="current-password"
             placeholder="Masukan Password"
-            className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 focus:border-[#14b8a6] transition-all duration-300 outline-none shadow-sm"
+            className={inputClass(errors.password)}
           />
         </div>
+        {errors.password && <p className="text-red-500 text-xs mt-1.5 ml-1 font-bold">{errors.password.message}</p>}
       </div>
 
       <Button
@@ -106,3 +119,4 @@ export default function LoginForm() {
     </form>
   );
 }
+

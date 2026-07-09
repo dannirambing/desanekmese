@@ -2,33 +2,58 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, MapPin, Target, Image as ImageIcon, Upload } from "lucide-react";
+import { ArrowLeft, Save, MapPin, Target, Image as ImageIcon, Upload, Loader2 } from "lucide-react";
 import Link from "next/link";
 import ImagePickerModal from "@/components/admin/ImagePickerModal";
 import MultiImageUpload from "@/components/admin/MultiImageUpload";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { waterSourceSchema, WaterSourceInput } from "@/lib/validations/titik-air";
 
-import { WaterSource } from "@prisma/client";
+import { WaterSource, Admin } from "@prisma/client";
 
 export default function WaterSourceForm({
   initialData,
   onSubmit,
 }: {
-  initialData?: Partial<WaterSource>;
-  onSubmit: (prevState: unknown, formData: FormData) => Promise<{ success: boolean; error?: string } | unknown>;
+  initialData?: Partial<WaterSource> & {
+    createdBy?: Pick<Admin, "name"> | null;
+    updatedBy?: Pick<Admin, "name"> | null;
+  };
+  onSubmit: (formData: FormData) => Promise<any>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   
   const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   const [images, setImages] = useState<string[]>(initialData?.images || []);
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
 
-  const [latitude, setLatitude] = useState<string>(initialData?.latitude?.toString() || "");
-  const [longitude, setLongitude] = useState<string>(initialData?.longitude?.toString() || "");
   const [isLocating, setIsLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<WaterSourceInput>({
+    resolver: zodResolver(waterSourceSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      latitude: initialData?.latitude ?? undefined,
+      longitude: initialData?.longitude ?? undefined,
+      mapUrl: initialData?.mapUrl || "",
+      status: initialData?.status || "PUBLISHED",
+    },
+  });
+
+  const watchLatitude = watch("latitude");
+  const watchLongitude = watch("longitude");
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -36,8 +61,8 @@ export default function WaterSourceForm({
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLatitude(position.coords.latitude.toString());
-          setLongitude(position.coords.longitude.toString());
+          setValue("latitude", position.coords.latitude, { shouldValidate: true });
+          setValue("longitude", position.coords.longitude, { shouldValidate: true });
           setIsLocating(false);
         },
         (error) => {
@@ -52,22 +77,36 @@ export default function WaterSourceForm({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    formData.set("imageUrl", imageUrl || "");
-    formData.set("images", JSON.stringify(images));
+  const handleFormSubmit = async (data: WaterSourceInput) => {
+    setServerError(null);
+    
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("latitude", data.latitude.toString());
+    formData.append("longitude", data.longitude.toString());
+    if (data.mapUrl) formData.append("mapUrl", data.mapUrl);
+    formData.append("status", data.status);
+    
+    if (imageUrl) formData.append("imageUrl", imageUrl);
+    if (images.length > 0) formData.append("images", JSON.stringify(images));
+    
+    // For update action, append id if exists
+    if (initialData?.id) {
+      formData.append("id", initialData.id);
+    }
 
     startTransition(async () => {
-      const result = await onSubmit(null, formData);
+      const result = await onSubmit(formData);
       if (result && !result.success) {
-        setError(result.error);
+        setServerError(result.message || "Gagal menyimpan data");
       } else if (result?.success) {
         router.push("/admin/titik-air");
       }
     });
   };
+
+  const inputClass = (error?: any) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
 
   return (
     <div className="max-w-3xl w-full mx-auto pb-16">
@@ -93,24 +132,23 @@ export default function WaterSourceForm({
           </div>
         </div>
 
-        {error && (
+        {serverError && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-semibold">
-            {error}
+            {serverError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           <div>
             <label className="block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2">
               Nama Titik Air <span className="text-red-500">*</span>
             </label>
             <input
-              name="name"
-              required
-              defaultValue={initialData?.name}
+              {...register("name")}
               placeholder="Contoh: Mata Air Oebau"
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+              className={inputClass(errors.name)}
             />
+            {errors.name && <p className="text-red-500 text-xs mt-1 font-bold">{errors.name.message}</p>}
           </div>
 
           <div>
@@ -118,13 +156,12 @@ export default function WaterSourceForm({
               Deskripsi <span className="text-red-500">*</span>
             </label>
             <textarea
-              name="description"
-              required
+              {...register("description")}
               rows={4}
-              defaultValue={initialData?.description}
               placeholder="Jelaskan mengenai titik air ini (kondisi, kegunaan, dll)..."
-              className="w-full p-4 border border-slate-200 rounded-xl font-medium text-slate-700 focus:ring-2 focus:ring-[#14b8a6] outline-none leading-relaxed"
+              className={inputClass(errors.description)}
             />
+            {errors.description && <p className="text-red-500 text-xs mt-1 font-bold">{errors.description.message}</p>}
           </div>
 
           <div className="pt-4 border-t border-slate-100">
@@ -139,7 +176,7 @@ export default function WaterSourceForm({
                 className="inline-flex items-center text-xs font-bold bg-[#14b8a6]/10 text-[#14b8a6] hover:bg-[#14b8a6]/20 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
               >
                 {isLocating ? (
-                  <span className="animate-pulse">Mencari lokasi...</span>
+                  <span className="flex items-center gap-2 animate-pulse"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Mencari lokasi...</span>
                 ) : (
                   <>
                     <Target className="w-3.5 h-3.5 mr-1.5" /> Gunakan GPS Saat Ini
@@ -158,28 +195,24 @@ export default function WaterSourceForm({
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 mb-1">Latitude</label>
                 <input
-                  name="latitude"
                   type="number"
                   step="any"
-                  required
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
+                  {...register("latitude")}
                   placeholder="-10.123456"
-                  className="w-full p-3 border border-slate-200 rounded-xl font-medium text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+                  className={inputClass(errors.latitude)}
                 />
+                {errors.latitude && <p className="text-red-500 text-xs mt-1 font-bold">{errors.latitude.message}</p>}
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 mb-1">Longitude</label>
                 <input
-                  name="longitude"
                   type="number"
                   step="any"
-                  required
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
+                  {...register("longitude")}
                   placeholder="123.456789"
-                  className="w-full p-3 border border-slate-200 rounded-xl font-medium text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+                  className={inputClass(errors.longitude)}
                 />
+                {errors.longitude && <p className="text-red-500 text-xs mt-1 font-bold">{errors.longitude.message}</p>}
               </div>
             </div>
             <p className="text-[10px] text-slate-400 mt-2 font-medium">
@@ -189,12 +222,12 @@ export default function WaterSourceForm({
             <div className="mt-4">
               <label className="block text-[10px] font-bold text-slate-500 mb-1">Link Google Maps (Opsional)</label>
               <input
-                name="mapUrl"
                 type="url"
-                defaultValue={initialData?.mapUrl || ""}
+                {...register("mapUrl")}
                 placeholder="https://maps.app.goo.gl/..."
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none"
+                className={inputClass(errors.mapUrl)}
               />
+              {errors.mapUrl && <p className="text-red-500 text-xs mt-1 font-bold">{errors.mapUrl.message}</p>}
               <p className="text-[10px] text-slate-400 mt-1 font-medium">Tautan untuk tombol &apos;Buka di Google Maps&apos;</p>
             </div>
           </div>
@@ -261,13 +294,13 @@ export default function WaterSourceForm({
               Status Publikasi
             </label>
             <select
-              name="status"
-              defaultValue={initialData?.status || "PUBLISHED"}
-              className="w-full p-4 border border-slate-200 rounded-xl font-bold text-[#0f172a] focus:ring-2 focus:ring-[#14b8a6] outline-none bg-white"
+              {...register("status")}
+              className={inputClass(errors.status)}
             >
               <option value="DRAFT">Draft (Sembunyikan)</option>
               <option value="PUBLISHED">Published (Tampilkan)</option>
             </select>
+            {errors.status && <p className="text-red-500 text-xs mt-1 font-bold">{errors.status.message}</p>}
           </div>
 
           <div className="pt-6 border-t border-slate-100 flex justify-end">
@@ -276,7 +309,11 @@ export default function WaterSourceForm({
               disabled={isPending}
               className="inline-flex items-center justify-center bg-navy hover:bg-navy/90 text-white px-8 py-4 rounded-full font-bold uppercase text-xs tracking-widest transition-all shadow-xl shadow-navy/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isPending ? "Menyimpan..." : (
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
+                </span>
+              ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" /> Simpan Titik Air
                 </>
@@ -287,10 +324,10 @@ export default function WaterSourceForm({
 
         {initialData && initialData.createdAt && (
           <AuditTrailInfo
-            createdBy={initialData.createdBy}
-            updatedBy={initialData.updatedBy}
+            createdBy={initialData.createdBy || null}
+            updatedBy={initialData.updatedBy || null}
             createdAt={initialData.createdAt}
-            updatedAt={initialData.updatedAt}
+            updatedAt={initialData.updatedAt || initialData.createdAt}
           />
         )}
       </div>

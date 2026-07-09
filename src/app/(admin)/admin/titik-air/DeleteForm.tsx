@@ -5,9 +5,11 @@ import { deleteWaterSource } from "./actions";
 
 export default function DeleteForm({ id, name }: { id: string; name: string }) {
   const handleDelete = async () => {
-    const result = await deleteWaterSource(id);
+    const formData = new FormData();
+    formData.append("id", id);
+    const result = await deleteWaterSource(formData);
     if (result && !result.success) {
-      alert(result.error);
+      alert(result.message || "Terjadi kesalahan");
     }
   };
 

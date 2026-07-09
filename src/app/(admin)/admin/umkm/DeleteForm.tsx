@@ -5,9 +5,7 @@ import { deleteUMKMProduct } from "./actions";
 
 export default function DeleteForm({ id }: { id: string }) {
   const handleDelete = async () => {
-    const formData = new FormData();
-    formData.append("id", id);
-    await deleteUMKMProduct(formData);
+    await deleteUMKMProduct({ id });
   };
 
   return (
