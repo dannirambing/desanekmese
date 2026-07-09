@@ -7,86 +7,88 @@ import Link from "next/link";
 import DocumentUpload from "@/components/admin/DocumentUpload";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 import { RegulationType, VillageRegulation } from "@prisma/client";
-import { RegulationInput } from "./actions";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { regulationSchema, RegulationInput } from "@/lib/validations/peraturan";
 
 interface RegulationFormProps {
   initialData?: Partial<VillageRegulation> & {
     createdBy?: { name: string | null } | null;
     updatedBy?: { name: string | null } | null;
   };
-  onSubmit: (data: RegulationInput) => Promise<any>;
+  onSubmit: (formData: FormData) => Promise<any>;
 }
 
 export default function RegulationForm({ initialData, onSubmit }: RegulationFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const [fileUrl, setFileUrl] = useState<string>(initialData?.fileUrl || "");
-  const [fileKey, setFileKey] = useState<string>(initialData?.fileKey || "");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<RegulationInput>({
+    resolver: zodResolver(regulationSchema) as any,
+    defaultValues: {
+      title: initialData?.title || "",
+      number: initialData?.number || "",
+      year: initialData?.year || new Date().getFullYear(),
+      type: initialData?.type || "PERATURAN_DESA",
+      description: initialData?.description || "",
+      status: initialData?.status || "DRAFT",
+      fileUrl: initialData?.fileUrl || "",
+      fileKey: initialData?.fileKey || "",
+    },
+  });
 
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [number, setNumber] = useState(initialData?.number || "");
-  const [year, setYear] = useState(initialData?.year || new Date().getFullYear());
-  const [type, setType] = useState<RegulationType>(initialData?.type || "PERATURAN_DESA");
-  const [description, setDescription] = useState(initialData?.description || "");
-  const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">(initialData?.status || "DRAFT");
+  const watchTitle = watch("title");
+  const watchNumber = watch("number");
+  const watchYear = watch("year");
+  const watchType = watch("type");
+  const watchFileUrl = watch("fileUrl");
+  const watchFileKey = watch("fileKey");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleFormSubmit = async (data: RegulationInput) => {
+    setServerError(null);
 
-    if (!title.trim()) {
-      setError("Judul peraturan wajib diisi.");
-      return;
-    }
-    if (!number.trim()) {
-      setError("Nomor peraturan wajib diisi.");
-      return;
-    }
-    if (!year) {
-      setError("Tahun peraturan wajib diisi.");
-      return;
-    }
-    if (!fileUrl) {
-      setError("File dokumen PDF peraturan wajib diunggah.");
-      return;
-    }
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("number", data.number);
+    formData.append("year", data.year.toString());
+    formData.append("type", data.type);
+    if (data.description) formData.append("description", data.description);
+    formData.append("fileUrl", data.fileUrl);
+    if (data.fileKey) formData.append("fileKey", data.fileKey);
+    formData.append("status", data.status);
 
     startTransition(async () => {
-      try {
-        const res = await onSubmit({
-          title,
-          number,
-          year: parseInt(year.toString()),
-          type,
-          description,
-          fileUrl,
-          fileKey,
-          status,
-        });
-
-        if (res && res.error) {
-          setError(res.error);
-        } else {
-          router.push("/admin/peraturan");
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menyimpan data.");
+      const res = await onSubmit(formData);
+      if (res && !res.success) {
+        setServerError(res.message || "Gagal menyimpan peraturan desa.");
+      } else {
+        router.push("/admin/peraturan");
       }
     });
   };
 
   const getSuggestedFileName = () => {
     let prefix = "Peraturan";
-    if (type === "PERATURAN_DESA") prefix = "Perdes";
-    else if (type === "KEPUTUSAN_KEPALA_DESA") prefix = "SK-Kades";
-    else if (type === "PERATURAN_BERSAMA") prefix = "Peraturan-Bersama";
+    if (watchType === "PERATURAN_DESA") prefix = "Perdes";
+    else if (watchType === "KEPUTUSAN_KEPALA_DESA") prefix = "SK-Kades";
+    else if (watchType === "PERATURAN_BERSAMA") prefix = "Peraturan-Bersama";
 
-    const cleanNumber = number.replace(/[/\\?%*:|"<> ]/g, "-");
-    const cleanTitle = title.replace(/[/\\?%*:|"<> ]/g, "_").substring(0, 50);
-    return `${prefix}_No_${cleanNumber}_Tahun_${year}_${cleanTitle}`;
+    const cleanNumber = (watchNumber || "").replace(/[/\\?%*:|"<> ]/g, "-");
+    const cleanTitle = (watchTitle || "").replace(/[/\\?%*:|"<> ]/g, "_").substring(0, 50);
+    return `${prefix}_No_${cleanNumber}_Tahun_${watchYear || new Date().getFullYear()}_${cleanTitle}`;
   };
+
+  const inputClass = (error?: any) =>
+    `w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50 ${
+      error ? "border-red-400 focus:ring-red-200" : ""
+    }`;
 
   return (
     <div className="max-w-3xl w-full mx-auto pb-16">
@@ -112,13 +114,13 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
           </div>
         </div>
 
-        {error && (
+        {serverError && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-semibold">
-            {error}
+            {serverError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Nomor Peraturan */}
             <div className="space-y-2">
@@ -127,12 +129,11 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
               </label>
               <input
                 type="text"
-                value={number}
-                onChange={(e) => setNumber(e.target.value)}
+                {...register("number")}
                 placeholder="Contoh: 02/2025"
-                required
-                className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50"
+                className={inputClass(errors.number)}
               />
+              {errors.number && <p className="text-red-500 text-xs font-bold">{errors.number.message}</p>}
             </div>
 
             {/* Tahun Peraturan */}
@@ -142,12 +143,11 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
               </label>
               <input
                 type="number"
-                value={year}
-                onChange={(e) => setYear(parseInt(e.target.value) || new Date().getFullYear())}
+                {...register("year")}
                 placeholder="Contoh: 2025"
-                required
-                className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50"
+                className={inputClass(errors.year)}
               />
+              {errors.year && <p className="text-red-500 text-xs font-bold">{errors.year.message}</p>}
             </div>
           </div>
 
@@ -158,12 +158,11 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
             </label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title")}
               placeholder="Contoh: Kebersihan Lingkungan dan Ketertiban Umum"
-              required
-              className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50"
+              className={inputClass(errors.title)}
             />
+            {errors.title && <p className="text-red-500 text-xs font-bold">{errors.title.message}</p>}
           </div>
 
           {/* Jenis Peraturan & Status Publikasi */}
@@ -173,14 +172,14 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
                 Jenis Dokumen Hukum
               </label>
               <select
-                value={type}
-                onChange={(e) => setType(e.target.value as RegulationType)}
+                {...register("type")}
                 className="w-full border border-slate-200 bg-slate-50/50 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise cursor-pointer"
               >
                 <option value="PERATURAN_DESA">Peraturan Desa (Perdes)</option>
                 <option value="KEPUTUSAN_KEPALA_DESA">Keputusan Kepala Desa</option>
                 <option value="PERATURAN_BERSAMA">Peraturan Bersama Kepala Desa</option>
               </select>
+              {errors.type && <p className="text-red-500 text-xs font-bold">{errors.type.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -188,13 +187,13 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
                 Status Publikasi
               </label>
               <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as "DRAFT" | "PUBLISHED")}
+                {...register("status")}
                 className="w-full border border-slate-200 bg-slate-50/50 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise cursor-pointer"
               >
                 <option value="DRAFT">Draft</option>
                 <option value="PUBLISHED">Published</option>
               </select>
+              {errors.status && <p className="text-red-500 text-xs font-bold">{errors.status.message}</p>}
             </div>
           </div>
 
@@ -204,36 +203,42 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
               Ringkasan / Deskripsi Peraturan
             </label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
               placeholder="Masukkan ringkasan atau pokok pikiran peraturan desa..."
               rows={4}
-              className="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50"
+              className={inputClass(errors.description)}
             />
+            {errors.description && <p className="text-red-500 text-xs font-bold">{errors.description.message}</p>}
           </div>
 
           {/* Pengunggah File PDF */}
-          <DocumentUpload
-            initialUrl={fileUrl}
-            initialKey={fileKey}
-            suggestedName={getSuggestedFileName()}
-            onUploadComplete={(url, key) => {
-              setFileUrl(url);
-              setFileKey(key);
-            }}
-            onRemove={() => {
-              setFileUrl("");
-              setFileKey("");
-            }}
-          />
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase text-navy/70">
+              File Dokumen (PDF)
+            </label>
+            <DocumentUpload
+              initialUrl={watchFileUrl || ""}
+              initialKey={watchFileKey || ""}
+              suggestedName={getSuggestedFileName()}
+              onUploadComplete={(url, key) => {
+                setValue("fileUrl", url, { shouldValidate: true });
+                setValue("fileKey", key || null, { shouldValidate: true });
+              }}
+              onRemove={() => {
+                setValue("fileUrl", "", { shouldValidate: true });
+                setValue("fileKey", "", { shouldValidate: true });
+              }}
+            />
+            {errors.fileUrl && <p className="text-red-500 text-xs font-bold mt-1">{errors.fileUrl.message}</p>}
+          </div>
 
           {/* Audit Trail */}
-          {initialData && (
+          {initialData && initialData.createdAt && (
             <AuditTrailInfo
               createdBy={initialData.createdBy || null}
               updatedBy={initialData.updatedBy || null}
-              createdAt={initialData.createdAt!}
-              updatedAt={initialData.updatedAt!}
+              createdAt={initialData.createdAt}
+              updatedAt={initialData.updatedAt || initialData.createdAt}
             />
           )}
 
@@ -241,10 +246,19 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
           <button
             type="submit"
             disabled={isPending}
-            className="w-full bg-navy text-white hover:bg-navy/90 p-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-navy text-white hover:bg-navy/90 p-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            {isPending ? "Menyimpan..." : "Simpan Peraturan"}
+            {isPending ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                Menyimpan...
+              </span>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Simpan Peraturan
+              </>
+            )}
           </button>
         </form>
       </div>

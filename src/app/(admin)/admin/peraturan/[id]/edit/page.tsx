@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth-session";
 import RegulationForm from "../../RegulationForm";
-import { updateVillageRegulation, RegulationInput } from "../../actions";
+import { updateVillageRegulation } from "../../actions";
 
 interface EditPeraturanPageProps {
   params: Promise<{ id: string }>;
@@ -24,15 +24,7 @@ export default async function EditPeraturanPage({ params }: EditPeraturanPagePro
     notFound();
   }
 
-  async function handleSubmit(data: RegulationInput) {
-    "use server";
-    try {
-      await updateVillageRegulation(id, data);
-      return { success: true };
-    } catch (err) {
-      return { error: err instanceof Error ? err.message : "Gagal memperbarui peraturan desa." };
-    }
-  }
+  const updateAction = updateVillageRegulation.bind(null, id);
 
-  return <RegulationForm initialData={regulation} onSubmit={handleSubmit} />;
+  return <RegulationForm initialData={regulation} onSubmit={updateAction} />;
 }

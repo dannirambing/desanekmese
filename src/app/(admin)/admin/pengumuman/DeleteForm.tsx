@@ -7,7 +7,10 @@ export default function DeleteForm({ id }: { id: string }) {
   const handleDelete = async () => {
     const formData = new FormData();
     formData.append("id", id);
-    await deleteAnnouncement(formData);
+    const result = await deleteAnnouncement(formData);
+    if (result && !result.success) {
+      alert(result.message || "Gagal menghapus pengumuman");
+    }
   };
 
   return (

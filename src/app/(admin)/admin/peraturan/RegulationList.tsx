@@ -154,8 +154,14 @@ export default function RegulationList({
                           title="Hapus Peraturan"
                           message={`Apakah Anda yakin ingin menghapus peraturan "${reg.number}" secara permanen?`}
                           onConfirm={async () => {
-                            await deleteVillageRegulation(reg.id);
-                            router.refresh();
+                            const formData = new FormData();
+                            formData.append("id", reg.id);
+                            const res = await deleteVillageRegulation(formData);
+                            if (res && !res.success) {
+                              alert(res.message || "Gagal menghapus peraturan");
+                            } else {
+                              router.refresh();
+                            }
                           }}
                         />
                       </div>
