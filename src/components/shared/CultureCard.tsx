@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Play } from "lucide-react";
 
 interface CultureCardProps {
   title: string;
   image: string;
   category: string;
   slug: string;
+  youtubeUrl?: string | null;
 }
 
 export default function CultureCard({
@@ -14,6 +15,7 @@ export default function CultureCard({
   image,
   category,
   slug,
+  youtubeUrl,
 }: CultureCardProps) {
   return (
     <Link
@@ -27,6 +29,12 @@ export default function CultureCard({
         className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
+
+      {youtubeUrl && (
+        <div className="absolute top-4 right-4 bg-stone-900/80 text-amber-400 p-2.5 rounded-full shadow-lg z-10 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-stone-950 flex items-center justify-center border border-white/10" title="Tersedia video dokumentasi">
+          <Play size={14} className="fill-current ml-0.5" />
+        </div>
+      )}
 
       <div className="absolute inset-0 bg-gradient-to-t from-amber-950/95 via-stone-900/55 to-black/25 transition-opacity duration-300 group-hover:opacity-95" />
 

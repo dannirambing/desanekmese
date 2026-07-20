@@ -90,6 +90,7 @@ model CultureItem {
   summary     String?
   description String          @db.Text
   status      PublishStatus   @default(DRAFT)
+  youtubeUrl  String?         @map("youtube_url")
 
   categoryId  String
   category    CultureCategory @relation(fields: [categoryId], references: [id])

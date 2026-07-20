@@ -6,6 +6,7 @@ export const cultureSchema = z.object({
   description: z.string().min(10, "Deskripsi terlalu pendek (minimal 10 karakter)"),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
   status: z.enum(["PUBLISHED", "DRAFT"]),
+  youtubeUrl: z.string().optional().nullable(),
 });
 
 export type CultureInput = z.infer<typeof cultureSchema>;

@@ -1,16 +1,75 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Edit, Plus, Users, User, Shield, CheckCircle2, XCircle } from "lucide-react";
+import { Edit, Plus, User, Shield, CheckCircle2, XCircle } from "lucide-react";
 import ToggleStatusForm from "./ToggleStatusForm";
 import { requireAdminSession } from "@/lib/auth-session";
+import AdminTableFilters from "@/components/admin/AdminTableFilters";
+import AdminTablePagination from "@/components/admin/AdminTablePagination";
+import { Prisma } from "@prisma/client";
 
-export default async function AdminPenggunaPage() {
+interface PageProps {
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    category?: string;
+    page?: string;
+  }>;
+}
+
+export default async function AdminPenggunaPage({ searchParams }: PageProps) {
   await requireAdminSession(["ALL_ACCESS"]);
 
-  const admins = await prisma.admin.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { role: true }
-  });
+  const params = await searchParams;
+  const search = params.search || "";
+  const status = params.status || "";
+  const roleId = params.category || "";
+  const page = parseInt(params.page || "1", 10);
+  const itemsPerPage = 10;
+  const skip = (page - 1) * itemsPerPage;
+
+  // Build where query
+  const where: Prisma.AdminWhereInput = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (status) {
+    if (status === "ACTIVE") {
+      where.isActive = true;
+    } else if (status === "INACTIVE") {
+      where.isActive = false;
+    }
+  }
+
+  if (roleId) {
+    where.roleId = roleId;
+  }
+
+  // Fetch paginated admins, total count, and roles for filtering
+  const [admins, totalItems, roles] = await Promise.all([
+    prisma.admin.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { role: true },
+      take: itemsPerPage,
+      skip,
+    }),
+    prisma.admin.count({ where }),
+    prisma.role.findMany({
+      orderBy: { name: "asc" }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+  const roleOptions = roles.map(role => ({
+    label: role.name,
+    value: role.id
+  }));
 
   const now = new Date();
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
@@ -50,6 +109,18 @@ export default async function AdminPenggunaPage() {
         </Link>
       </div>
 
+      {/* Filter Tabel */}
+      <AdminTableFilters 
+        placeholder="Cari pengguna (nama, email)..." 
+        statusOptions={[
+          { label: "Semua Status", value: "" },
+          { label: "Aktif", value: "ACTIVE" },
+          { label: "Nonaktif", value: "INACTIVE" }
+        ]}
+        categories={roleOptions}
+        categoryLabel="Peran"
+      />
+
       {/* Kontainer Tabel */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -68,7 +139,7 @@ export default async function AdminPenggunaPage() {
               {admins.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center text-navy/40 font-semibold">
-                    Belum ada data admin yang direkam.
+                    Belum ada data admin yang direkam atau cocok dengan filter.
                   </td>
                 </tr>
               ) : (
@@ -148,6 +219,14 @@ export default async function AdminPenggunaPage() {
           </table>
         </div>
       </div>
+
+      {/* Paginasi Tabel */}
+      <AdminTablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
 }

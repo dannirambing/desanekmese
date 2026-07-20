@@ -3,6 +3,7 @@ import Link from "next/link";
 import SafeImage from "@/components/shared/SafeImage";
 import HeroImageOverlay from "@/components/shared/HeroImageOverlay";
 import { getCultureItemBySlug } from "@/lib/queries";
+import { getYouTubeEmbedUrl } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -73,6 +74,25 @@ export default async function BudayaDetailPage({ params }: PageProps) {
                 ) : null
               ))}
             </div>
+
+            {/* Video Dokumentasi YouTube */}
+            {item.youtubeUrl && getYouTubeEmbedUrl(item.youtubeUrl) && (
+              <div className="mt-12 bg-stone-50 border border-stone-200/80 p-6 md:p-8 rounded-3xl shadow-sm">
+                <h2 className="text-xl md:text-2xl font-black text-stone-900 mb-6 uppercase tracking-tight flex items-center gap-3">
+                  <span className="w-2.5 h-6 bg-amber-500 rounded-full"></span>
+                  Dokumentasi Video
+                </h2>
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-md bg-stone-950 border border-stone-200/30">
+                  <iframe
+                    src={getYouTubeEmbedUrl(item.youtubeUrl) || ""}
+                    title={`Video Dokumentasi ${item.name}`}
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="w-full lg:w-1/3 space-y-6">

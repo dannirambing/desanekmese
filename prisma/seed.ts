@@ -162,7 +162,9 @@ async function main() {
 
   const budaya1 = await prisma.cultureItem.upsert({
     where: { slug: "tenun-motif-buna" },
-    update: {},
+    update: {
+      youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    },
     create: {
       name: "Tenun Motif Buna",
       slug: "tenun-motif-buna",
@@ -171,6 +173,7 @@ async function main() {
       status: PublishStatus.PUBLISHED,
       categoryId: katTenun.id,
       createdById: admin.id,
+      youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
   });
 

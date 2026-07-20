@@ -3,11 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cultureSchema, CultureInput } from "@/lib/validations/budaya";
-import { Save } from "lucide-react";
+import { Save, Play } from "lucide-react";
 import ImagePickerField from "./ImagePickerField";
 import { useState, useTransition } from "react";
 import { createCultureItem, updateCultureItem } from "@/app/(admin)/admin/budaya/actions";
-import { useRouter } from "next/navigation";
+import { getYouTubeEmbedUrl } from "@/lib/utils";
 
 interface CultureFormProps {
   initialData?: CultureInput & { id: string };
@@ -16,24 +16,27 @@ interface CultureFormProps {
 }
 
 export default function CultureForm({ initialData, initialImage, categories }: CultureFormProps) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<CultureInput>({
     resolver: zodResolver(cultureSchema),
-    defaultValues: initialData || {
-      name: "",
-      summary: "",
-      description: "",
-      categoryId: "",
-      status: "DRAFT",
+    defaultValues: {
+      name: initialData?.name || "",
+      summary: initialData?.summary || "",
+      description: initialData?.description || "",
+      categoryId: initialData?.categoryId || "",
+      status: initialData?.status || "DRAFT",
+      youtubeUrl: initialData?.youtubeUrl || "",
     },
   });
+
+  const watchYoutubeUrl = watch("youtubeUrl");
 
   const onSubmit = async (data: CultureInput) => {
     setServerError(null);
@@ -44,6 +47,7 @@ export default function CultureForm({ initialData, initialImage, categories }: C
     formData.append("description", data.description);
     formData.append("categoryId", data.categoryId);
     formData.append("status", data.status);
+    if (data.youtubeUrl) formData.append("youtubeUrl", data.youtubeUrl);
 
     const imageUrl = (document.querySelector('input[name="imageUrl"]') as HTMLInputElement)?.value;
     const imageKey = (document.querySelector('input[name="imageKey"]') as HTMLInputElement)?.value;
@@ -67,7 +71,7 @@ export default function CultureForm({ initialData, initialImage, categories }: C
     });
   };
 
-  const inputClass = (error?: any) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
+  const inputClass = (error?: unknown) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
   const labelClass = "block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2 tracking-widest";
 
   return (
@@ -113,6 +117,34 @@ export default function CultureForm({ initialData, initialImage, categories }: C
         <label className={labelClass}>Deskripsi Lengkap</label>
         <textarea {...register("description")} rows={6} className={inputClass(errors.description)} />
         {errors.description && <p className="text-red-500 text-xs mt-1 font-bold">{errors.description.message}</p>}
+      </div>
+
+      <div>
+        <label className={labelClass}>Tautan Video YouTube (Opsional)</label>
+        <input 
+          {...register("youtubeUrl")} 
+          placeholder="Contoh: https://www.youtube.com/watch?v=... atau https://youtu.be/..." 
+          className={inputClass(errors.youtubeUrl)} 
+        />
+        {errors.youtubeUrl && <p className="text-red-500 text-xs mt-1 font-bold">{errors.youtubeUrl.message}</p>}
+        
+        {/* Live Preview Video */}
+        {watchYoutubeUrl && getYouTubeEmbedUrl(watchYoutubeUrl) && (
+          <div className="mt-3 bg-stone-50 border border-slate-200/80 rounded-xl p-4 shadow-sm">
+            <p className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest flex items-center gap-1.5">
+              <Play className="text-amber-500 animate-pulse fill-current ml-0.5" size={12} /> Pratinjau Video YouTube
+            </p>
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black shadow-inner">
+              <iframe
+                src={getYouTubeEmbedUrl(watchYoutubeUrl) || ""}
+                title="Pratinjau YouTube"
+                className="absolute inset-0 w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div>

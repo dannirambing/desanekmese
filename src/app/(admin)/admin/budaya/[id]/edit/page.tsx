@@ -54,6 +54,7 @@ export default async function EditBudayaPage({
             description: item.description,
             categoryId: item.categoryId,
             status: item.status,
+            youtubeUrl: item.youtubeUrl,
           }}
           initialImage={currentMedia}
           categories={categories}

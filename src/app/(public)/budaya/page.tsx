@@ -78,6 +78,7 @@ export default async function BudayaPage() {
                       category={item.category.name}
                       image={imageUrl}
                       slug={item.slug}
+                      youtubeUrl={item.youtubeUrl}
                     />
                   </div>
                 );

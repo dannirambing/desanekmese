@@ -5,22 +5,27 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { requireAdminSession } from "@/lib/auth-session";
+import { createAdminSchema, updateAdminSchema } from "@/lib/validations/pengguna";
 
 export async function createAdmin(formData: FormData) {
   const session = await requireAdminSession(["ALL_ACCESS"]);
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const name = (formData.get("name") as string)?.trim();
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
   const roleId = formData.get("roleId") as string;
 
-  if (!email || !password || !name || !roleId) {
-    throw new Error("Harap isi semua field yang wajib.");
-  }
+  const validation = createAdminSchema.safeParse({
+    name,
+    email,
+    password,
+    confirmPassword,
+    roleId,
+  });
 
-  if (password !== confirmPassword) {
-    throw new Error("Password dan Konfirmasi Password tidak cocok.");
+  if (!validation.success) {
+    throw new Error(validation.error.issues[0].message);
   }
 
   const existingAdmin = await prisma.admin.findUnique({
@@ -50,14 +55,22 @@ export async function createAdmin(formData: FormData) {
 export async function updateAdmin(id: string, formData: FormData) {
   const session = await requireAdminSession(["ALL_ACCESS"]);
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const name = (formData.get("name") as string)?.trim();
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
   const roleId = formData.get("roleId") as string;
 
-  if (!email || !name) {
-    throw new Error("Harap isi Nama dan Email.");
+  const validation = updateAdminSchema.safeParse({
+    name,
+    email,
+    password,
+    confirmPassword,
+    roleId,
+  });
+
+  if (!validation.success) {
+    throw new Error(validation.error.issues[0].message);
   }
 
   const existingAdmin = await prisma.admin.findUnique({

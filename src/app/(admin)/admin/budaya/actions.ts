@@ -9,6 +9,7 @@ import { isFileKeyReferenced } from "@/lib/uploadthing-server";
 import { createSafeAction } from "@/lib/action-utils";
 import { cultureSchema } from "@/lib/validations/budaya";
 import { ActionType } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 function generateSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-");
@@ -52,7 +53,7 @@ async function syncCultureMedia(cultureItemId: string, formData: FormData, exist
 }
 
 export const createCultureItem = async (formData: FormData) => {
-  return createSafeAction(formData, {
+  const result = await createSafeAction(formData, {
     schema: cultureSchema,
     permissions: ["MANAGE_BUDAYA"],
     actionType: ActionType.CREATE,
@@ -67,6 +68,7 @@ export const createCultureItem = async (formData: FormData) => {
           status: data.status,
           categoryId: data.categoryId,
           createdById: adminId,
+          youtubeUrl: data.youtubeUrl || null,
         },
       });
 
@@ -74,16 +76,23 @@ export const createCultureItem = async (formData: FormData) => {
 
       revalidatePath("/admin/budaya");
       revalidatePath("/budaya");
+      revalidatePath(`/budaya/${item.slug}`);
       revalidateTag("culture", "max");
+      revalidateTag(`culture-${item.slug}`, "max");
       await clearChatCacheByCategory("BUDAYA");
       
       return { entityId: item.id, details: `Budaya ${data.name} dibuat` };
     }
   });
+
+  if (result.success) {
+    redirect("/admin/budaya");
+  }
+  return result;
 };
 
 export const updateCultureItem = async (id: string, formData: FormData) => {
-  return createSafeAction(formData, {
+  const result = await createSafeAction(formData, {
     schema: cultureSchema,
     permissions: ["MANAGE_BUDAYA"],
     actionType: ActionType.UPDATE,
@@ -96,7 +105,7 @@ export const updateCultureItem = async (id: string, formData: FormData) => {
 
       if (!existing) throw new Error("Konten budaya tidak ditemukan");
 
-      await prisma.cultureItem.update({
+      const item = await prisma.cultureItem.update({
         where: { id },
         data: {
           name: data.name,
@@ -106,6 +115,7 @@ export const updateCultureItem = async (id: string, formData: FormData) => {
           categoryId: data.categoryId,
           status: data.status,
           updatedById: adminId,
+          youtubeUrl: data.youtubeUrl || null,
         },
       });
 
@@ -113,12 +123,22 @@ export const updateCultureItem = async (id: string, formData: FormData) => {
 
       revalidatePath("/admin/budaya");
       revalidatePath("/budaya");
+      revalidatePath(`/budaya/${existing.slug}`);
+      if (existing.slug !== item.slug) {
+        revalidatePath(`/budaya/${item.slug}`);
+      }
       revalidateTag("culture", "max");
+      revalidateTag(`culture-${existing.slug}`, "max");
       await clearChatCacheByCategory("BUDAYA");
       
       return { entityId: id, details: `Budaya ${data.name} diperbarui` };
     }
   });
+
+  if (result.success) {
+    redirect("/admin/budaya");
+  }
+  return result;
 };
 
 export const deleteCultureItem = async (formData: FormData) => {
