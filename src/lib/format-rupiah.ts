@@ -1,7 +1,8 @@
 export function formatRupiah(price: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
+  const formattedVal = new Intl.NumberFormat("id-ID", {
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(price);
+  return `Rp${formattedVal}`;
 }
+

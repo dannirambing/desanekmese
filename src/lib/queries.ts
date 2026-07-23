@@ -285,4 +285,17 @@ export function getVillageBudgetByYear(year: number) {
   )();
 }
 
-
+export const getPublishedProfileSections = unstable_cache(
+  async () =>
+    prisma.profileSection.findMany({
+      where: { status: "PUBLISHED" },
+      include: {
+        items: {
+          orderBy: { order: "asc" },
+        },
+      },
+      orderBy: { order: "asc" },
+    }),
+  ["published-profile-sections"],
+  { revalidate: 60, tags: ["profile-sections"] }
+);

@@ -15,7 +15,7 @@ export default function ZoomableImage({ src, alt }: ZoomableImageProps) {
   return (
     <>
       <div 
-        className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm cursor-pointer group"
+        className="relative aspect-[4/3] sm:aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm cursor-pointer group"
         onClick={() => setIsOpen(true)}
       >
         <Image

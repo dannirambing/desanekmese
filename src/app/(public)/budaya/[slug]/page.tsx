@@ -51,8 +51,8 @@ export default async function BudayaDetailPage({ params }: PageProps) {
         <HeroImageOverlay />
       </div>
 
-      <div className="container mx-auto px-6 -mt-20 relative z-20">
-        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 max-w-5xl mx-auto flex flex-col lg:flex-row gap-12">
+      <div className="container mx-auto px-6 -mt-20 relative z-20 max-w-5xl">
+        <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-8 md:p-12 flex flex-col lg:flex-row gap-12">
           <div className="w-full lg:w-2/3">
             <span className="inline-block text-[11px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-full mb-6">
               {item.category.name}
@@ -74,25 +74,6 @@ export default async function BudayaDetailPage({ params }: PageProps) {
                 ) : null
               ))}
             </div>
-
-            {/* Video Dokumentasi YouTube */}
-            {item.youtubeUrl && getYouTubeEmbedUrl(item.youtubeUrl) && (
-              <div className="mt-12 bg-stone-50 border border-stone-200/80 p-6 md:p-8 rounded-3xl shadow-sm">
-                <h2 className="text-xl md:text-2xl font-black text-stone-900 mb-6 uppercase tracking-tight flex items-center gap-3">
-                  <span className="w-2.5 h-6 bg-amber-500 rounded-full"></span>
-                  Dokumentasi Video
-                </h2>
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-md bg-stone-950 border border-stone-200/30">
-                  <iframe
-                    src={getYouTubeEmbedUrl(item.youtubeUrl) || ""}
-                    title={`Video Dokumentasi ${item.name}`}
-                    className="absolute inset-0 w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="w-full lg:w-1/3 space-y-6">
@@ -121,6 +102,25 @@ export default async function BudayaDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* Video Dokumentasi YouTube (Dedicated Premium Card below details) */}
+        {item.youtubeUrl && getYouTubeEmbedUrl(item.youtubeUrl) && (
+          <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-8 border border-slate-100 overflow-hidden mt-8">
+            <h2 className="text-xl md:text-2xl font-black text-stone-900 mb-6 uppercase tracking-tight flex items-center gap-3">
+              <span className="w-2.5 h-6 bg-amber-500 rounded-full"></span>
+              Dokumentasi Video
+            </h2>
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-stone-950">
+              <iframe
+                src={getYouTubeEmbedUrl(item.youtubeUrl) || ""}
+                title={`Video Dokumentasi ${item.name}`}
+                className="absolute inset-0 w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

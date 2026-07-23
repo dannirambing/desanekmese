@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getVillageProfile } from "@/lib/queries";
+import { getVillageProfile, getPublishedProfileSections } from "@/lib/queries";
 import ProfileSidebar from "./ProfileSidebar";
 import ExpandableText from "./ExpandableText";
 import {
@@ -30,13 +30,21 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
+function getYouTubeId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+}
+
 export default async function ProfilPage() {
-  const [profile, waterSources] = await Promise.all([
+  const [profile, waterSources, dynamicSections] = await Promise.all([
     getVillageProfile(),
     prisma.waterSource.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { name: "asc" }
-    })
+    }),
+    getPublishedProfileSections(),
   ]);
 
   // Memisahkan butir-butir misi yang dipisahkan oleh baris baru
@@ -79,7 +87,7 @@ export default async function ProfilPage() {
           <div className="flex flex-col lg:flex-row gap-12 items-start">
             
             {/* Navigasi Client-side Sidebar */}
-            <ProfileSidebar />
+            <ProfileSidebar dynamicSections={dynamicSections} />
 
             {/* Konten Server-side Utama (Sangat bagus untuk SEO & Performant) */}
             <div className="flex-1 space-y-20 lg:space-y-28 max-w-3xl">
@@ -94,7 +102,7 @@ export default async function ProfilPage() {
                 </h2>
 
                 <ScrollReveal>
-                  <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
+                  <div className="bg-white rounded-3xl border border-slate-100 p-4 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
                   {profile.welcomeImageUrl ? (
                     <div className="relative w-44 h-56 rounded-2xl overflow-hidden shrink-0 shadow-md bg-slate-100 border border-slate-200/50 hover:scale-[1.02] transition-transform duration-300">
                       <Image
@@ -560,7 +568,7 @@ export default async function ProfilPage() {
                           >
                             <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform">
                               {source.imageUrl ? (
-                                <Image src={source.imageUrl} alt={source.name} fill className="object-cover" />
+                                <Image src={source.imageUrl} alt={source.name} fill className="object-cover" sizes="48px" />
                               ) : (
                                 <Droplets className="w-6 h-6" />
                               )}
@@ -577,6 +585,98 @@ export default async function ProfilPage() {
                 </div>
                 </ScrollReveal>
               </section>
+
+              {/* SECTION DINAMIS YANG DIBUAT ADMIN */}
+              {dynamicSections.map((section) => (
+                <section key={section.id} id={section.id} className="scroll-mt-32">
+                  <span className="block text-[#0f172a]/40 font-black tracking-widest text-[10px] uppercase mb-2">
+                    Profil Tambahan
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-navy tracking-tight mb-8">
+                    {section.title}
+                  </h2>
+
+                  {section.description && (
+                    <p className="text-slate-500 font-medium text-sm -mt-4 mb-6 leading-relaxed">
+                      {section.description}
+                    </p>
+                  )}
+
+                  <ScrollReveal>
+                    <div className="bg-white rounded-3xl border border-slate-100 p-4 sm:p-8 shadow-sm space-y-12">
+                      {section.items.map((item, itemIdx) => {
+                        const youtubeId = item.contentType === "YOUTUBE" ? getYouTubeId(item.youtubeUrl) : null;
+                        
+                        return (
+                          <div 
+                            key={item.id} 
+                            id={`${section.id}-${item.id}`}
+                            className="scroll-mt-32 border-b border-slate-100 last:border-0 pb-10 last:pb-0 space-y-4"
+                          >
+                            <h3 className="text-xl font-extrabold text-navy tracking-tight">
+                              {item.title}
+                            </h3>
+
+                            {/* TEXT CONTENT */}
+                            {item.contentType === "TEXT" && item.content && (
+                              <div className="text-slate-650 font-medium leading-relaxed text-base space-y-4">
+                                {item.content.split("\n").map((paragraph, pIdx) => (
+                                  paragraph.trim() ? (
+                                    <p key={pIdx}>{paragraph}</p>
+                                  ) : null
+                                ))}
+                              </div>
+                            )}
+
+                            {/* IMAGE CONTENT */}
+                            {item.contentType === "IMAGE" && item.imageUrl && (
+                              <div className="space-y-3">
+                                <div className="max-w-2xl mx-auto">
+                                  <ZoomableImage
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                  />
+                                </div>
+                                {item.content && (
+                                  <p className="text-xs text-slate-500 font-medium text-center italic">
+                                    {item.content}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            {/* YOUTUBE CONTENT */}
+                            {item.contentType === "YOUTUBE" && youtubeId && (
+                              <div className="space-y-4">
+                                <div className="relative aspect-video w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
+                                  <iframe
+                                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    title={item.title}
+                                  />
+                                </div>
+                                {item.content && (
+                                  <div className="text-slate-650 font-medium leading-relaxed text-sm max-w-2xl mx-auto">
+                                    {item.content.split("\n").map((paragraph, pIdx) => (
+                                      paragraph.trim() ? (
+                                        <p key={pIdx}>{paragraph}</p>
+                                      ) : null
+                                    ))}
+                                  </div>
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollReveal>
+                </section>
+              ))}
 
             </div>
           </div>

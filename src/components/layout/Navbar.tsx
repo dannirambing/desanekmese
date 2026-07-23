@@ -66,6 +66,7 @@ function hasDarkHeroAtTop(pathname: string | null) {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
 
   const useSolidStyle = isScrolled || !hasDarkHeroAtTop(pathname);
@@ -85,6 +86,18 @@ export default function Navbar() {
       setMobileOpen(false);
       const scrolled = window.scrollY > 50;
       setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
+
+      // Expand submenus containing active path
+      const initialExpanded: Record<string, boolean> = {};
+      menuItems.forEach((item) => {
+        if (item.submenu) {
+          const hasActiveChild = item.submenu.some((sub) => isActivePath(pathname, sub.href));
+          if (hasActiveChild) {
+            initialExpanded[item.name] = true;
+          }
+        }
+      });
+      setExpandedMenus(initialExpanded);
     }, 0);
     return () => clearTimeout(timer);
   }, [pathname]);
@@ -260,27 +273,60 @@ export default function Navbar() {
               <nav className="flex flex-col px-4 py-4 space-y-1.5 flex-1 overflow-y-auto">
                 {menuItems.map((item) => {
                   if (item.submenu) {
+                    const isParentActive = item.submenu.some((sub) => isActivePath(pathname, sub.href));
+                    const isExpanded = !!expandedMenus[item.name];
+
                     return (
                       <div key={item.name} className="flex flex-col space-y-1 py-1">
-                        <span className="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-navy/40">
-                          {item.name}
-                        </span>
-                        <div className="flex flex-col pl-3 border-l border-slate-100 ml-4 space-y-1">
-                          {item.submenu.map((sub) => (
-                            <SheetClose asChild key={sub.href}>
-                              <Link
-                                href={sub.href}
-                                className={cn(
-                                  "rounded-lg px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors",
-                                  isActivePath(pathname, sub.href)
-                                    ? "bg-teal-50 text-teal-700"
-                                    : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
-                                )}
-                              >
-                                {sub.name}
-                              </Link>
-                            </SheetClose>
-                          ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setExpandedMenus((prev) => ({
+                              ...prev,
+                              [item.name]: !prev[item.name],
+                            }));
+                          }}
+                          className={cn(
+                            "flex items-center justify-between w-full rounded-lg px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors",
+                            isParentActive
+                              ? "text-teal-700 font-extrabold bg-teal-50/30"
+                              : "text-slate-700 hover:bg-slate-50"
+                          )}
+                        >
+                          <span>{item.name}</span>
+                          <ChevronDown
+                            className={cn(
+                              "w-4 h-4 transition-transform duration-300 text-slate-500",
+                              isExpanded && "rotate-180",
+                              isParentActive && "text-teal-700"
+                            )}
+                          />
+                        </button>
+                        <div
+                          className={cn(
+                            "grid transition-all duration-300 ease-in-out pl-3 border-l border-slate-100 ml-6",
+                            isExpanded
+                              ? "grid-rows-[1fr] opacity-100 py-1"
+                              : "grid-rows-[0fr] opacity-0 pointer-events-none"
+                          )}
+                        >
+                          <div className="overflow-hidden space-y-1 flex flex-col">
+                            {item.submenu.map((sub) => (
+                              <SheetClose asChild key={sub.href}>
+                                <Link
+                                  href={sub.href}
+                                  className={cn(
+                                    "rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors",
+                                    isActivePath(pathname, sub.href)
+                                      ? "bg-teal-50 text-teal-700 font-extrabold"
+                                      : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
+                                  )}
+                                >
+                                  {sub.name}
+                                </Link>
+                              </SheetClose>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     );
@@ -293,7 +339,7 @@ export default function Navbar() {
                         className={cn(
                           "rounded-lg px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors",
                           isActivePath(pathname, item.href)
-                            ? "bg-teal-50 text-teal-700"
+                            ? "bg-teal-50 text-teal-700 font-extrabold"
                             : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
                         )}
                       >

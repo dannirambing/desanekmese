@@ -202,6 +202,9 @@ model Admin {
   createdRegulations   VillageRegulation[] @relation("VillageRegulationCreatedBy")
   updatedRegulations   VillageRegulation[] @relation("VillageRegulationUpdatedBy")
 
+  createdProfileSections ProfileSection[] @relation("ProfileSectionCreatedBy")
+  updatedProfileSections ProfileSection[] @relation("ProfileSectionUpdatedBy")
+
   auditLogs            AuditLog[]
 
   @@index([lastActiveAt])
@@ -434,4 +437,49 @@ enum RegulationType {
   PERATURAN_DESA
   KEPUTUSAN_KEPALA_DESA
   PERATURAN_BERSAMA
+}
+
+enum SectionContentType {
+  TEXT
+  IMAGE
+  YOUTUBE
+}
+
+model ProfileSection {
+  id          String               @id @default(cuid())
+  title       String
+  description String?              @db.Text
+  order       Int                  @default(0)
+  status      PublishStatus        @default(DRAFT)
+  items       ProfileSectionItem[]
+  
+  createdById String?
+  createdBy   Admin?               @relation("ProfileSectionCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?               @relation("ProfileSectionUpdatedBy", fields: [updatedById], references: [id])
+
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([status])
+  @@index([order])
+}
+
+model ProfileSectionItem {
+  id          String             @id @default(cuid())
+  sectionId   String
+  section     ProfileSection     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  title       String             // Sub-bagian title / heading
+  contentType SectionContentType @default(TEXT)
+  content     String?            @db.Text // Rich text / Markdown / Textarea
+  imageUrl    String?            @db.Text // Uploaded image URL
+  youtubeUrl  String?            @db.Text // YouTube video URL
+  order       Int                @default(0)
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([sectionId])
+  @@index([order])
 }

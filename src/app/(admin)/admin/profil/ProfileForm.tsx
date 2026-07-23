@@ -98,19 +98,28 @@ export default function ProfileForm({ initialProfile }: { initialProfile: Villag
       </Link>
 
       <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 bg-teal-50 rounded-xl text-turquoise">
-            <FileText className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-teal-50 rounded-xl text-turquoise">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">
+                Kelola Profil Desa
+              </h1>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                Kelola Informasi Struktur, Sejarah, Geografis, & Statistik Desa Nekmese
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">
-              Kelola Profil Desa
-            </h1>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-              Kelola Informasi Struktur, Sejarah, Geografis, & Statistik Desa Nekmese
-            </p>
-          </div>
+          <Link
+            href="/admin/profil/sections"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0f172a] hover:bg-turquoise text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm shrink-0"
+          >
+            Kelola Section Dinamis
+          </Link>
         </div>
+
 
         {/* Tab Navigation */}
         <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-4 mb-8">

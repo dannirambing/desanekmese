@@ -42,6 +42,7 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
               alt={source.name}
               fill
               className="object-cover"
+              sizes="100vw"
               priority
             />
           </div>
@@ -75,6 +76,7 @@ export default async function WaterSourceDetailPage({ params }: { params: Promis
                   alt={source.name}
                   fill
                   className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 896px"
                 />
               </div>
             )}

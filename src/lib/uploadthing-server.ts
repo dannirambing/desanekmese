@@ -101,7 +101,6 @@ export async function isFileKeyReferenced(key: string): Promise<boolean> {
   );
   if (isReferencedInWaterSourceImages) return true;
 
-  // 8. Periksa HeroSettings
   const hero = await prisma.heroSettings.findFirst({
     where: {
       imageUrl: { contains: key }
@@ -109,5 +108,14 @@ export async function isFileKeyReferenced(key: string): Promise<boolean> {
   });
   if (hero) return true;
 
+  // 9. Periksa ProfileSectionItem
+  const sectionItem = await prisma.profileSectionItem.findFirst({
+    where: {
+      imageUrl: { contains: key }
+    }
+  });
+  if (sectionItem) return true;
+
   return false;
 }
+
