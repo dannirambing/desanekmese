@@ -178,3 +178,22 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Custom elegant scrollbar for scrollable dropdowns */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 5px;
+}
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 9999px;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* slate-400 */
+}
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}

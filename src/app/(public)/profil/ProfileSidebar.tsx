@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Info, Building2, BookOpen, Compass, MapPin, Users, Map, Award, TrendingUp, Droplets, LucideIcon } from "lucide-react";
+import { Info, Building2, BookOpen, Compass, MapPin, Users, Map, Award, TrendingUp, Droplets, Video, Shield, LucideIcon } from "lucide-react";
 
 interface ProfileSubItem {
   id: string;
@@ -28,22 +28,33 @@ export default function ProfileSidebar({ dynamicSections = [] }: ProfileSidebarP
   const [activeSection, setActiveSection] = useState<string>("sambutan");
   const navRef = useRef<HTMLElement>(null);
 
-  const staticSections: SectionMenuItem[] = useMemo(() => [
-    { id: "sambutan", label: "Sambutan Kades", icon: Info },
-    { id: "identitas", label: "Identitas Desa", icon: Building2 },
-    { id: "sejarah", label: "Sejarah Desa", icon: BookOpen },
-    { id: "visi-misi", label: "Visi & Misi", icon: Compass },
-    { id: "geografis", label: "Wilayah Geografis", icon: MapPin },
-    { id: "kependudukan", label: "Kependudukan", icon: Users },
-    { id: "struktur", label: "Struktur Organisasi", icon: Map },
-    { id: "potensi", label: "Potensi Desa", icon: Award },
-    { id: "lembaga", label: "Lembaga Desa", icon: TrendingUp },
-    { id: "titik-air", label: "Lokasi Titik Air", icon: Droplets },
-  ], []);
+  const staticSections: SectionMenuItem[] = useMemo(() => {
+    const findId = (title: string, fallback: string) => {
+      const found = dynamicSections.find(sec => sec.title.toLowerCase() === title.toLowerCase());
+      return found ? found.id : fallback;
+    };
+    return [
+      { id: "sambutan", label: "Sambutan Kepala Desa", icon: Info },
+      { id: "identitas", label: "Identitas Desa", icon: Building2 },
+      { id: "sejarah", label: "Sejarah Desa", icon: BookOpen },
+      { id: "visi-misi", label: "Visi & Misi", icon: Compass },
+      { id: "geografis", label: "Wilayah Geografis", icon: MapPin },
+      { id: "kependudukan", label: "Kependudukan", icon: Users },
+      { id: "struktur", label: "Struktur Organisasi", icon: Map },
+      { id: "potensi", label: "Potensi Desa", icon: Award },
+      { id: "lembaga", label: "Lembaga Desa", icon: TrendingUp },
+      { id: "titik-air", label: "Lokasi Titik Air", icon: Droplets },
+      { id: findId("Peta Titik Kumpul Desa", "titik-kumpul"), label: "Peta Titik Kumpul Desa", icon: Shield },
+      { id: findId("Video Profil Desa", "video-profil"), label: "Video Profil Desa", icon: Video },
+    ];
+  }, [dynamicSections]);
 
-  // Menggabungkan section bawaan dan section dinamis
+  // Menggabungkan section bawaan dan seksi dinamis dari database tanpa duplikat
   const sections = useMemo(() => {
-    const dynamicList = dynamicSections.map((sec) => ({
+    const filteredDynamic = dynamicSections.filter(sec => 
+      !staticSections.some(s => s.id === sec.id || s.label.toLowerCase() === sec.title.toLowerCase())
+    );
+    const dynamicList = filteredDynamic.map((sec) => ({
       id: sec.id,
       label: sec.title,
       icon: BookOpen,

@@ -46,43 +46,67 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
 
   const useSolidStyle = isScrolled || !hasDarkHeroAtTop(pathname);
 
-  const menuItems = useMemo(() => [
-    { name: "Beranda", href: "/" },
-    {
-      name: "Profil",
-      href: "/profil",
-      submenu: [
-        { name: "Sambutan Kades", href: "/profil#sambutan", description: "Kata pengantar resmi Kepala Desa Nekmese." },
-        { name: "Identitas Desa", href: "/profil#identitas", description: "Informasi dasar & administratif wilayah." },
-        { name: "Sejarah Desa", href: "/profil#sejarah", description: "Asal-usul & sejarah terbentuknya desa." },
-        { name: "Visi & Misi", href: "/profil#visi-misi", description: "Cita-cita & rencana arah pembangunan." },
-        { name: "Wilayah Geografis", href: "/profil#geografis", description: "Batas wilayah & bentang alam Nekmese." },
-        { name: "Kependudukan", href: "/profil#kependudukan", description: "Statistik jumlah warga & demografi." },
-        { name: "Struktur Organisasi", href: "/profil#struktur", description: "Bagan pemerintahan & pamong desa." },
-        { name: "Potensi Desa", href: "/profil#potensi", description: "Komoditas & keunggulan lokal warga." },
-        { name: "Lembaga Desa", href: "/profil#lembaga", description: "Lembaga kemasyarakatan aktif desa." },
-        { name: "Lokasi Titik Air", href: "/profil#titik-air", description: "Pemetaan & sebaran sumber air bersih." },
-        ...dynamicSections.map((sec) => ({
-          name: sec.title,
-          href: `/profil#${sec.id}`,
-          description: `Informasi mengenai ${sec.title} Desa Nekmese.`,
-        })),
-      ],
-    },
-    { name: "Wisata", href: "/wisata" },
-    { name: "Budaya", href: "/budaya" },
-    { name: "UMKM", href: "/umkm" },
-    {
-      name: "Berita",
-      href: "/berita",
-      submenu: [
-        { name: "Berita Terbaru", href: "/berita?tab=news", description: "Kabar seputar kegiatan & aktivitas desa." },
-        { name: "Laporan Anggaran", href: "/berita?tab=budget", description: "Transparansi anggaran pendapatan & belanja desa." },
-      ],
-    },
-    { name: "Pengumuman", href: "/pengumuman" },
-    { name: "Peraturan", href: "/peraturan" },
-  ], [dynamicSections]);
+  const menuItems = useMemo(() => {
+    // Helper to dynamically resolve database section IDs to avoid broken hash anchors
+    const findId = (title: string, fallback: string) => {
+      const found = dynamicSections.find(sec => sec.title.toLowerCase() === title.toLowerCase());
+      return found ? found.id : fallback;
+    };
+
+    const staticProfileItems = [
+      { name: "Sambutan Kepala Desa", href: "/profil#sambutan", description: "Kata pengantar resmi Kepala Desa Nekmese." },
+      { name: "Identitas Desa", href: "/profil#identitas", description: "Informasi dasar & administratif wilayah." },
+      { name: "Sejarah Desa", href: "/profil#sejarah", description: "Asal-usul & sejarah terbentuknya desa." },
+      { name: "Visi & Misi", href: "/profil#visi-misi", description: "Cita-cita & rencana arah pembangunan." },
+      { name: "Wilayah Geografis", href: "/profil#geografis", description: "Batas wilayah & bentang alam Nekmese." },
+      { name: "Kependudukan", href: "/profil#kependudukan", description: "Statistik jumlah warga & demografi." },
+      { name: "Struktur Organisasi", href: "/profil#struktur", description: "Bagan pemerintahan & pamong desa." },
+      { name: "Potensi Desa", href: "/profil#potensi", description: "Komoditas & keunggulan lokal warga." },
+      { name: "Lembaga Desa", href: "/profil#lembaga", description: "Lembaga kemasyarakatan aktif desa." },
+      { name: "Lokasi Titik Air", href: "/profil#titik-air", description: "Pemetaan & sebaran sumber air bersih." },
+      { name: "Peta Titik Kumpul Desa", href: `/profil#${findId("Peta Titik Kumpul Desa", "titik-kumpul")}`, description: "Peta titik kumpul evakuasi darurat desa." },
+      { name: "Video Profil Desa", href: `/profil#${findId("Video Profil Desa", "video-profil")}`, description: "Dokumentasi video profil Desa Nekmese." },
+    ];
+
+    // Filter dynamicSections to prevent duplicate menu entries
+    const filteredDynamic = dynamicSections.filter(sec => 
+      !staticProfileItems.some(item => 
+        item.name.toLowerCase() === sec.title.toLowerCase() || 
+        item.href.endsWith(`#${sec.id}`)
+      )
+    );
+
+    const allProfileSubmenu = [
+      ...staticProfileItems,
+      ...filteredDynamic.map((sec) => ({
+        name: sec.title,
+        href: `/profil#${sec.id}`,
+        description: `Informasi mengenai ${sec.title} Desa Nekmese.`,
+      })),
+    ];
+
+    return [
+      { name: "Beranda", href: "/" },
+      {
+        name: "Profil",
+        href: "/profil",
+        submenu: allProfileSubmenu,
+      },
+      { name: "Wisata", href: "/wisata" },
+      { name: "Budaya", href: "/budaya" },
+      { name: "UMKM", href: "/umkm" },
+      {
+        name: "Berita",
+        href: "/berita",
+        submenu: [
+          { name: "Berita Terbaru", href: "/berita?tab=news", description: "Kabar seputar kegiatan & aktivitas desa." },
+          { name: "Laporan Anggaran", href: "/berita?tab=budget", description: "Transparansi anggaran pendapatan & belanja desa." },
+        ],
+      },
+      { name: "Pengumuman", href: "/pengumuman" },
+      { name: "Peraturan", href: "/peraturan" },
+    ];
+  }, [dynamicSections]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -192,7 +216,7 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
 
                   {/* Mega Dropdown Menu */}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
-                    <div className="bg-white border border-slate-100 shadow-2xl rounded-2xl p-3 w-[280px] grid gap-1.5 text-slate-800 text-xs normal-case font-semibold">
+                    <div className="bg-white border border-slate-100 shadow-2xl rounded-2xl p-3 w-[285px] max-h-[380px] overflow-y-auto scrollbar-custom grid gap-1.5 text-slate-800 text-xs normal-case font-semibold">
                       {item.submenu.map((sub) => {
                         const isSubActive = isActivePath(pathname, sub.href);
                         return (
