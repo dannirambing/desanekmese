@@ -130,10 +130,10 @@ export default function HomeSubNavbar() {
                   key={sec.id}
                   id={`nav-btn-${sec.id}`}
                   onClick={() => scrollToSection(sec.id)}
-                  className={`flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap text-left shrink-0 border ${
+                  className={`flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap text-left shrink-0 border ${
                     isActive
-                      ? "bg-turquoise/10 text-turquoise border-turquoise/20 font-bold shadow-sm"
-                      : "text-slate-600 hover:bg-slate-50 border-transparent font-medium"
+                      ? "bg-turquoise/10 text-turquoise border-turquoise/20 font-extrabold shadow-sm"
+                      : "text-slate-600 hover:bg-slate-50 border-transparent font-semibold"
                   }`}
                 >
                   <Icon size={14} className={isActive ? "text-turquoise" : "text-slate-400"} />

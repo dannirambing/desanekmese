@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -16,39 +16,6 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-const menuItems = [
-  { name: "Beranda", href: "/" },
-  {
-    name: "Profil",
-    href: "/profil",
-    submenu: [
-      { name: "Sambutan Kades", href: "/profil#sambutan", description: "Kata pengantar resmi Kepala Desa Nekmese." },
-      { name: "Identitas Desa", href: "/profil#identitas", description: "Informasi dasar & administratif wilayah." },
-      { name: "Sejarah Desa", href: "/profil#sejarah", description: "Asal-usul & sejarah terbentuknya desa." },
-      { name: "Visi & Misi", href: "/profil#visi-misi", description: "Cita-cita & rencana arah pembangunan." },
-      { name: "Wilayah Geografis", href: "/profil#geografis", description: "Batas wilayah & bentang alam Nekmese." },
-      { name: "Kependudukan", href: "/profil#kependudukan", description: "Statistik jumlah warga & demografi." },
-      { name: "Struktur Organisasi", href: "/profil#struktur", description: "Bagan pemerintahan & pamong desa." },
-      { name: "Potensi Desa", href: "/profil#potensi", description: "Komoditas & keunggulan lokal warga." },
-      { name: "Lembaga Desa", href: "/profil#lembaga", description: "Lembaga kemasyarakatan aktif desa." },
-      { name: "Lokasi Titik Air", href: "/profil#titik-air", description: "Pemetaan & sebaran sumber air bersih." },
-    ],
-  },
-  { name: "Wisata", href: "/wisata" },
-  { name: "Budaya", href: "/budaya" },
-  { name: "UMKM", href: "/umkm" },
-  {
-    name: "Berita",
-    href: "/berita",
-    submenu: [
-      { name: "Berita Terbaru", href: "/berita?tab=news", description: "Kabar seputar kegiatan & aktivitas desa." },
-      { name: "Laporan Anggaran", href: "/berita?tab=budget", description: "Transparansi anggaran pendapatan & belanja desa." },
-    ],
-  },
-  { name: "Pengumuman", href: "/pengumuman" },
-  { name: "Peraturan", href: "/peraturan" },
-];
-
 const DARK_HERO_EXACT = ["/", "/profil", "/umkm"];
 const DARK_HERO_PREFIX = ["/wisata", "/budaya", "/berita", "/pengumuman", "/destinasi", "/peraturan"];
 
@@ -63,13 +30,59 @@ function hasDarkHeroAtTop(pathname: string | null) {
   return DARK_HERO_PREFIX.some(prefix => pathname === prefix || pathname.startsWith(prefix + "/"));
 }
 
-export default function Navbar() {
+interface NavbarProps {
+  dynamicSections?: {
+    id: string;
+    title: string;
+    items: { id: string; title: string }[];
+  }[];
+}
+
+export default function Navbar({ dynamicSections = [] }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
 
   const useSolidStyle = isScrolled || !hasDarkHeroAtTop(pathname);
+
+  const menuItems = useMemo(() => [
+    { name: "Beranda", href: "/" },
+    {
+      name: "Profil",
+      href: "/profil",
+      submenu: [
+        { name: "Sambutan Kades", href: "/profil#sambutan", description: "Kata pengantar resmi Kepala Desa Nekmese." },
+        { name: "Identitas Desa", href: "/profil#identitas", description: "Informasi dasar & administratif wilayah." },
+        { name: "Sejarah Desa", href: "/profil#sejarah", description: "Asal-usul & sejarah terbentuknya desa." },
+        { name: "Visi & Misi", href: "/profil#visi-misi", description: "Cita-cita & rencana arah pembangunan." },
+        { name: "Wilayah Geografis", href: "/profil#geografis", description: "Batas wilayah & bentang alam Nekmese." },
+        { name: "Kependudukan", href: "/profil#kependudukan", description: "Statistik jumlah warga & demografi." },
+        { name: "Struktur Organisasi", href: "/profil#struktur", description: "Bagan pemerintahan & pamong desa." },
+        { name: "Potensi Desa", href: "/profil#potensi", description: "Komoditas & keunggulan lokal warga." },
+        { name: "Lembaga Desa", href: "/profil#lembaga", description: "Lembaga kemasyarakatan aktif desa." },
+        { name: "Lokasi Titik Air", href: "/profil#titik-air", description: "Pemetaan & sebaran sumber air bersih." },
+        ...dynamicSections.map((sec) => ({
+          name: sec.title,
+          href: `/profil#${sec.id}`,
+          description: `Informasi mengenai ${sec.title} Desa Nekmese.`,
+        })),
+      ],
+    },
+    { name: "Wisata", href: "/wisata" },
+    { name: "Budaya", href: "/budaya" },
+    { name: "UMKM", href: "/umkm" },
+    {
+      name: "Berita",
+      href: "/berita",
+      submenu: [
+        { name: "Berita Terbaru", href: "/berita?tab=news", description: "Kabar seputar kegiatan & aktivitas desa." },
+        { name: "Laporan Anggaran", href: "/berita?tab=budget", description: "Transparansi anggaran pendapatan & belanja desa." },
+      ],
+    },
+    { name: "Pengumuman", href: "/pengumuman" },
+    { name: "Peraturan", href: "/peraturan" },
+  ], [dynamicSections]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,14 +113,14 @@ export default function Navbar() {
       setExpandedMenus(initialExpanded);
     }, 0);
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, menuItems]);
 
   const navLinkClass = (href: string) => {
     const isActive = isActivePath(pathname, href);
     return cn(
       "group relative transition-colors duration-300 py-1",
       useSolidStyle
-        ? isActive ? "text-teal-600 font-bold" : "text-slate-600 hover:text-teal-600"
+        ? isActive ? "text-turquoise font-bold" : "text-slate-600 hover:text-turquoise"
         : isActive ? "text-white font-bold" : "text-white/80 hover:text-white",
       !useSolidStyle && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
     );
@@ -117,7 +130,7 @@ export default function Navbar() {
     const isActive = isActivePath(pathname, href);
     return cn(
       "absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300",
-      useSolidStyle ? "bg-teal-600" : "bg-white",
+      useSolidStyle ? "bg-turquoise" : "bg-white",
       isActive ? "w-full" : "w-0 group-hover:w-1/2"
     );
   };
@@ -168,7 +181,7 @@ export default function Navbar() {
                     className={cn(
                       "flex items-center gap-1 transition-colors duration-300 font-bold uppercase tracking-wider text-xs cursor-pointer",
                       useSolidStyle
-                        ? isParentActive ? "text-teal-600 font-bold" : "text-slate-600 hover:text-teal-600"
+                        ? isParentActive ? "text-turquoise font-bold" : "text-slate-600 hover:text-turquoise"
                         : isParentActive ? "text-white font-bold" : "text-white/80 hover:text-white",
                       !useSolidStyle && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
                     )}
@@ -188,12 +201,12 @@ export default function Navbar() {
                             href={sub.href}
                             className={cn(
                               "group/sub flex flex-col gap-0.5 p-3 rounded-xl hover:bg-slate-50 transition-colors",
-                              isSubActive && "bg-teal-50/50"
+                              isSubActive && "bg-turquoise/5"
                             )}
                           >
                             <span className={cn(
-                              "font-extrabold text-navy group-hover/sub:text-teal-600 transition-colors",
-                              isSubActive && "text-teal-600"
+                              "font-extrabold text-navy group-hover/sub:text-turquoise transition-colors",
+                              isSubActive && "text-turquoise"
                             )}>
                               {sub.name}
                             </span>
@@ -228,7 +241,7 @@ export default function Navbar() {
             className={cn(
               "hidden sm:inline-flex rounded-full px-6 md:px-8 uppercase font-semibold text-xs tracking-widest transition-all duration-300",
               useSolidStyle
-                ? "bg-teal-600 hover:bg-teal-700 text-white"
+                ? "bg-turquoise hover:bg-turquoise/90 text-white"
                 : "bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:border-white/40"
             )}
           >
@@ -265,7 +278,7 @@ export default function Navbar() {
                     className="w-6 h-6 object-contain"
                   />
                   <span>
-                    Desa <span className="text-teal-600">Nekmese</span>
+                    Desa <span className="text-turquoise">Nekmese</span>
                   </span>
                 </SheetTitle>
               </SheetHeader>
@@ -289,7 +302,7 @@ export default function Navbar() {
                           className={cn(
                             "flex items-center justify-between w-full rounded-lg px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors",
                             isParentActive
-                              ? "text-teal-700 font-extrabold bg-teal-50/30"
+                              ? "text-turquoise font-extrabold bg-turquoise/5"
                               : "text-slate-700 hover:bg-slate-50"
                           )}
                         >
@@ -298,7 +311,7 @@ export default function Navbar() {
                             className={cn(
                               "w-4 h-4 transition-transform duration-300 text-slate-500",
                               isExpanded && "rotate-180",
-                              isParentActive && "text-teal-700"
+                              isParentActive && "text-turquoise"
                             )}
                           />
                         </button>
@@ -318,8 +331,8 @@ export default function Navbar() {
                                   className={cn(
                                     "rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors",
                                     isActivePath(pathname, sub.href)
-                                      ? "bg-teal-50 text-teal-700 font-extrabold"
-                                      : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
+                                      ? "bg-turquoise/10 text-turquoise font-extrabold"
+                                      : "text-slate-600 hover:bg-slate-50 hover:text-turquoise"
                                   )}
                                 >
                                   {sub.name}
@@ -339,8 +352,8 @@ export default function Navbar() {
                         className={cn(
                           "rounded-lg px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors",
                           isActivePath(pathname, item.href)
-                            ? "bg-teal-50 text-teal-700 font-extrabold"
-                            : "text-slate-600 hover:bg-slate-50 hover:text-teal-600"
+                            ? "bg-turquoise/10 text-turquoise font-extrabold"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-turquoise"
                         )}
                       >
                         {item.name}
@@ -354,7 +367,7 @@ export default function Navbar() {
                 <SheetClose asChild>
                   <Button
                     asChild
-                    className="w-full rounded-full bg-teal-600 hover:bg-teal-700 text-white uppercase font-bold text-xs tracking-widest shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+                    className="w-full rounded-full bg-turquoise hover:bg-turquoise/90 text-white uppercase font-bold text-xs tracking-widest shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
                   >
                     <Link href="/wisata">Mulai Jelajah</Link>
                   </Button>

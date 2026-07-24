@@ -29,14 +29,14 @@ export default function ProfileSidebar({ dynamicSections = [] }: ProfileSidebarP
   const navRef = useRef<HTMLElement>(null);
 
   const staticSections: SectionMenuItem[] = useMemo(() => [
-    { id: "sambutan", label: "Sambutan Kepala Desa", icon: Info },
+    { id: "sambutan", label: "Sambutan Kades", icon: Info },
     { id: "identitas", label: "Identitas Desa", icon: Building2 },
     { id: "sejarah", label: "Sejarah Desa", icon: BookOpen },
     { id: "visi-misi", label: "Visi & Misi", icon: Compass },
-    { id: "geografis", label: "Wilayah & Geografis", icon: MapPin },
+    { id: "geografis", label: "Wilayah Geografis", icon: MapPin },
     { id: "kependudukan", label: "Kependudukan", icon: Users },
-    { id: "struktur", label: "Struktur Pemerintahan", icon: Map },
-    { id: "potensi", label: "Potensi & Komoditas", icon: Award },
+    { id: "struktur", label: "Struktur Organisasi", icon: Map },
+    { id: "potensi", label: "Potensi Desa", icon: Award },
     { id: "lembaga", label: "Lembaga Desa", icon: TrendingUp },
     { id: "titik-air", label: "Lokasi Titik Air", icon: Droplets },
   ], []);
@@ -131,10 +131,10 @@ export default function ProfileSidebar({ dynamicSections = [] }: ProfileSidebarP
               <button
                 id={`nav-btn-${sec.id}`}
                 onClick={() => scrollToSection(sec.id)}
-                className={`flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left w-auto lg:w-full ${
+                className={`flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-4 lg:py-3 rounded-xl lg:rounded-2xl text-[10px] lg:text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap lg:whitespace-normal text-left w-auto lg:w-full border ${
                   isActive
-                    ? "bg-turquoise/10 text-turquoise border border-turquoise/20 font-bold shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50 border border-transparent font-medium"
+                    ? "bg-turquoise/10 text-turquoise border-turquoise/20 font-extrabold shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50 border-transparent font-semibold"
                 }`}
               >
                 <Icon size={14} className={isActive ? "text-turquoise" : "text-slate-400"} />
