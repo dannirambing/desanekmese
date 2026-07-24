@@ -24,10 +24,10 @@ export default async function AdminLinkTerkaitPage() {
         <div>
           <h1 className="text-3xl font-black text-navy tracking-tight uppercase flex items-center gap-3">
             <Link2 className="w-8 h-8 text-turquoise" />
-            Link Terkait Footer
+            Kelola Link Terkait
           </h1>
           <p className="text-sm text-navy/60 font-medium mt-1">
-            Kelola tautan sistem informasi, sistem pemetaan, atau website luar yang ditampilkan di Footer.
+            Kelola tautan sistem informasi, sistem pemetaan, atau website eksternal yang ditampilkan di Footer dan Navbar.
           </p>
         </div>
       </div>

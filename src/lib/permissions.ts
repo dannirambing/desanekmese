@@ -11,5 +11,5 @@ export const AVAILABLE_PERMISSIONS = [
   { id: "MANAGE_BUDGET", name: "Kelola Anggaran" },
   { id: "MANAGE_GALERI", name: "Kelola Galeri Media" },
   { id: "MANAGE_PERATURAN", name: "Kelola Peraturan Desa" },
-  { id: "MANAGE_LINKS", name: "Kelola Link Terkait (Footer)" },
+  { id: "MANAGE_LINKS", name: "Kelola Link Terkait" },
 ];

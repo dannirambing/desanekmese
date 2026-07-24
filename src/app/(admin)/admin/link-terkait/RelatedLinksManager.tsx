@@ -111,7 +111,7 @@ export default function RelatedLinksManager({ initialLinks }: RelatedLinksManage
               {editingId ? "Edit Link Terkait" : "Tambah Link Terkait"}
             </CardTitle>
             <CardDescription>
-              {editingId ? "Ubah informasi link sistem atau website eksternal terkait." : "Hubungkan website/sistem informasi lain ke Footer."}
+              {editingId ? "Ubah informasi link sistem atau website eksternal terkait." : "Hubungkan website/sistem informasi lain ke Footer dan Navbar."}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -227,7 +227,7 @@ export default function RelatedLinksManager({ initialLinks }: RelatedLinksManage
           <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-navy">Daftar Link Terkait</CardTitle>
-              <CardDescription>Sistem informasi luar/mitra yang terhubung di Footer website.</CardDescription>
+              <CardDescription>Sistem informasi luar/mitra yang terhubung di Footer dan Navbar website.</CardDescription>
             </div>
             <div className="bg-turquoise/10 text-turquoise text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
               {initialLinks.length} Link
