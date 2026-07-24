@@ -1,10 +1,13 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Chatbot from "@/components/shared/Chatbot";
-import { getPublishedProfileSections } from "@/lib/queries";
+import { getPublishedProfileSections, getPublishedRelatedLinks } from "@/lib/queries";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const rawSections = await getPublishedProfileSections();
+  const [rawSections, rawLinks] = await Promise.all([
+    getPublishedProfileSections(),
+    getPublishedRelatedLinks(),
+  ]);
   
   // Sanitize to plain serializable objects for Client Components to prevent hydration mismatch (e.g. Date serialization issues)
   const dynamicSections = rawSections.map((sec) => ({
@@ -16,9 +19,15 @@ export default async function PublicLayout({ children }: { children: React.React
     })),
   }));
 
+  const relatedLinks = rawLinks.map((link) => ({
+    id: link.id,
+    title: link.title,
+    url: link.url,
+  }));
+
   return (
     <>
-      <Navbar dynamicSections={dynamicSections} />
+      <Navbar dynamicSections={dynamicSections} relatedLinks={relatedLinks} />
       <main className="min-h-screen">
         {children}
       </main>

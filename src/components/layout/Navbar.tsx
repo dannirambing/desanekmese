@@ -36,9 +36,14 @@ interface NavbarProps {
     title: string;
     items: { id: string; title: string }[];
   }[];
+  relatedLinks?: {
+    id: string;
+    title: string;
+    url: string;
+  }[];
 }
 
-export default function Navbar({ dynamicSections = [] }: NavbarProps) {
+export default function Navbar({ dynamicSections = [], relatedLinks = [] }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
@@ -95,6 +100,19 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
       { name: "Wisata", href: "/wisata" },
       { name: "Budaya", href: "/budaya" },
       { name: "UMKM", href: "/umkm" },
+      ...(relatedLinks.length > 0
+        ? [
+            {
+              name: "Layanan",
+              href: "#",
+              submenu: relatedLinks.map((link) => ({
+                name: link.title,
+                href: link.url,
+                description: `Akses sistem informasi ${link.title}.`,
+              })),
+            },
+          ]
+        : []),
       {
         name: "Berita",
         href: "/berita",
@@ -106,7 +124,7 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
       { name: "Pengumuman", href: "/pengumuman" },
       { name: "Peraturan", href: "/peraturan" },
     ];
-  }, [dynamicSections]);
+  }, [dynamicSections, relatedLinks]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -218,7 +236,26 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
                     <div className="bg-white border border-slate-100 shadow-2xl rounded-2xl p-3 w-[285px] max-h-[380px] overflow-y-auto scrollbar-custom grid gap-1.5 text-slate-800 text-xs normal-case font-semibold">
                       {item.submenu.map((sub) => {
+                        const isExternal = sub.href.startsWith("http");
                         const isSubActive = isActivePath(pathname, sub.href);
+                        if (isExternal) {
+                          return (
+                            <a
+                              key={sub.href}
+                              href={sub.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group/sub flex flex-col gap-0.5 p-3 rounded-xl hover:bg-slate-50 transition-colors"
+                            >
+                              <span className="font-extrabold text-navy group-hover/sub:text-turquoise transition-colors">
+                                {sub.name}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                                {sub.description}
+                              </span>
+                            </a>
+                          );
+                        }
                         return (
                           <Link
                             key={sub.href}
@@ -348,21 +385,38 @@ export default function Navbar({ dynamicSections = [] }: NavbarProps) {
                           )}
                         >
                           <div className="overflow-hidden space-y-1 flex flex-col">
-                            {item.submenu.map((sub) => (
-                              <SheetClose asChild key={sub.href}>
-                                <Link
-                                  href={sub.href}
-                                  className={cn(
-                                    "rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors",
-                                    isActivePath(pathname, sub.href)
-                                      ? "bg-turquoise/10 text-turquoise font-extrabold"
-                                      : "text-slate-600 hover:bg-slate-50 hover:text-turquoise"
-                                  )}
-                                >
-                                  {sub.name}
-                                </Link>
-                              </SheetClose>
-                            ))}
+                            {item.submenu.map((sub) => {
+                              const isExternal = sub.href.startsWith("http");
+                              if (isExternal) {
+                                return (
+                                  <SheetClose asChild key={sub.href}>
+                                    <a
+                                      href={sub.href}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors text-slate-600 hover:bg-slate-50 hover:text-turquoise"
+                                    >
+                                      {sub.name}
+                                    </a>
+                                  </SheetClose>
+                                );
+                              }
+                              return (
+                                <SheetClose asChild key={sub.href}>
+                                  <Link
+                                    href={sub.href}
+                                    className={cn(
+                                      "rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors",
+                                      isActivePath(pathname, sub.href)
+                                        ? "bg-turquoise/10 text-turquoise font-extrabold"
+                                        : "text-slate-600 hover:bg-slate-50 hover:text-turquoise"
+                                    )}
+                                  >
+                                    {sub.name}
+                                  </Link>
+                                </SheetClose>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
