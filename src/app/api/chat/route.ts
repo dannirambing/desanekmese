@@ -233,7 +233,7 @@ export async function POST(req: Request) {
       pengumumanData = await prisma.announcement.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { createdAt: "desc" },
-        take: 3, // Batasi ke 3 pengumuman terbaru untuk menghemat kuota token
+        take: 2, // Batasi ke 2 pengumuman terbaru untuk menghemat kuota token
         select: { title: true, slug: true, content: true, category: true, createdAt: true },
       });
     } catch (e) {
@@ -244,7 +244,7 @@ export async function POST(req: Request) {
       beritaData = await prisma.newsArticle.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
-        take: 2,
+        take: 1, // Hanya ambil 1 berita terupdate untuk menghemat token
         select: { title: true, slug: true, summary: true, content: true, publishedAt: true },
       });
     } catch (e) {
@@ -270,6 +270,8 @@ export async function POST(req: Request) {
     try {
       peraturanData = await prisma.villageRegulation.findMany({
         where: { status: "PUBLISHED" },
+        orderBy: { year: "desc" },
+        take: 3, // Batasi ke 3 peraturan teratas/terbaru agar hemat token
         select: { title: true, number: true, year: true, type: true, description: true, fileUrl: true, createdAt: true },
       });
     } catch (e) {
@@ -297,12 +299,12 @@ export async function POST(req: Request) {
       contextText += `### 1. Profil Umum Desa
 - Lokasi: Kec. ${profileData.district || "Kupang Barat"}, Kab. ${profileData.regency || "Kupang"}, NTT. Kode: ${profileData.villageCode || "53.01.xx.xxxx"}. Tahun berdiri: ${profileData.establishedYear || "N/A"}.
 - Kades saat ini: ${profileData.welcomeName || "Krisna Jems Baok"} (${profileData.welcomeRole || "Kepala Desa"}).
-- Sambutan: "${limitLength(profileData.welcomeText, 100)}"
-- Sejarah Singkat: ${limitLength(profileData.history, 120)}
-- Visi & Misi: Visi (${limitLength(profileData.vision, 80)}) Misi (${limitLength(profileData.mission, 120)})
-- Geografi & Batas Wilayah: Batas Utara (${profileData.boundariesNorth || "N/A"}), Timur (${profileData.boundariesEast || "N/A"}), Selatan (${profileData.boundariesSouth || "N/A"}), Barat (${profileData.boundariesWest || "N/A"}). Geografi: ${limitLength(profileData.geography, 80)}
+- Sambutan: "${limitLength(profileData.welcomeText, 70)}"
+- Sejarah Singkat: ${limitLength(profileData.history, 80)}
+- Visi & Misi: Visi (${limitLength(profileData.vision, 50)}) Misi (${limitLength(profileData.mission, 80)})
+- Geografi & Batas Wilayah: Batas Utara (${profileData.boundariesNorth || "N/A"}), Timur (${profileData.boundariesEast || "N/A"}), Selatan (${profileData.boundariesSouth || "N/A"}), Barat (${profileData.boundariesWest || "N/A"}). Geografi: ${limitLength(profileData.geography, 60)}
 - Penduduk: Total ${profileData.populationTotal || 0} jiwa (Laki: ${profileData.populationMale || 0}, Perempuan: ${profileData.populationFemale || 0}), ${profileData.populationFamilies || 0} KK.
-- Potensi & Lembaga: Potensi (${limitLength(profileData.potential, 80)}), Lembaga (${limitLength(profileData.organizations, 80)}), Fasilitas (${limitLength(profileData.facilities, 80)}), Prestasi (${limitLength(profileData.achievements, 80)})\n\n`;
+- Potensi & Lembaga: Potensi (${limitLength(profileData.potential, 60)}), Lembaga (${limitLength(profileData.organizations, 60)}), Fasilitas (${limitLength(profileData.facilities, 60)}), Prestasi (${limitLength(profileData.achievements, 60)})\n\n`;
     } else {
       contextText += `### 1. Profil Umum Desa
 - Lokasi: Kec. Amarasi Selatan, Kab. Kupang, Nusa Tenggara Timur (NTT).
@@ -313,7 +315,7 @@ export async function POST(req: Request) {
       contextText += `### 2. Destinasi Wisata
 ${wisataData.map((w, idx) => {
         const tgl = w.createdAt ? new Date(w.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-        return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0, 3).join(", ") : "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/wisata/${w.slug}). Deskripsi: ${limitLength(w.description, 80)}`;
+        return `${idx + 1}. **${w.name}** (Lokasi: ${w.location || "N/A"}, Jam buka: ${w.openHours || "N/A"}, Fasilitas: ${Array.isArray(w.facilities) ? w.facilities.slice(0, 2).join(", ") : "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/wisata/${w.slug}). Deskripsi: ${limitLength(w.description, 50)}`;
       }).join("\n")}\n\n`;
     }
 
@@ -321,7 +323,7 @@ ${wisataData.map((w, idx) => {
       contextText += `### 3. Kebudayaan
 ${budayaData.map((b, idx) => {
         const tgl = b.createdAt ? new Date(b.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-        return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 60)}, Ditambahkan: ${tgl}, URL: ${origin}/budaya/${b.slug}). Deskripsi: ${limitLength(b.description, 65)}`;
+        return `${idx + 1}. **${b.name}** (Ringkasan: ${limitLength(b.summary || "", 45)}, Ditambahkan: ${tgl}, URL: ${origin}/budaya/${b.slug}). Deskripsi: ${limitLength(b.description, 45)}`;
       }).join("\n")}\n\n`;
     }
 
@@ -329,7 +331,7 @@ ${budayaData.map((b, idx) => {
       contextText += `### 4. UMKM & Produk Desa
 ${produkData.map((p, idx) => {
         const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-        return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/umkm/${p.slug}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 60)}`;
+        return `${idx + 1}. **${p.name}** (Harga: Rp ${p.price ? p.price.toLocaleString("id-ID") : "N/A"}, Pemilik: ${p.ownerName || "N/A"}, Ditambahkan: ${tgl}, URL: ${origin}/umkm/${p.slug}). Cara pesan (${p.orderType || "N/A"}): Beli di link: ${p.orderUrl || "N/A"}. Deskripsi: ${limitLength(p.description, 45)}`;
       }).join("\n")}\n\n`;
     }
 
@@ -337,7 +339,7 @@ ${produkData.map((p, idx) => {
       contextText += `### 5. Pengumuman Terbaru
 ${pengumumanData.map((p, idx) => {
         const tgl = p.createdAt ? new Date(p.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-        return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/pengumuman/${p.slug}):\n${limitLength(p.content || "", 400)}`;
+        return `${idx + 1}. **[${p.category || "Umum"}] ${p.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/pengumuman/${p.slug}):\n${limitLength(p.content || "", 120)}`;
       }).join("\n\n")}\n\n`;
     }
 
@@ -345,7 +347,7 @@ ${pengumumanData.map((p, idx) => {
       contextText += `### 6. Berita Terbaru
 ${beritaData.map((b, idx) => {
         const tgl = b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "N/A";
-        return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/berita/${b.slug}) - Ringkasan: ${limitLength(b.summary || "", 100)}:\n${limitLength(b.content || "", 300)}`;
+        return `${idx + 1}. **${b.title}** (Dipublikasikan: ${tgl}, URL: ${origin}/berita/${b.slug}) - Ringkasan: ${limitLength(b.summary || "", 70)}:\n${limitLength(b.content || "", 120)}`;
       }).join("\n\n")}\n\n`;
     }
 
@@ -364,7 +366,7 @@ ${anggaranData.map((a) => {
       contextText += `### 8. Peraturan Desa & Regulasi Resmi
 ${peraturanData.map((p, idx) => {
         const tipeLabel = p.type === "PERATURAN_DESA" ? "Peraturan Desa" : "Surat Keputusan (SK) Kades";
-        return `${idx + 1}. **${tipeLabel} Nomor ${p.number} Tahun ${p.year}** - "${p.title}" (Keterangan: ${p.description || "N/A"}). Tautan berkas resmi untuk diunduh/dibaca: ${p.fileUrl}`;
+        return `${idx + 1}. **${tipeLabel} Nomor ${p.number} Tahun ${p.year}** - "${p.title}" (Keterangan: ${limitLength(p.description, 70)}). Tautan berkas resmi untuk diunduh/dibaca: ${p.fileUrl}`;
       }).join("\n")}\n\n`;
     }
 
@@ -403,13 +405,13 @@ Berikut adalah informasi resmi terbaru dari database website Desa Nekmese untuk 
 ${contextText}
 ---`;
 
-    // 4. Format pesan untuk dikirim ke API Groq (Batasi riwayat ke 4 pesan terakhir agar menghemat token)
+    // 4. Format pesan untuk dikirim ke API Groq (Batasi riwayat ke 3 pesan terakhir dan potong panjangnya agar menghemat token)
     const mappedMessages = [
       { role: "system", content: systemPrompt },
       ...(Array.isArray(riwayatPesan)
-        ? riwayatPesan.slice(-4).map((m: { role: string; content: string }) => ({
+        ? riwayatPesan.slice(-3).map((m: { role: string; content: string }) => ({
           role: m.role === "user" ? "user" : "assistant",
-          content: m.content || "",
+          content: limitLength(m.content || "", 350),
         }))
         : []),
       { role: "user", content: pesanBaru },
