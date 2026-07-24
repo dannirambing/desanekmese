@@ -198,18 +198,17 @@ export default function Navbar({ dynamicSections = [], relatedLinks = [] }: Navb
           />
           <span
             className={cn(
-              "text-xl sm:text-2xl font-extrabold tracking-tighter transition-colors duration-300",
+              "text-lg sm:text-xl xl:text-2xl font-extrabold tracking-tighter transition-colors duration-300",
               useSolidStyle ? "text-navy" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
             )}
           >
             Desa Nekmese
-
           </span>
         </Link>
 
         <nav
           className={cn(
-            "hidden lg:flex items-center gap-5 xl:gap-8 font-semibold tracking-wide uppercase text-xs",
+            "hidden lg:flex items-center lg:gap-3 xl:gap-6 font-semibold tracking-wide uppercase lg:text-[11px] xl:text-xs",
             useSolidStyle ? "text-slate-700" : "text-white/95"
           )}
         >
@@ -300,7 +299,7 @@ export default function Navbar({ dynamicSections = [], relatedLinks = [] }: Navb
           <Button
             asChild
             className={cn(
-              "hidden sm:inline-flex rounded-full px-6 md:px-8 uppercase font-semibold text-xs tracking-widest transition-all duration-300",
+              "hidden sm:inline-flex lg:hidden xl:inline-flex rounded-full px-6 md:px-8 uppercase font-semibold text-xs tracking-widest transition-all duration-300",
               useSolidStyle
                 ? "bg-turquoise hover:bg-turquoise/90 text-white"
                 : "bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:border-white/40"

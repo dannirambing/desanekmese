@@ -9,6 +9,7 @@ import { createRelatedLink, updateRelatedLink, deleteRelatedLink } from "./actio
 import { Link2, Plus, Edit2, Trash2, Globe, ExternalLink, RefreshCw, X, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RelatedLink } from "@prisma/client";
+import ConfirmDeleteButton from "@/components/admin/ConfirmDeleteButton";
 
 interface RelatedLinksManagerProps {
   initialLinks: RelatedLink[];
@@ -87,17 +88,12 @@ export default function RelatedLinksManager({ initialLinks }: RelatedLinksManage
   };
 
   // Handle Delete link
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Apakah Anda yakin ingin menghapus link "${name}"?`)) return;
-
-    startTransition(async () => {
-      const res = await deleteRelatedLink(id);
-      if (res.success) {
-        router.refresh();
-      } else if (res.message) {
-        alert(res.message);
-      }
-    });
+  const handleDelete = async (id: string) => {
+    const res = await deleteRelatedLink(id);
+    if (!res.success) {
+      throw new Error(res.message || "Gagal menghapus link terkait");
+    }
+    router.refresh();
   };
 
   return (
@@ -311,15 +307,14 @@ export default function RelatedLinksManager({ initialLinks }: RelatedLinksManage
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </Button>
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                onClick={() => handleDelete(link.id, link.title)}
-                                disabled={isPending}
-                                className="w-8 h-8 rounded-full border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all"
+                              <ConfirmDeleteButton
+                                onConfirm={() => handleDelete(link.id)}
+                                title="Hapus Link Terkait"
+                                message={`Apakah Anda yakin ingin menghapus link "${link.title}" secara permanen? Data yang dihapus tidak dapat dipulihkan.`}
+                                buttonClassName="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all flex items-center justify-center cursor-pointer disabled:opacity-50"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
+                              </ConfirmDeleteButton>
                             </div>
                           </td>
                         </tr>
