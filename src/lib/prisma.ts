@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const PRISMA_SCHEMA_VERSION = "v7-media-gallery";
+const PRISMA_SCHEMA_VERSION = "v8-related-links";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
