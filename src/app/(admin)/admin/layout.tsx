@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image as ImageIcon, Megaphone, FileText, TrendingUp, Menu, X, Bot, Droplets, Scale } from "lucide-react";
+import { LayoutDashboard, Map, Sparkles, Store, Newspaper, Users, Sliders, Image as ImageIcon, Megaphone, FileText, TrendingUp, Menu, X, Bot, Droplets, Scale, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AuthSessionProvider from "@/components/admin/AuthSessionProvider";
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
@@ -82,6 +82,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               { name: "Kelola Anggaran", href: "/admin/anggaran", icon: TrendingUp, perms: ["MANAGE_BUDGET"] },
               { name: "Galeri Media", href: "/admin/galeri", icon: ImageIcon, perms: ["MANAGE_GALERI"] },
               { name: "Peraturan Desa", href: "/admin/peraturan", icon: Scale, perms: ["MANAGE_PERATURAN"] },
+              { name: "Link Terkait (Footer)", href: "/admin/link-terkait", icon: Link2, perms: ["MANAGE_LINKS"] },
               { name: "Kelola Peran & Hak Akses", href: "/admin/roles", icon: Sparkles, perms: ["ALL_ACCESS"] },
               { name: "Kelola Pengguna", href: "/admin/pengguna", icon: Users, perms: ["ALL_ACCESS"] },
               { name: "Log Chatbot AI", href: "/admin/chatbot-log", icon: Bot, perms: ["ALL_ACCESS"] },

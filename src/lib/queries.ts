@@ -299,3 +299,13 @@ export const getPublishedProfileSections = unstable_cache(
   ["published-profile-sections"],
   { revalidate: 60, tags: ["profile-sections"] }
 );
+
+export const getPublishedRelatedLinks = unstable_cache(
+  async () =>
+    prisma.relatedLink.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { order: "asc" },
+    }),
+  ["published-related-links"],
+  { revalidate: 60, tags: ["related-links"] }
+);

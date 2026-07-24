@@ -67,6 +67,10 @@ export default withAuth(
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
+    if (path.startsWith("/admin/link-terkait") && !permissions.includes("MANAGE_LINKS")) {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
+
     return NextResponse.next();
   },
   {

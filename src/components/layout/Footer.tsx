@@ -42,7 +42,7 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
-import { getRecentAnnouncements } from "@/lib/queries";
+import { getRecentAnnouncements, getPublishedRelatedLinks } from "@/lib/queries";
 import { formatIndonesianDate } from "@/lib/format-date";
 
 // Menu disinkronkan dengan Navbar
@@ -59,12 +59,15 @@ const menuItems = [
 
 export default async function Footer() {
   const currentYear = new Date().getFullYear();
-  const recentAnnouncements = await getRecentAnnouncements();
+  const [recentAnnouncements, relatedLinks] = await Promise.all([
+    getRecentAnnouncements(),
+    getPublishedRelatedLinks(),
+  ]);
 
   return (
     <footer className="bg-stone-950 text-white pt-20 pb-10 border-t-4 border-turquoise relative">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
 
           {/* Kolom 1: Profil & Filosofi */}
           <div className="lg:col-span-1">
@@ -119,7 +122,33 @@ export default async function Footer() {
             </ul>
           </div>
 
-          {/* Kolom 3: Pengumuman Terbaru */}
+          {/* Kolom 3: Layanan & Sistem Terkait (Dinamis) */}
+          <div>
+            <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
+              Sistem Informasi
+            </h4>
+            <ul className="space-y-3">
+              {relatedLinks.length === 0 ? (
+                <li className="text-stone-500 text-sm italic">Belum ada link sistem informasi.</li>
+              ) : (
+                relatedLinks.map((link) => (
+                  <li key={link.id}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-stone-400 hover:text-turquoise transition-all duration-300 flex items-center gap-2 group translate-x-0 hover:translate-x-1 font-medium text-sm"
+                    >
+                      <ChevronRightIcon />
+                      {link.title}
+                    </a>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+
+          {/* Kolom 4: Pengumuman Terbaru */}
           <div>
             <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
               Pengumuman Desa
@@ -160,7 +189,7 @@ export default async function Footer() {
             </div>
           </div>
 
-          {/* Kolom 4: Kontak */}
+          {/* Kolom 5: Kontak */}
           <div>
             <h4 className="text-sm font-black mb-6 text-white uppercase tracking-widest border-b border-stone-800 pb-2">
               Hubungi Kami

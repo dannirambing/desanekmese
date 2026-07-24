@@ -205,6 +205,9 @@ model Admin {
   createdProfileSections ProfileSection[] @relation("ProfileSectionCreatedBy")
   updatedProfileSections ProfileSection[] @relation("ProfileSectionUpdatedBy")
 
+  createdRelatedLinks RelatedLink[] @relation("RelatedLinkCreatedBy")
+  updatedRelatedLinks RelatedLink[] @relation("RelatedLinkUpdatedBy")
+
   auditLogs            AuditLog[]
 
   @@index([lastActiveAt])
@@ -481,5 +484,25 @@ model ProfileSectionItem {
   updatedAt   DateTime           @updatedAt
 
   @@index([sectionId])
+  @@index([order])
+}
+
+// Model untuk Link Terkait (Website Lain / Sistem Informasi Pemetaan UMKM, dll)
+model RelatedLink {
+  id          String        @id @default(cuid())
+  title       String        // Nama website/link (contoh: "Pemetaan UMKM Nekmese")
+  url         String        @db.Text // URL website (contoh: "https://umkm.nekmese.desa.id")
+  order       Int           @default(0) // Untuk mengatur urutan
+  status      PublishStatus @default(DRAFT) // Status DRAFT / PUBLISHED
+  
+  createdById String?
+  createdBy   Admin?        @relation("RelatedLinkCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("RelatedLinkUpdatedBy", fields: [updatedById], references: [id])
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
   @@index([order])
 }
