@@ -4,7 +4,17 @@ import Chatbot from "@/components/shared/Chatbot";
 import { getPublishedProfileSections } from "@/lib/queries";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const dynamicSections = await getPublishedProfileSections();
+  const rawSections = await getPublishedProfileSections();
+  
+  // Sanitize to plain serializable objects for Client Components to prevent hydration mismatch (e.g. Date serialization issues)
+  const dynamicSections = rawSections.map((sec) => ({
+    id: sec.id,
+    title: sec.title,
+    items: sec.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+    })),
+  }));
 
   return (
     <>

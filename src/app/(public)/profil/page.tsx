@@ -47,6 +47,16 @@ export default async function ProfilPage() {
     getPublishedProfileSections(),
   ]);
 
+  // Sanitize dynamic sections to plain objects for the Client Component sidebar to prevent hydration mismatch
+  const sanitizedSections = dynamicSections.map((sec) => ({
+    id: sec.id,
+    title: sec.title,
+    items: sec.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+    })),
+  }));
+
   // Memisahkan butir-butir misi yang dipisahkan oleh baris baru
   const missionItems = profile.mission
     ? profile.mission.split("\n").filter((item) => item.trim() !== "")
@@ -87,7 +97,7 @@ export default async function ProfilPage() {
           <div className="flex flex-col lg:flex-row gap-12 items-start">
             
             {/* Navigasi Client-side Sidebar */}
-            <ProfileSidebar dynamicSections={dynamicSections} />
+            <ProfileSidebar dynamicSections={sanitizedSections} />
 
             {/* Konten Server-side Utama (Sangat bagus untuk SEO & Performant) */}
             <div className="flex-1 space-y-20 lg:space-y-28 max-w-3xl">
