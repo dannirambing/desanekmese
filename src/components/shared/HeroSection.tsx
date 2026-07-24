@@ -52,12 +52,7 @@ export default function HeroSection({ settings }: { settings?: HeroSettings }) {
 
       {/* Konten Utama */}
       <div className="container relative z-30 mx-auto px-6 text-center text-white mt-16">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center"
-        >
+        <div className="flex flex-col items-center animate-fade-in-up">
           <span
             className="text-amber-300 font-bold tracking-[0.3em] uppercase mb-6 text-xs md:text-sm border border-amber-300/40 px-6 py-2 rounded-full backdrop-blur-sm bg-black/20 inline-block"
             style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
@@ -107,7 +102,7 @@ export default function HeroSection({ settings }: { settings?: HeroSettings }) {
               <Link href="/wisata">Jelajahi Destinasi</Link>
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Tombol Gulir */}
