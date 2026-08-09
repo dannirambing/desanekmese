@@ -33,7 +33,7 @@ export default async function CollaboratorsSection() {
                 <img
                   src={collab.logoUrl}
                   alt={collab.name}
-                  className="w-full h-full object-contain filter grayscale opacity-75 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  className="w-full h-full object-contain transition-all duration-500"
                 />
               </div>
               <p className="text-xs md:text-sm text-center text-slate-500 font-bold max-w-[85px] md:max-w-[110px] lg:max-w-[125px] transition-colors duration-300 group-hover:text-navy">
