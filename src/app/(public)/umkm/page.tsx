@@ -35,14 +35,13 @@ export default async function UmkmPage() {
 
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <span className="inline-block font-semibold tracking-widest text-xs md:text-sm uppercase mb-3 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-emerald-200 border border-emerald-300/30">
-            Dukung Ekonomi Lokal
+            Dukung Ekonomi Lokal Dengan berbelanja di
           </span>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-md mb-4">
-            Karya Tangan & Hasil Bumi
+            NEKMART
           </h1>
           <p className="text-base md:text-xl text-stone-200 font-light leading-relaxed max-w-2xl mx-auto drop-shadow">
-            Produk autentik buatan tangan warga Desa Nekmese. Setiap pembelian
-            langsung memberdayakan pelaku UMKM lokal.
+            Belanja Lokal, Kualitas Global, Bangun Desa.
           </p>
         </div>
       </section>

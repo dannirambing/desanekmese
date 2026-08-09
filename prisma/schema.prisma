@@ -208,6 +208,9 @@ model Admin {
   createdRelatedLinks RelatedLink[] @relation("RelatedLinkCreatedBy")
   updatedRelatedLinks RelatedLink[] @relation("RelatedLinkUpdatedBy")
 
+  createdCollaborators Collaborator[] @relation("CollaboratorCreatedBy")
+  updatedCollaborators Collaborator[] @relation("CollaboratorUpdatedBy")
+
   auditLogs            AuditLog[]
 
   @@index([lastActiveAt])
@@ -499,6 +502,26 @@ model RelatedLink {
   createdBy   Admin?        @relation("RelatedLinkCreatedBy", fields: [createdById], references: [id])
   updatedById String?
   updatedBy   Admin?        @relation("RelatedLinkUpdatedBy", fields: [updatedById], references: [id])
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([order])
+}
+
+// Model untuk Kolaborator
+model Collaborator {
+  id          String        @id @default(cuid())
+  name        String        // Nama instansi/mitra (contoh: "Solar Chapter")
+  logoUrl     String        @db.Text // URL logo kolaborator
+  order       Int           @default(0) // Untuk urutan
+  status      PublishStatus @default(DRAFT) // Status DRAFT / PUBLISHED
+  
+  createdById String?
+  createdBy   Admin?        @relation("CollaboratorCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   Admin?        @relation("CollaboratorUpdatedBy", fields: [updatedById], references: [id])
   
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

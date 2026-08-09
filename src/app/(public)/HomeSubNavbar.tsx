@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Map, ShoppingBag, Newspaper } from "lucide-react";
+import { Sparkles, Map, ShoppingBag, Newspaper, Handshake } from "lucide-react";
 
 const sections = [
   { id: "kultur", label: "Kultur & Kearifan", icon: Sparkles },
   { id: "destinasi", label: "Destinasi Wisata", icon: Map },
   { id: "umkm", label: "Produk UMKM", icon: ShoppingBag },
   { id: "berita", label: "Berita & Pengumuman", icon: Newspaper },
+  { id: "kolaborasi", label: "Kolaborasi", icon: Handshake },
 ];
 
 export default function HomeSubNavbar() {

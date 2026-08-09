@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const PRISMA_SCHEMA_VERSION = "v8-related-links";
+const PRISMA_SCHEMA_VERSION = "v9-collaborators";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -19,6 +19,10 @@ function getPrismaClient() {
     globalForPrisma.prismaSchemaVersion === PRISMA_SCHEMA_VERSION
   ) {
     return cached;
+  }
+
+  if (cached) {
+    cached.$disconnect().catch(() => {});
   }
 
   const client = createPrismaClient();

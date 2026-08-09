@@ -45,7 +45,7 @@ export async function createSafeAction<Schema extends z.ZodTypeAny, ReturnData>(
     const session = await requireAdminSession(permissions);
     
     // 2. Extract Data dari FormData
-    let validatedData: any = {};
+    let validatedData: z.infer<Schema> = {} as z.infer<Schema>;
     if (schema) {
       const dataObj = Object.fromEntries(formData.entries());
       const validationResult = schema.safeParse(dataObj);
@@ -59,7 +59,7 @@ export async function createSafeAction<Schema extends z.ZodTypeAny, ReturnData>(
       }
       validatedData = validationResult.data;
     } else {
-      validatedData = Object.fromEntries(formData.entries());
+      validatedData = Object.fromEntries(formData.entries()) as z.infer<Schema>;
     }
 
     // 3. Eksekusi Handler Inti
@@ -86,7 +86,7 @@ export async function createSafeAction<Schema extends z.ZodTypeAny, ReturnData>(
       data: result.data,
       message: "Operasi berhasil disimpan.",
     };
-  } catch (error: any) {
+  } catch (error) {
     if (isRedirectError(error)) {
       throw error;
     }

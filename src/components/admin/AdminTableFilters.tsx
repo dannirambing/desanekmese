@@ -38,6 +38,7 @@ export default function AdminTableFilters({
 
   // Sync searchVal if the URL changes (e.g. user hits back/forward or resets)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchVal(searchParams.get("search") ?? "");
   }, [searchParams]);
 

@@ -9,7 +9,7 @@ import MultiImageUpload from "@/components/admin/MultiImageUpload";
 import AuditTrailInfo from "@/components/admin/AuditTrailInfo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { waterSourceSchema, WaterSourceInput } from "@/lib/validations/titik-air";
+import { waterSourceSchema, WaterSourceInput, WaterSourceFormInput } from "@/lib/validations/titik-air";
 
 import { WaterSource, Admin } from "@prisma/client";
 
@@ -21,7 +21,7 @@ export default function WaterSourceForm({
     createdBy?: Pick<Admin, "name"> | null;
     updatedBy?: Pick<Admin, "name"> | null;
   };
-  onSubmit: (formData: FormData) => Promise<any>;
+  onSubmit: (formData: FormData) => Promise<{ success: boolean; message?: string }>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -38,10 +38,9 @@ export default function WaterSourceForm({
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
-  } = useForm<WaterSourceInput>({
-    resolver: zodResolver(waterSourceSchema) as any,
+  } = useForm<WaterSourceFormInput, undefined, WaterSourceInput>({
+    resolver: zodResolver(waterSourceSchema),
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
@@ -51,9 +50,6 @@ export default function WaterSourceForm({
       status: initialData?.status || "PUBLISHED",
     },
   });
-
-  const watchLatitude = watch("latitude");
-  const watchLongitude = watch("longitude");
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -106,7 +102,7 @@ export default function WaterSourceForm({
     });
   };
 
-  const inputClass = (error?: any) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
+  const inputClass = (error?: unknown) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
 
   return (
     <div className="max-w-3xl w-full mx-auto pb-16">

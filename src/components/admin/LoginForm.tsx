@@ -12,7 +12,10 @@ import { loginSchema, LoginInput } from "@/lib/validations/login";
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
+  const rawCallbackUrl = searchParams.get("callbackUrl") ?? "/admin";
+  const callbackUrl = rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
+    ? rawCallbackUrl
+    : "/admin";
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,7 +53,7 @@ export default function LoginForm() {
     router.refresh();
   };
 
-  const inputClass = (err?: any) => 
+  const inputClass = (err?: unknown) => 
     `w-full pl-12 pr-4 py-4 bg-slate-50/50 border rounded-2xl font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-[#14b8a6]/10 transition-all duration-300 outline-none shadow-sm ${
       err ? "border-red-400 focus:border-red-400 focus:ring-red-200" : "border-slate-200 focus:border-[#14b8a6]"
     }`;

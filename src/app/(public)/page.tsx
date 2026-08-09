@@ -8,6 +8,7 @@ import CultureSectionWrapper from "@/components/shared/CultureSectionWrapper";
 import DestinationSectionWrapper from "@/components/shared/DestinationSectionWrapper";
 import UMKMSectionWrapper from "@/components/shared/UMKMSectionWrapper";
 import NewsAndAnnouncementSectionWrapper from "@/components/shared/NewsAndAnnouncementSectionWrapper";
+import CollaboratorsSection from "@/components/shared/CollaboratorsSection";
 
 // Import Skeletons
 import CultureSectionSkeleton from "@/components/shared/skeletons/CultureSectionSkeleton";
@@ -54,6 +55,11 @@ export default async function Home() {
         <Suspense fallback={<NewsAndAnnouncementSectionSkeleton />}>
           <NewsAndAnnouncementSectionWrapper />
         </Suspense>
+      </div>
+
+      {/* Seksi Kemitraan & Kolaborator */}
+      <div id="kolaborasi" className="scroll-mt-32">
+        <CollaboratorsSection />
       </div>
     </>
   );

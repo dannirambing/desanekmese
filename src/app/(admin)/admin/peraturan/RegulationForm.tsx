@@ -16,7 +16,7 @@ interface RegulationFormProps {
     createdBy?: { name: string | null } | null;
     updatedBy?: { name: string | null } | null;
   };
-  onSubmit: (formData: FormData) => Promise<any>;
+  onSubmit: (formData: FormData) => Promise<{ success: boolean; message?: string }>;
 }
 
 export default function RegulationForm({ initialData, onSubmit }: RegulationFormProps) {
@@ -31,6 +31,7 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
     watch,
     formState: { errors },
   } = useForm<RegulationInput>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(regulationSchema) as any,
     defaultValues: {
       title: initialData?.title || "",
@@ -85,7 +86,7 @@ export default function RegulationForm({ initialData, onSubmit }: RegulationForm
     return `${prefix}_No_${cleanNumber}_Tahun_${watchYear || new Date().getFullYear()}_${cleanTitle}`;
   };
 
-  const inputClass = (error?: any) =>
+  const inputClass = (error?: unknown) =>
     `w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise/40 focus:border-turquoise bg-slate-50/50 ${
       error ? "border-red-400 focus:ring-red-200" : ""
     }`;

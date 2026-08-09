@@ -7,7 +7,6 @@ import { Save } from "lucide-react";
 import ImagePickerField from "./ImagePickerField";
 import { useState, useTransition } from "react";
 import { createTourismPlace, updateTourismPlace } from "@/app/(admin)/admin/wisata/actions";
-import { useRouter } from "next/navigation";
 
 interface TourismFormProps {
   initialData?: TourismInput & { id: string };
@@ -16,7 +15,6 @@ interface TourismFormProps {
 }
 
 export default function TourismForm({ initialData, initialImage, categories }: TourismFormProps) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -73,7 +71,7 @@ export default function TourismForm({ initialData, initialImage, categories }: T
     });
   };
 
-  const inputClass = (error?: any) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
+  const inputClass = (error?: unknown) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"}`;
   const labelClass = "block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2 tracking-widest";
 
   return (

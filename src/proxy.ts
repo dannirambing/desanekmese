@@ -71,6 +71,10 @@ export default withAuth(
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
+    if (path.startsWith("/admin/kolaborator") && !permissions.includes("MANAGE_COLLABORATORS")) {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
+
     return NextResponse.next();
   },
   {

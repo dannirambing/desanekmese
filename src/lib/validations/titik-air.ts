@@ -12,3 +12,4 @@ export const waterSourceSchema = z.object({
 });
 
 export type WaterSourceInput = z.infer<typeof waterSourceSchema>;
+export type WaterSourceFormInput = z.input<typeof waterSourceSchema>;

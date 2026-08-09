@@ -17,6 +17,7 @@ import {
   Quote,
   Trophy,
   Droplets,
+  ExternalLink,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import DynamicWaterSourceMap from "@/components/public/DynamicWaterSourceMap";
@@ -566,9 +567,21 @@ export default async function ProfilPage() {
                   {/* Daftar Mata Air */}
                   {waterSources.length > 0 && (
                     <div className="mt-8 pt-8 border-t border-slate-100">
-                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-4">
+                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">
                         Daftar Mata Air & Fasilitas
                       </span>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">
+                        Informasi lebih lanjut mengenai pemantauan air bersih dapat diakses melalui platform{" "}
+                        <a 
+                          href="https://mengalir.co/id/kabupaten/2"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-turquoise hover:underline inline-flex items-center gap-1 font-bold"
+                        >
+                          mengalir.co
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {waterSources.map((source) => (
                           <Link 

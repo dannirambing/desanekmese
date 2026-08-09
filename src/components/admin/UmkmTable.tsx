@@ -8,6 +8,7 @@ import ConfirmDeleteButton from "./ConfirmDeleteButton";
 import { deleteUMKMProduct, bulkDeleteUMKM } from "@/app/(admin)/admin/umkm/actions";
 import { formatRupiah } from "@/lib/format-rupiah";
 import { getOrderLabel } from "@/lib/umkm-order";
+import type { OrderChannel } from "@prisma/client";
 
 interface ProductUMKM {
   id: string;
@@ -15,12 +16,12 @@ interface ProductUMKM {
   slug: string;
   ownerName: string;
   price: number;
-  orderType: string;
+  orderType: OrderChannel;
   status: string;
 }
 
 export default function UmkmTable({ initialProducts }: { initialProducts: ProductUMKM[] }) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const [optimisticProducts, addOptimisticAction] = useOptimistic(
@@ -134,7 +135,7 @@ export default function UmkmTable({ initialProducts }: { initialProducts: Produc
                   </td>
                   <td className="px-6 py-4">
                     <span className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-100">
-                      {getOrderLabel(product.orderType as any)}
+                      {getOrderLabel(product.orderType)}
                     </span>
                   </td>
                   <td className="px-6 py-4">

@@ -22,7 +22,7 @@ export default function UmkmForm({ initialData, initialImage }: UmkmFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UMKMFormInput, any, UMKMInput>({
+  } = useForm<UMKMFormInput, undefined, UMKMInput>({
     resolver: zodResolver(umkmSchema),
     defaultValues: initialData || {
       name: "",
@@ -67,7 +67,7 @@ export default function UmkmForm({ initialData, initialImage }: UmkmFormProps) {
     });
   };
 
-  const inputClass = (error?: any) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-turquoise/40 text-[#0f172a]"}`;
+  const inputClass = (error?: unknown) => `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-turquoise/40 text-[#0f172a]"}`;
   const labelClass = "block text-[10px] font-black uppercase text-[#0f172a]/70 mb-2 tracking-widest";
 
   return (

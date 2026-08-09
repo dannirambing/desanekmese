@@ -65,7 +65,7 @@ export default function AnnouncementForm({ initialData, initialImage }: Announce
     });
   };
 
-  const inputClass = (error?: any) =>
+  const inputClass = (error?: unknown) =>
     `w-full p-4 border rounded-xl font-bold focus:outline-none focus:ring-2 ${
       error ? "border-red-400 focus:ring-red-200" : "border-slate-200 focus:ring-[#14b8a6]/40 text-[#0f172a]"
     }`;

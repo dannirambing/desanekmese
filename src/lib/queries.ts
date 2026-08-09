@@ -1,6 +1,19 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
+export const getPublishedCollaborators = unstable_cache(
+  async () =>
+    prisma.collaborator.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: [
+        { order: "asc" },
+        { createdAt: "desc" },
+      ],
+    }),
+  ["published-collaborators"],
+  { revalidate: 60, tags: ["collaborators"] }
+);
+
 export const getPublishedDestinations = unstable_cache(
   async () =>
     prisma.tourismPlace.findMany({
