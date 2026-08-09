@@ -319,43 +319,29 @@ async function main() {
   }
 
   // 9. Seeding Data Kolaborator
+  console.log('🧹 Membersihkan data kolaborator lama...');
+  await prisma.collaborator.deleteMany({});
+
   const collaboratorsData = [
-    { name: "Solar Chapter", logoUrl: "/assets/images/collaborators/solar-chapter.png", order: 1 },
-    { name: "Kementerian Desa dan PDTT", logoUrl: "/assets/images/collaborators/kemendesa.png", order: 2 },
-    { name: "Open Government Indonesia", logoUrl: "/assets/images/collaborators/ogi.png", order: 3 },
-    { name: "Bapperida Prov. NTT", logoUrl: "/assets/images/collaborators/bapperida.png", order: 4 },
-    { name: "Wahana Visi Indonesia", logoUrl: "/assets/images/collaborators/wvi.png", order: 5 },
-    { name: "Kab. Kupang", logoUrl: "/assets/images/collaborators/kab-kupang.png", order: 6 },
-    { name: "Kab. Malaka", logoUrl: "/assets/images/collaborators/kab-malaka.png", order: 7 },
-    { name: "Kab. Sumba Barat Daya", logoUrl: "/assets/images/collaborators/kab-sumba-barat-daya.png", order: 8 },
-    { name: "Kab. Sumba Barat", logoUrl: "/assets/images/collaborators/kab-sumba-barat.png", order: 9 },
-    { name: "Kab. Timor Tengah Utara", logoUrl: "/assets/images/collaborators/kab-timor-tengah-utara.png", order: 10 },
-    { name: "CIS Timor", logoUrl: "/assets/images/collaborators/cis-timor.png", order: 11 },
-    { name: "PLAN International", logoUrl: "/assets/images/collaborators/plan-international.png", order: 12 },
-    { name: "SKALA", logoUrl: "/assets/images/collaborators/skala.jpg", order: 13 },
-    { name: "Universitas Katolik Widya Mandira", logoUrl: "/assets/images/collaborators/unwira.png", order: 14 },
+    { name: "LPPM Universitas Katolik Widya Mandira", logoUrl: "/assets/images/collaborators/unwira.png", order: 1 },
+    { name: "Pemerintah Desa Nekmese", logoUrl: "/favicon.ico", order: 2 },
+    { name: "Pemerintah Kabupaten Kupang", logoUrl: "/assets/images/collaborators/kab-kupang.png", order: 3 },
+    { name: "Pemerintah Provinsi NTT", logoUrl: "/assets/images/collaborators/bapperida.png", order: 4 },
   ];
 
   console.log('🤝 Memulai seeding data Kolaborator...');
   for (const collab of collaboratorsData) {
-    const existingCollab = await prisma.collaborator.findFirst({
-      where: { name: collab.name }
+    await prisma.collaborator.create({
+      data: {
+        name: collab.name,
+        logoUrl: collab.logoUrl,
+        order: collab.order,
+        status: PublishStatus.PUBLISHED,
+        createdById: admin.id,
+        updatedById: admin.id,
+      }
     });
-    if (!existingCollab) {
-      await prisma.collaborator.create({
-        data: {
-          name: collab.name,
-          logoUrl: collab.logoUrl,
-          order: collab.order,
-          status: PublishStatus.PUBLISHED,
-          createdById: admin.id,
-          updatedById: admin.id,
-        }
-      });
-      console.log(`➕ Menambahkan kolaborator baru: ${collab.name}`);
-    } else {
-      console.log(`⏭️ Kolaborator "${collab.name}" sudah ada, dilewati.`);
-    }
+    console.log(`➕ Menambahkan kolaborator: ${collab.name}`);
   }
 
   console.log("✅ Seeding data selesai dengan sukses!");
