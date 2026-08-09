@@ -69,9 +69,17 @@ export default function Navbar({ dynamicSections = [], relatedLinks = [] }: Navb
       { name: "Potensi Desa", href: "/profil#potensi", description: "Komoditas & keunggulan lokal warga." },
       { name: "Lembaga Desa", href: "/profil#lembaga", description: "Lembaga kemasyarakatan aktif desa." },
       { name: "Lokasi Titik Air", href: "/profil#titik-air", description: "Pemetaan & sebaran sumber air bersih." },
-      { name: "Peta Titik Kumpul Desa", href: `/profil#${findId("Peta Titik Kumpul Desa", "titik-kumpul")}`, description: "Peta titik kumpul evakuasi darurat desa." },
-      { name: "Video Profil Desa", href: `/profil#${findId("Video Profil Desa", "video-profil")}`, description: "Dokumentasi video profil Desa Nekmese." },
     ];
+
+    const hasTitikKumpul = dynamicSections.some(sec => sec.title.toLowerCase() === "peta titik kumpul desa");
+    if (hasTitikKumpul) {
+      staticProfileItems.push({ name: "Peta Titik Kumpul Desa", href: `/profil#${findId("Peta Titik Kumpul Desa", "titik-kumpul")}`, description: "Peta titik kumpul evakuasi darurat desa." });
+    }
+
+    const hasVideo = dynamicSections.some(sec => sec.title.toLowerCase() === "video profil desa");
+    if (hasVideo) {
+      staticProfileItems.push({ name: "Video Profil Desa", href: `/profil#${findId("Video Profil Desa", "video-profil")}`, description: "Dokumentasi video profil Desa Nekmese." });
+    }
 
     // Filter dynamicSections to prevent duplicate menu entries
     const filteredDynamic = dynamicSections.filter(sec => 

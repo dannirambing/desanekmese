@@ -33,7 +33,7 @@ export default function ProfileSidebar({ dynamicSections = [] }: ProfileSidebarP
       const found = dynamicSections.find(sec => sec.title.toLowerCase() === title.toLowerCase());
       return found ? found.id : fallback;
     };
-    return [
+    const items = [
       { id: "sambutan", label: "Sambutan Kepala Desa", icon: Info },
       { id: "identitas", label: "Identitas Desa", icon: Building2 },
       { id: "sejarah", label: "Sejarah Desa", icon: BookOpen },
@@ -44,9 +44,19 @@ export default function ProfileSidebar({ dynamicSections = [] }: ProfileSidebarP
       { id: "potensi", label: "Potensi Desa", icon: Award },
       { id: "lembaga", label: "Lembaga Desa", icon: TrendingUp },
       { id: "titik-air", label: "Lokasi Titik Air", icon: Droplets },
-      { id: findId("Peta Titik Kumpul Desa", "titik-kumpul"), label: "Peta Titik Kumpul Desa", icon: Shield },
-      { id: findId("Video Profil Desa", "video-profil"), label: "Video Profil Desa", icon: Video },
     ];
+
+    const hasTitikKumpul = dynamicSections.some(sec => sec.title.toLowerCase() === "peta titik kumpul desa");
+    if (hasTitikKumpul) {
+      items.push({ id: findId("Peta Titik Kumpul Desa", "titik-kumpul"), label: "Peta Titik Kumpul Desa", icon: Shield });
+    }
+
+    const hasVideo = dynamicSections.some(sec => sec.title.toLowerCase() === "video profil desa");
+    if (hasVideo) {
+      items.push({ id: findId("Video Profil Desa", "video-profil"), label: "Video Profil Desa", icon: Video });
+    }
+
+    return items;
   }, [dynamicSections]);
 
   // Menggabungkan section bawaan dan seksi dinamis dari database tanpa duplikat
