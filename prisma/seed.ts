@@ -324,7 +324,7 @@ async function main() {
 
   const collaboratorsData = [
     { name: "LPPM Universitas Katolik Widya Mandira", logoUrl: "/assets/images/collaborators/unwira.png", order: 1 },
-    { name: "Pemerintah Desa Nekmese", logoUrl: "/favicon.ico", order: 2 },
+    { name: "Pemerintah Desa Nekmese", logoUrl: "/assets/images/collaborators/kab-kupang.png", order: 2 },
     { name: "Pemerintah Kabupaten Kupang", logoUrl: "/assets/images/collaborators/kab-kupang.png", order: 3 },
     { name: "Pemerintah Provinsi NTT", logoUrl: "/assets/images/collaborators/bapperida.png", order: 4 },
   ];

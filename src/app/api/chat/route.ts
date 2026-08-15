@@ -95,10 +95,10 @@ function detectCategory(
 
 export async function POST(req: Request) {
   try {
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Groq API Key tidak dikonfigurasi di server." },
+        { error: "Gemini API Key tidak dikonfigurasi di server." },
         { status: 500 }
       );
     }
@@ -113,24 +113,6 @@ export async function POST(req: Request) {
 
     const now = Date.now();
 
-    const ipData = ipRequestCounts.get(ip);
-    if (ipData) {
-      if (now > ipData.resetTime) {
-        // Reset window
-        ipRequestCounts.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-      } else {
-        ipData.count += 1;
-        if (ipData.count > MAX_REQUESTS_PER_WINDOW) {
-          return NextResponse.json(
-            { error: "Terlalu banyak permintaan pesan (rate limit). Silakan coba lagi dalam 1 menit." },
-            { status: 429 }
-          );
-        }
-      }
-    } else {
-      ipRequestCounts.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    }
-
     const body = await req.json();
     const { pesanBaru, riwayatPesan } = body;
 
@@ -141,48 +123,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- LOGIKA SEMANTIC CACHE (START) ---
+    // --- LOGIKA SEMANTIC CACHE (BYPASS READ FOR REAL-TIME GEMINI ANSWERS) ---
     const normalizedQuestion = normalizeText(pesanBaru);
-
-    try {
-      // Cari cache aktif di database
-      const caches = await prisma.chatCache.findMany();
-      const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari
-      let bestMatch: { id: string; answer: string; similarity: number } | null = null;
-
-      for (const cache of caches) {
-        const isExpired = now - new Date(cache.updatedAt).getTime() > CACHE_TTL_MS;
-        if (isExpired) continue;
-
-        const sim = getTrigramCosineSimilarity(normalizedQuestion, cache.question);
-        if (sim > (bestMatch?.similarity || 0)) {
-          bestMatch = { id: cache.id, answer: cache.answer, similarity: sim };
-        }
-      }
-
-      // Gunakan threshold 0.65 untuk semantic cache hit (cukup aman untuk menghindari false positive tetapi fleksibel terhadap susunan kata/typo/sinonim)
-      if (bestMatch && bestMatch.similarity >= 0.65) {
-        console.log(`[Cache Hit] Similarity: ${bestMatch.similarity.toFixed(4)}, Q: "${pesanBaru}" (Matched with "${caches.find(c => c.id === bestMatch!.id)?.question}")`);
-
-        // Update hit count secara asinkron (tidak memblokir response)
-        prisma.chatCache
-          .update({
-            where: { id: bestMatch.id },
-            data: { useCount: { increment: 1 } },
-          })
-          .catch((err) => console.error("Gagal mengupdate useCount:", err));
-
-        return new Response(bestMatch.answer, {
-          headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-          },
-        });
-      }
-    } catch (cacheErr) {
-      // Jika terjadi error pada cache, log dan biarkan proses berlanjut ke Groq API secara langsung (fail-safe)
-      console.error("Error pada proses semantic cache:", cacheErr);
-    }
-    // --- LOGIKA SEMANTIC CACHE (END) ---
 
     // 1. Ambil data dari database untuk membangun konteks secara paralel/aman
     let profileData: VillageProfile | null = null;
@@ -278,10 +220,10 @@ export async function POST(req: Request) {
       console.error("Gagal mengambil data peraturan desa:", e);
     }
 
-    // Helper to truncate text to keep context token count low (under Groq free limits)
-    const limitLength = (text: string | null | undefined, max: number) => {
+    // No longer truncate text since Gemini has a very large context window
+    const limitLength = (text: string | null | undefined, _max?: number) => {
       if (!text) return "N/A";
-      return text.length > max ? text.substring(0, max) + "..." : text;
+      return text;
     };
 
     // Dapatkan tanggal hari ini dalam format bahasa Indonesia
@@ -387,39 +329,38 @@ PANDUAN AKURASI DATA & ANTI-HALUSINASI:
 2. Dilarang keras mengarang (berhalusinasi) informasi, data, angka, nama orang, nomor telepon, atau prosedur layanan jika tidak ada di dalam teks konteks di bawah.
 3. Jika informasi yang ditanyakan SAMA SEKALI TIDAK ADA di teks konteks, sampaikan dengan jujur dan sopan bahwa Anda tidak memiliki datanya, lalu arahkan untuk ke kantor desa.
    PENTING: Jika pengguna menanyakan data "terbaru" (misal: anggaran terbaru/2026) namun Anda hanya memiliki data tahun sebelumnya (misal: 2025), JANGAN gunakan kalimat penolakan atau minta maaf. Langsung saja berikan data tahun terbaru yang Anda miliki dengan percaya diri (contoh: "Total anggaran APBDes terbaru yang kami catat untuk tahun 2025 adalah...").
+4. ATURAN PENOLAKAN PERTANYAAN DI LUAR DESA (OUT-OF-SCOPE BLOCKING):
+   - Anda HANYA boleh menjawab pertanyaan yang berkaitan langsung dengan Desa Nekmese (profil desa, sejarah, visi misi, potensi, wisata, budaya, produk UMKM, pengumuman, berita, APBDes, dan peraturan desa).
+   - Jika pengguna menanyakan hal di luar topik Desa Nekmese (seperti topik matematika umum, pemrograman, resep masakan luar, bercandaan umum, artis internasional, atau informasi umum negara lain yang tidak ada sangkut pautnya dengan Desa Nekmese), Anda WAJIB menolak menjawab dengan sopan, ramah, dan halus menggunakan logat Kupang yang sopan.
+   - Contoh tanggapan penolakan: "Mohon maaf Kaka, beta Nina hanya bisa membantu menjawab pertanyaan yang berhubungan dengan Desa Nekmese saja o. Ada yang ingin Kaka tanyakan tentang desa katong?"
 
 Tugas utama Anda:
-1. Jawab pertanyaan pengguna mengenai profil desa, sejarah, visi misi, potensi, wisata, kebudayaan, produk UMKM lokal, berita, pengumuman, peraturan desa (Perdes) atau Surat Keputusan (SK) Kades, dan transparansi anggaran (APBDes) berdasarkan data resmi desa yang diberikan di bawah ini.
-2. Gunakan bahasa Indonesia yang sopan, ramah, dan mudah dipahami dengan sentuhan logat Kupang halus sesuai panduan bahasa di atas.
-3. Jawablah secara akurat sesuai dengan informasi yang ada dalam Konteks Informasi Desa. Khusus untuk pertanyaan "Total Anggaran" atau "APBDes", sebutkan kedua metrik secara rinci (Total Anggaran Pendapatan dan Total Anggaran Belanja).
-4. Jika ada pertanyaan mengenai informasi yang tidak tercantum dalam Konteks Informasi Desa, berikan penolakan sopan sesuai aturan nomor 3 di atas. Jangan mengarang informasi.
-5. PENTING (KONSISTENSI RIWAYAT): Jika di riwayat percakapan sebelumnya Anda pernah menjawab "tidak memiliki data", namun pada Konteks di bawah ternyata datanya ADA (misal data anggaran tahun lalu), Anda WAJIB mengabaikan jawaban lama Anda dan langsung berikan data yang ada di Konteks tanpa beralasan.
-6. Berikan jawaban terstruktur dengan list atau poin-poin jika penjelasannya panjang agar mudah dibaca oleh warga.
-7. SELALU sertakan tautan/URL menggunakan format Markdown standard \`[Judul Teks](URL-nya)\` di dalam kalimat Anda jika konteks memberikan informasi URL untuk item tersebut (seperti wisata, budaya, produk, berita, pengumuman, atau berkas peraturan).
-   - PENTING: Gunakan EXACT URL (tautan lengkap) yang tertulis di keterangan "URL:" pada teks konteks.
-   - Jangan memotong atau menyingkat URL tersebut.
-   - Contoh format yang benar: \`Kaka bisa melihat [Tenun Motif Burung](${origin}/umkm/tenun-motif-burung)\`.
+1. Jawab pertanyaan pengguna mengenai Desa Nekmese berdasarkan data resmi desa yang diberikan di bawah.
+2. Gunakan Bahasa Indonesia yang sopan, hangat, dan ramah dengan sentuhan logat Kupang yang halus sesuai panduan di atas.
+3. Jawablah secara akurat dan terstruktur (gunakan daftar poin jika penjelasannya panjang).
+4. Jika data tidak ada di dalam Konteks, katakan bahwa Anda tidak memiliki datanya secara sopan, dan sarankan untuk menghubungi kantor desa.
+5. Jika ada link/URL di dalam konteks, cantumkan menggunakan format standard markdown, contoh: [Nama Produk](${origin}/umkm/slug).
 
 Berikut adalah informasi resmi terbaru dari database website Desa Nekmese untuk menjawab pertanyaan:
 ---
 ${contextText}
 ---`;
 
-    // 4. Format pesan untuk dikirim ke API Groq (Batasi riwayat ke 3 pesan terakhir dan potong panjangnya agar menghemat token)
+    // 4. Format pesan untuk dikirim ke API Gemini (Kirim hingga 10 pesan riwayat terakhir tanpa pemotongan)
     const mappedMessages = [
       { role: "system", content: systemPrompt },
       ...(Array.isArray(riwayatPesan)
-        ? riwayatPesan.slice(-3).map((m: { role: string; content: string }) => ({
+        ? riwayatPesan.slice(-10).map((m: { role: string; content: string }) => ({
           role: m.role === "user" ? "user" : "assistant",
-          content: limitLength(m.content || "", 350),
+          content: m.content || "",
         }))
         : []),
       { role: "user", content: pesanBaru },
     ];
 
-    // 5. Panggil API Groq dengan mode streaming
-    const modelToUse = "llama-3.1-8b-instant";
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    // 5. Panggil API Gemini (OpenAI-compatible) dengan mode streaming
+    const modelToUse = "gemini-3.5-flash";
+    const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -430,16 +371,16 @@ ${contextText}
         messages: mappedMessages,
         temperature: 0.0, // Set to 0.0 to prevent creative hallucinations and guarantee strict factual outputs based only on database context
         max_tokens: 1500,
-        stream: true, // Aktifkan streaming dari Groq
+        stream: true, // Aktifkan streaming dari Gemini
       }),
     });
 
-    if (!groqResponse.ok) {
-      const errorData = await groqResponse.json().catch(() => ({}));
-      const status = groqResponse.status;
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json().catch(() => ({}));
+      const status = geminiResponse.status;
 
       // Log detail kesalahan teknis hanya di server untuk keamanan informasi
-      console.error(`Groq API Error (Status ${status}):`, errorData);
+      console.error(`Gemini API Error (Status ${status}):`, errorData);
 
       // Selalu kembalikan pesan ramah pengguna yang bersih tanpa mengekspos detail teknis / kredensial API
       return NextResponse.json(
@@ -451,7 +392,7 @@ ${contextText}
     // 6. Buat readable stream untuk meneruskan potongan jawaban ke klien secara real-time
     const responseStream = new ReadableStream({
       async start(controller) {
-        const reader = groqResponse.body?.getReader();
+        const reader = geminiResponse.body?.getReader();
         if (!reader) {
           controller.close();
           return;
@@ -462,22 +403,21 @@ ${contextText}
         let fullAnswer = "";
 
         try {
-          while (true) {
+          streamLoop: while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
             buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || ""; // Simpan potongan baris terakhir yang tidak lengkap di buffer
+            
+            let boundary = buffer.indexOf("\n");
+            while (boundary !== -1) {
+              const line = buffer.slice(0, boundary).trim();
+              buffer = buffer.slice(boundary + 1);
 
-            for (const line of lines) {
-              const cleaned = line.trim();
-              if (!cleaned) continue;
-
-              if (cleaned.startsWith("data: ")) {
-                const dataStr = cleaned.slice(6);
+              if (line.startsWith("data:")) {
+                const dataStr = line.slice(line.indexOf("data:") + 5).trim();
                 if (dataStr === "[DONE]") {
-                  break;
+                  break streamLoop;
                 }
 
                 try {
@@ -488,9 +428,10 @@ ${contextText}
                     controller.enqueue(new TextEncoder().encode(content));
                   }
                 } catch (jsonErr) {
-                  // Abaikan kesalahan parse JSON pada potongan data yang belum lengkap
+                  console.error("JSON Parse Error:", jsonErr, "dataStr:", dataStr);
                 }
               }
+              boundary = buffer.indexOf("\n");
             }
           }
 
@@ -516,11 +457,11 @@ ${contextText}
                     useCount: { increment: 1 },
                   },
                 })
-                .catch((err) => console.error("Gagal menyimpan ke cache:", err));
+                  .catch((err) => console.error("Gagal menyimpan ke cache:", err));
             }
           }
         } catch (streamErr) {
-          console.error("Error saat streaming data dari Groq:", streamErr);
+          console.error("Error saat streaming data dari Gemini:", streamErr);
         } finally {
           controller.close();
         }

@@ -11,94 +11,147 @@ interface Message {
   isError?: boolean;
 }
 
+// Helper function to parse raw URLs in plain text segments
+const parseRawUrls = (plainText: string, keyPrefix: string): React.ReactNode => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = plainText.split(urlRegex);
+  
+  return (
+    <span key={keyPrefix}>
+      {parts.map((part, i) => {
+        if (part.match(urlRegex)) {
+          let cleanUrl = part;
+          const trailingPunctuation = /[.,)]+$/;
+          const hasTrailing = cleanUrl.match(trailingPunctuation);
+          let suffix = "";
+          if (hasTrailing) {
+            suffix = hasTrailing[0];
+            cleanUrl = cleanUrl.replace(trailingPunctuation, "");
+          }
+          return (
+            <span key={`rawurl-${i}`}>
+              <a
+                href={cleanUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-600 hover:text-blue-800 font-semibold break-all inline"
+              >
+                {cleanUrl}
+              </a>
+              {suffix}
+            </span>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
+};
+
 // Function to format links and markdown bold syntax (**text**) into clickable links and strong tags safely.
 const formatMessage = (text: string) => {
   if (!text) return null;
 
-  // Regex to match markdown links: [text](url) with optional spaces between ] and (
-  const markdownLinkRegex = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g;
-  
-  // First, parse markdown links
-  const parts = text.split(markdownLinkRegex);
-  
-  const formattedElements: React.ReactNode[] = [];
-  
-  for (let i = 0; i < parts.length; i++) {
-    // Every 3rd element starting from 1 is the link text, and the next is the URL
-    if (i % 3 === 1) {
-      const linkText = parts[i];
-      const linkUrl = parts[i + 1];
-      formattedElements.push(
-        <a
-          key={`md-link-${i}`}
-          href={linkUrl}
-          target={linkUrl.startsWith("/") ? "_self" : "_blank"}
-          rel={linkUrl.startsWith("/") ? "" : "noopener noreferrer"}
-          className="underline text-blue-600 hover:text-blue-800 font-semibold inline"
-        >
-          {linkText}
-        </a>
-      );
-      i++; // Skip the url part in the loop
-      continue;
-    }
-
-    // It's a text node, parse raw URLs and bold text
-    const textNode = parts[i];
-    if (!textNode) continue;
-
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const rawUrlParts = textNode.split(urlRegex);
-
-    const subElements = rawUrlParts.map((part, j) => {
-      if (part.match(urlRegex)) {
-        let cleanUrl = part;
-        const trailingPunctuation = /[.,)]+$/;
-        const hasTrailing = cleanUrl.match(trailingPunctuation);
-        let suffix = "";
-        if (hasTrailing) {
-          suffix = hasTrailing[0];
-          cleanUrl = cleanUrl.replace(trailingPunctuation, "");
-        }
-        return (
-          <span key={`raw-url-${i}-${j}`}>
-            <a
-              href={cleanUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline text-blue-600 hover:text-blue-800 font-semibold break-all inline"
-            >
-              {cleanUrl}
-            </a>
-            {suffix}
-          </span>
-        );
-      }
-
-      // Parse bold markdown **text**
-      const boldRegex = /(\*\*.*?\*\*)/g;
-      const boldParts = part.split(boldRegex);
-
-      return (
-        <span key={`bold-part-${i}-${j}`}>
-          {boldParts.map((subPart, k) => {
-            if (subPart.startsWith("**") && subPart.endsWith("**")) {
-              return (
-                <strong key={`strong-${i}-${j}-${k}`} className="font-extrabold text-gray-900">
-                  {subPart.slice(2, -2)}
-                </strong>
-              );
-            }
-            return subPart;
-          })}
-        </span>
-      );
-    });
-
-    formattedElements.push(<span key={`text-node-${i}`}>{subElements}</span>);
+  interface Token {
+    type: "link" | "bold";
+    index: number;
+    length: number;
+    text: string;
+    linkTitle?: string;
+    linkUrl?: string;
+    boldText?: string;
   }
 
-  return formattedElements;
+  const tokens: Token[] = [];
+  
+  // 1. Find all markdown links [title](url)
+  const linkRegex = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g;
+  let match;
+  while ((match = linkRegex.exec(text)) !== null) {
+    tokens.push({
+      type: "link",
+      index: match.index,
+      length: match[0].length,
+      text: match[0],
+      linkTitle: match[1],
+      linkUrl: match[2],
+    });
+  }
+
+  // 2. Find all bold text **text**
+  const boldRegex = /\*\*([^*]+)\*\*/g;
+  while ((match = boldRegex.exec(text)) !== null) {
+    const startIndex = match.index;
+    const endIndex = match.index + match[0].length;
+    
+    // Check if this bold matches overlaps with any link token
+    const overlaps = tokens.some(t => {
+      const tStart = t.index;
+      const tEnd = t.index + t.length;
+      return (startIndex >= tStart && startIndex < tEnd) || (endIndex > tStart && endIndex <= tEnd);
+    });
+
+    if (!overlaps) {
+      tokens.push({
+        type: "bold",
+        index: match.index,
+        length: match[0].length,
+        text: match[0],
+        boldText: match[1],
+      });
+    }
+  }
+
+  // Sort tokens by index ascending
+  tokens.sort((a, b) => a.index - b.index);
+
+  // Build the React elements
+  const elements: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    
+    // Add text before this token
+    if (token.index > lastIndex) {
+      const plainText = text.slice(lastIndex, token.index);
+      elements.push(parseRawUrls(plainText, `text-${lastIndex}`));
+    }
+
+    // Add the token element
+    if (token.type === "link") {
+      let title = token.linkTitle || "";
+      if (title.startsWith("**") && title.endsWith("**")) {
+        title = title.slice(2, -2);
+      }
+      elements.push(
+        <a
+          key={`link-${token.index}`}
+          href={token.linkUrl}
+          target={token.linkUrl?.startsWith("/") ? "_self" : "_blank"}
+          rel={token.linkUrl?.startsWith("/") ? "" : "noopener noreferrer"}
+          className="underline text-blue-600 hover:text-blue-800 font-semibold inline"
+        >
+          {title}
+        </a>
+      );
+    } else if (token.type === "bold") {
+      elements.push(
+        <strong key={`bold-${token.index}`} className="font-extrabold text-gray-900">
+          {token.boldText}
+        </strong>
+      );
+    }
+
+    lastIndex = token.index + token.length;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    elements.push(parseRawUrls(text.slice(lastIndex), `text-${lastIndex}`));
+  }
+
+  return elements;
 };
 
 export default function Chatbot() {
@@ -176,9 +229,9 @@ export default function Chatbot() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         if (response.status === 429) {
-          throw new Error("Sistem sedang sibuk karena banyak antrean. Silakan coba 1 menit lagi.");
+          throw new Error("Mohon maaf Kaka/Bapa/Mama, saat ini antrean pelayanan sedang padat o. Silakan coba kirim pesan beberapa saat lagi, Beta Nina siap melayani kembali.");
         } else {
-          throw new Error(errorData.error || "Terjadi kesalahan saat menghubungi asisten AI.");
+          throw new Error(errorData.error || "Mohon maaf Kaka, terjadi kendala koneksi dengan asisten AI. Silakan coba sesaat lagi o.");
         }
       }
 
