@@ -123,8 +123,48 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- LOGIKA SEMANTIC CACHE (BYPASS READ FOR REAL-TIME GEMINI ANSWERS) ---
+    // --- LOGIKA SEMANTIC CACHE (START) ---
     const normalizedQuestion = normalizeText(pesanBaru);
+
+    try {
+      // Cari cache aktif di database
+      const caches = await prisma.chatCache.findMany();
+      const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari
+      let bestMatch: { id: string; answer: string; similarity: number } | null = null;
+
+      for (const cache of caches) {
+        const isExpired = now - new Date(cache.updatedAt).getTime() > CACHE_TTL_MS;
+        if (isExpired) continue;
+
+        const sim = getTrigramCosineSimilarity(normalizedQuestion, cache.question);
+        if (sim > (bestMatch?.similarity || 0)) {
+          bestMatch = { id: cache.id, answer: cache.answer, similarity: sim };
+        }
+      }
+
+      // Gunakan threshold 0.65 untuk semantic cache hit (cukup aman untuk menghindari false positive tetapi fleksibel terhadap susunan kata/typo/sinonim)
+      if (bestMatch && bestMatch.similarity >= 0.65) {
+        console.log(`[Cache Hit] Similarity: ${bestMatch.similarity.toFixed(4)}, Q: "${pesanBaru}" (Matched with "${caches.find(c => c.id === bestMatch!.id)?.question}")`);
+
+        // Update hit count secara asinkron (tidak memblokir response)
+        prisma.chatCache
+          .update({
+            where: { id: bestMatch.id },
+            data: { useCount: { increment: 1 } },
+          })
+          .catch((err) => console.error("Gagal mengupdate useCount:", err));
+
+        return new Response(bestMatch.answer, {
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        });
+      }
+    } catch (cacheErr) {
+      // Jika terjadi error pada cache, log dan biarkan proses berlanjut secara langsung (fail-safe)
+      console.error("Error pada proses semantic cache:", cacheErr);
+    }
+    // --- LOGIKA SEMANTIC CACHE (END) ---
 
     // 1. Ambil data dari database untuk membangun konteks secara paralel/aman
     let profileData: VillageProfile | null = null;
